@@ -238,10 +238,35 @@ def handle_request_ft():
 
 
 
+# ------- Projections ------- #
+
+@app.route('/proj')
+def proj_site():
+	return render_template("index_projection.html")
+
+@app.route('/proj_req')
+def proj_site_req():
+
+	if request.method == 'GET':
+
+		proj_samples = [38, 80, 99, 184, 189, 209, 222, 224, 340, 378, 598, 684, 824, 838, 970, 1029, 1098, 1101, 1247, 1305, 1341,
+		   1342, 1369, 1489, 1502, 1556, 1565, 1665, 1697, 1759, 1846, 1884, 1948, 2046, 2171, 2229, 2265, 2291, 2365,
+		   2386, 2434, 2533, 2566, 2573, 2583, 2607, 2762, 2895, 2914, 2925, 2933, 2951, 3034, 3098, 3103, 3104, 3110]
+
+		proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
+
+		ret_string = json.dumps(proj_arr)
+
+		return ret_string
+
+# show_projection("static/data/pred_data_x.csv","static/data/final_data_file.csv", bins_centred, X_pos_array, trans_dict)
+
+
+
 # ------- Run WebApp ------- #
 
 if __name__ == '__main__':
 
 	np.random.seed(12345)
 
-	app.run(port=5005, host="0.0.0.0", debug=False)
+	app.run(port=5005, host="0.0.0.0", debug=True)
