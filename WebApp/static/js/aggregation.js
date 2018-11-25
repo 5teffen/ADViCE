@@ -26,8 +26,8 @@ function draw_aggregation_graph(allData,place) {
             bottom: 140, 
             left: 70
         },
-        width = 350 - margin.right - margin.left,
-        height = 350 - margin.top - margin.bottom;
+        width = 1000 - margin.right - margin.left,
+        height = 500 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
@@ -151,6 +151,7 @@ function draw_aggregation_graph(allData,place) {
         for(n=0 ; n < data.length; n++){
             var d = data[n];
 
+            if (d.scl_val != d.scl_change) {
             x1 = xScale(d.name) + xScale.bandwidth()*0.35
             x2 = xScale(d.name) + xScale.bandwidth()*0.65
             x3 = xScale(d.name) + xScale.bandwidth()*0.5
@@ -160,9 +161,9 @@ function draw_aggregation_graph(allData,place) {
 
             one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
                 +"L"+x1+","+y1;
-
-
             full_string += one_tri
+
+            }
         }
    		return full_string
    	}
@@ -175,7 +176,7 @@ function draw_aggregation_graph(allData,place) {
     .enter()
     .append("path")
     .attr('d',function(d){return draw_triangle(d);})
-    .attr("opacity",0.5)
+    .attr("opacity",0.2)
     .attr("fill",function(d){
     	if (d[0].dec == 0) {
 	        return bad_col;}
