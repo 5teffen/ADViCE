@@ -41,9 +41,10 @@
           alert('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
-        
+        // var id_list = elem.id_list;
+        var id_list = [18, 44, 66, 123, 195, 312, 352, 408, 422, 441, 480, 488, 517, 521, 539, 586, 625, 632, 654, 660, 738, 765, 794, 934, 941, 1180, 1182, 1296, 1320, 1437, 1457, 1479, 1581, 1595, 1603, 1660, 1702, 1723, 1734, 1802, 1852, 1880, 1926, 1943, 1944, 2055, 2071, 2075, 2084, 2116, 2134, 2185, 2255, 2259, 2279, 2283, 2302, 2310, 2372, 2388, 2403, 2407, 2456, 2500, 2501, 2639, 2657, 2780, 2785, 2807, 2836, 2888, 2971, 3036, 3082, 3107];
         httpRequest.onreadystatechange = alertGlobContents;
-        httpRequest.open('GET', 'proj_req');
+        httpRequest.open('GET', 'proj_req?id-list='+id_list);
         httpRequest.send();
         return false;
       }
@@ -60,8 +61,6 @@
             
             draw_aggregation_graph(allData,"body");
 
-
-            
           }
           else {
               alert('HttpRequest Error');
