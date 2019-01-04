@@ -242,20 +242,25 @@ def handle_request_ft():
 
 @app.route('/proj')
 def proj_site():
-	return render_template("index_projection.html")
+	return render_template("projection_file.html")
 
 @app.route('/proj_req')
 def proj_site_req():
 
 	if request.method == 'GET':
 
-		proj_samples = [18, 44, 66, 123, 195, 312, 352, 408, 422, 441, 480, 488, 517, 521, 539, 586, 625, 632, 654, 660, 738, 765, 794, 934, 941, 1180, 1182, 1296, 1320, 1437, 1457, 1479, 1581, 1595, 1603, 1660, 1702, 1723, 1734, 1802, 1852, 1880, 1926, 1943, 1944, 2055, 2071, 2075, 2084, 2116, 2134, 2185, 2255, 2259, 2279, 2283, 2302, 2310, 2372, 2388, 2403, 2407, 2456, 2500, 2501, 2639, 2657, 2780, 2785, 2807, 2836, 2888, 2971, 3036, 3082, 3107]
+		proj_samples = request.args.get('id-list').split(',')
 
-		proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
+		if len(proj_samples)>1:
+			
+			sample_cap = min(len(proj_samples), 30)
+			proj_samples = [int(x) for x in proj_samples][:sample_cap]
 
-		ret_string = json.dumps(proj_arr)
+			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
 
-		return ret_string
+			ret_string = json.dumps(proj_arr)
+
+			return ret_string
 
 # show_projection("static/data/pred_data_x.csv","static/data/final_data_file.csv", bins_centred, X_pos_array, trans_dict)
 
