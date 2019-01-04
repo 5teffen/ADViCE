@@ -1,0 +1,102 @@
+.bk-root{
+  display: inline-block;
+  width: 700px;
+}
+
+#aggregation-graph {
+  display: ;
+  color: red;
+  /*height: 100%;*/
+}
+
+
+
+
+
+
+.left-nav {
+  height: 163.2px;
+  padding-top: 20px;
+}
+
+.left-nav a {
+  cursor: pointer;
+}
+
+.site-header {
+  height: 40.4px;
+  margin: auto;
+  padding-top: 5px;
+}
+
+.site-header h1 {
+  color: black;
+  display: inline-block;
+  font-size: 1.4em;
+  font-weight: 100;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  text-align: center;
+  padding-top: 10px;
+}
+
+
+/*-------------*/
+/* Search form */
+/*-------------*/
+
+.input-group {
+  width: 50%;
+  padding-top: 20px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.form-control {
+  font-size: 0.9em;
+  margin: 0;
+  width: 90%;
+  text-align: center;
+  background-color: white;
+  border: 1;
+  border-radius: 8px;
+  color: black;
+  border-color: #13895F;
+}
+
+#search-bar:focus {
+  outline-width: 0;
+}
+
+.left-nav ul {
+  list-style-type: none;
+  padding: 0px;
+  margin: 0px;
+}
+
+.left-nav li {
+  font-weight: 200;
+  height: 81.6px;
+  /* background: rgba(0,0,0,.15); */
+  
+}
+
+.left-nav a.active,
+.left-nav a:hover {
+  max-width: 250px;
+  /*background: lightgray;*/
+  background: #b1c4d1;
+  border-left: 8px solid #13895F;
+}
+
+.left-nav a {
+  /* background: #18191b; */
+  /*background: rgba(0,0,0,.15);*/
+  /*background-color: rgba(135, 149, 158, 0.1);*/
+  background: #727f87;
+  color: black;
+  display: block;
+  padding: 30px;
+  /*transition: all 0.1s;*/
+}

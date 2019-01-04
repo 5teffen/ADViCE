@@ -595,9 +595,6 @@ def prep_for_D3_global(pre_proc_file,all_data_file,samples,bins_centred,position
 
 	return final_data
 
-
-
-
 def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,positions,transform):
 
 	names = ["External Risk Estimate", 

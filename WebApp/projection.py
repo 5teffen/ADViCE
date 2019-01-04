@@ -10,7 +10,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 
-def show_projection():
+def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transform):
 
     filename = 'static/data/changes_PCA.csv'
     fp = open(filename, 'r', encoding='utf-8')
@@ -86,6 +86,17 @@ def show_projection():
         p1.toolbar.active_scroll = wheel_zoom
         p1.toolbar.active_drag = lasso_select
 
+        s1.callback = CustomJS( code="""
+
+        console.log(cb_obj);
+
+        var inds = cb_obj.selected['1d'].indices;
+
+        my_glob_inds = inds;
+
+         """)
+
+
 
         grid = gridplot([[p1, None]], merge_tools=False)
 
@@ -93,7 +104,10 @@ def show_projection():
 
         html = file_html(grid, CDN, "my_plot")
 
-        fp = open("projection_file.html", 'w')
+        fp = open("projection_file_raw.html", 'w')
         fp.write(html)
         fp.close()
 
+
+
+show_projection()
