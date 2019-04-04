@@ -23,16 +23,144 @@
     <script type="text/javascript" src="static/js/mini_graph.js"></script>
     <script type="text/javascript" src="static/js/percentage_bar.js"></script>
     <script type="text/javascript" src="static/js/squares.js"></script>
-    <script type="text/javascript" src="static/js/aggregation.js"></script>
   </head>
 
   <body>
-    
-    <p>PROJECTION</p>
+    <div class="main">
+      <div class="left-sidebar">
+        <header class="site-header">
+          <h1><a href="intro">FICO CHALLENGE</a></h1>
+        </header>
+        <nav class="left-nav">
+          <ul>
+            <li><a href="global"> GLOBAL EXPLANATION </a></li>
+            <li><a href="individual"> LOCAL EXPLANATIONS </a></li>
+            <!-- <li><a href="projection"> PROJECTION </a></li> -->
+          </ul>
+        </nav>
+
+        <nav class="id-list">
+        </nav>
+      </div>
+      
+      <div class="right-side-global" id="demo">
+
+        <img src="static/images/global_ins.png" id="glob-instruction" onclick="begin_glob()">
+
+        <div id="left-panel">
+          <div class="btn-group">
+            <!-- <button class="algo-button" id="key-button" onclick="buttonRequest(this)">Key Features</button> -->
+            <!-- <button class="algo-button" id="chg-button" onclick="buttonRequest(this)">Changes</button> -->
+          </div>
+        </div>
+
+        <div id="middle-panel-proj">
+          <div id="bokeh-div">
+            bokeh
+          </div>
+          <div id="filter-div">
+            filters
+          </div>
+        </div>
+
+        <div id="right-panel-proj">
+          <div id="distribution-div">
+            distribution
+          </div>
+          <div id="aggregation-div">
+            aggregation
+          </div>
+        </div>
+          
+
 
     <script>
     
+      var ft_names = ["External Risk Estimate", 
+                      "Months Since Oldest Trade Open",
+                      "Months Since Last Trade Open",
+                      "Average Months in File",
+                      "Satisfactory Trades",
+                      "Trades 60+ Ever",
+                      "Trades 90+ Ever",
+                      "% Trades Never Delq.",
+                      "Months Since Last Delq.",
+                      "Max Delq. Last 12M",
+                      "Max Delq. Ever",
+                      "Total Trades",
+                      "Trades Open Last 12M",
+                      "% Installment Trades",
+                      "Months Since Most Recent Inq",
+                      "Inq Last 6 Months",
+                      "Inq Last 6 Months exl. 7 days",
+                      "Revolving Burden",
+                      "Installment Burden",
+                      "Revolving Trades w/ Balance:",
+                      "Installment Trades w/ Balance",
+                      "Bank Trades w/ High Utilization Ratio",
+                      "% Trades w/ Balance"]
+
+      var selected_fts = [];
+
+      var dark_shade = "rgb(177, 196, 209)";
+      var light_shade = "white";
+
+      var txtFile;
+
+      // Get preprocessed csv file
+      function fetch_csv(){
+        txtFile = new XMLHttpRequest();
+        txtFile.onreadystatechange = initContents;
+        txtFile.open("GET", "static/data/pred_data_x.csv");
+        txtFile.send()
+      }
+      
+      // Parse csv
+      var pre_array = [];
+      function initContents() {
+        if (txtFile.readyState === XMLHttpRequest.DONE) {
+          if (txtFile.status === 200) {
+            var rows = txtFile.responseText.split("\n");
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split(",");
+              pre_array.push(cells);
+            }
+          }
+        }
+      }
+
       var httpRequest;
+
+      // Middle panel graphs
+      function makeRequest3(features, algo) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+
+        // MAKE REQUEST TO GET ELEMENTS FOR MIDDLE PANEL
+
+        
+        req_arr = [];
+
+        if (features[0] == -1){
+          req_arr.push(-1);
+        }
+        else {
+          for (i=0; i<features.length; i++) {
+            req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            features[i].style.fontSize = "15px";
+            features[i].style.fontWeight = "bold"; 
+          }
+        }
+
+        
+        httpRequest.onreadystatechange = alertContents3;
+        httpRequest.open('GET', 'first_panel?features=['+req_arr+']&algorithm='+algo);
+        httpRequest.send();
+        return false;
+      }
 
       // Left panel global
       function makeGlobRequest() {
@@ -41,12 +169,69 @@
           alert('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
-        // var id_list = elem.id_list;
-        var id_list = [18, 44, 66, 123, 195, 312, 352, 408, 422, 441, 480, 488, 517, 521, 539, 586, 625, 632, 654, 660, 738, 765, 794, 934, 941, 1180, 1182, 1296, 1320, 1437, 1457, 1479, 1581, 1595, 1603, 1660, 1702, 1723, 1734, 1802, 1852, 1880, 1926, 1943, 1944, 2055, 2071, 2075, 2084, 2116, 2134, 2185, 2255, 2259, 2279, 2283, 2302, 2310, 2372, 2388, 2403, 2407, 2456, 2500, 2501, 2639, 2657, 2780, 2785, 2807, 2836, 2888, 2971, 3036, 3082, 3107];
+        
         httpRequest.onreadystatechange = alertGlobContents;
-        httpRequest.open('GET', 'proj_req?id-list='+id_list);
+        httpRequest.open('GET', 'glob_req');
         httpRequest.send();
         return false;
+      }
+
+      // Style buttons and send request
+      function buttonRequest(elem) {
+
+        if (elem.innerHTML == "Key Features") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('chg-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('key-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        resetFeatures();
+        makeGlobRequest();
+      }
+      
+      // Middle panel graphs
+      function alertContents3() {
+
+        if (httpRequest.readyState === XMLHttpRequest.OPENED){
+          document.getElementById("middle-panel-proj").style.display = "inline-block";
+          // document.getElementById("middle-panel-proj").innerHTML = "";
+          // document.getElementById("right-panel-proj").innerHTML = "";
+          // add_loader(document.getElementById("middle-panel-proj"));        
+        }
+
+        else if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+
+            var resp_arr = httpRequest.responseText;
+            console.log("HEREEE");
+            console.log(resp_arr);
+
+            // Need to check condition properly
+            if (resp_arr == ""){
+              console.log("HEREEE");
+              // document.getElementById("middle-panel-proj").innerHTML = "";
+              // document.getElementById("right-panel-proj").innerHTML = "";
+            }
+            else{
+
+              console.log("HEREEE");
+              var middleData = JSON.parse(resp_arr);              
+
+              document.getElementById("middle-panel-proj").style.display = "inline-block";
+              document.getElementById("bokeh-div").innerHTML = "inline-block";
+
+            }
+
+          }
+          else {
+              alert('HttpRequest Error')
+          }
+        }
       }
 
 
@@ -57,9 +242,46 @@
             //Do stuff with the response
             
             var resp_arr = httpRequest.responseText;
-            var allData = JSON.parse(resp_arr);
-            
-            draw_aggregation_graph(allData,"body");
+            var totalData = JSON.parse(resp_arr);
+            var monot_arr = [1,1,1,1,1,-1,-1,1,1,1,1,0,-1,0,1,-1,-1,-1,-1,0,0,-1,0];
+
+            var barData = totalData[2];
+            var keySort = totalData[0];
+            var chgSort = totalData[1];
+
+            document.getElementById("bar-div-header").innerHTML = '';
+            // document.getElementById("middle-panel-proj").innerHTML = "";
+            // document.getElementById("right-panel-proj").innerHTML = "";
+
+            if (document.getElementById("chg-button").style.backgroundColor == dark_shade){
+              draw_occurance_text("chg");
+              for (i=0; i<23; i++){
+                document.getElementById("ft-div-" + i.toString()).innerHTML = '';
+                document.getElementById("monot-" + i.toString()).innerHTML = '';
+                draw_occurance_bar(false,barData[chgSort[i]][2],barData[chgSort[i]][3],i);
+                draw_dir(monot_arr[chgSort[i]], i);
+                document.getElementById("bar-div-header").style.marginRight = "5px";
+                document.getElementById("feat-" + i.toString()).innerHTML = ft_names[chgSort[i]];
+                document.getElementById("feat-" + i.toString()).onclick = function () {flip_feature(this);};
+                document.getElementById("feat-" + i.toString()).onmouseover = function(){hoverStyleEnter(this);};
+                document.getElementById("feat-" + i.toString()).onmouseleave = function(){hoverStyleLeave(this);};
+              }
+            }
+            else{
+              draw_occurance_text("key");
+              for (i=0; i<23; i++){
+                document.getElementById("ft-div-" + i.toString()).innerHTML = '';
+                document.getElementById("monot-" + i.toString()).innerHTML = '';
+                draw_occurance_bar(true,barData[keySort[i]][0],barData[keySort[i]][1],i);
+                draw_dir(monot_arr[keySort[i]], i);
+                document.getElementById("bar-div-header").style.marginRight = "16px";
+                document.getElementById("feat-" + i.toString()).innerHTML = ft_names[keySort[i]];
+                document.getElementById("feat-" + i.toString()).onclick = function () { flip_feature(this);};
+                document.getElementById("feat-" + i.toString()).onmouseover = function(){hoverStyleEnter(this);};
+                document.getElementById("feat-" + i.toString()).onmouseleave = function(){hoverStyleLeave(this);};
+              }
+            } 
+
 
           }
           else {
@@ -68,7 +290,193 @@
         }
       }
 
-      makeGlobRequest();
+      // Hovering over left panel elements
+      function hoverStyleEnter(elem){
+        if (elem.style.fontWeight != "bold"){
+          elem.style.fontWeight = "bold";
+          elem.style.fontSize = "13px";
+        }
+      }
+      function hoverStyleLeave(elem){
+        if (selected_fts.includes(elem)){
+        }
+        else{
+          elem.style.fontWeight = "normal";
+          elem.style.fontSize = "12px";
+        }
+      }
+
+      // Initialize contents
+      function prep_content() {
+
+        document.getElementById("key-button").style.backgroundColor = dark_shade;
+        document.getElementById("chg-button").style.backgroundColor = light_shade;
+        
+      }
+
+      // Add loading animation
+      function add_loader(elem) {
+        elem.innerHTML="";
+        var load_wrap = document.createElement("div");
+        load_wrap.className = "loader_wrap";
+        var loader = document.createElement("div");
+        loader.className = "lds-dual-ring";
+        load_wrap.append(loader);
+        elem.append(load_wrap);
+      }
+
+      // Initialize feature list for global
+      function ft_list() {
+        var features = 23;
+
+        var ft_table = document.createElement("table");
+        ft_table.id = "feature-table1";
+
+        // Header
+
+        var tr = document.createElement("tr");
+        var td = document.createElement("td");
+        var ft_div = document.createElement("div");
+        var bar_div = document.createElement("div");
+        var monot = document.createElement("div");
+
+        monot.innerHTML = "Monot.";
+        monot.className = "monot-div";
+
+        ft_div.className = "ft-div-header";
+        td.id = "ft-header";
+
+        bar_div.className = "bar-div";
+        bar_div.id = "bar-div-header";
+
+        var link = document.createElement("a");
+
+        link.innerHTML = "Feature Name";
+        link.style.maxWidth = "125px"; 
+        link.id = "feat-header";
+
+        ft_div.append(link);
+        td.append(monot);
+        td.append(ft_div);
+        td.append(bar_div);
+        tr.append(td);
+        ft_table.append(tr);
+
+        for (i = 0; i < features; i++) {
+          var tr = document.createElement("tr");
+          var td = document.createElement("td");
+          var ft_div = document.createElement("div");
+          var bar_div = document.createElement("div");
+          var monot = document.createElement("div");
+
+          monot.className = "monot-div";
+          monot.id = "monot-" + i.toString();
+
+          ft_div.className = "ft-div";
+
+          bar_div.className = "bar-div";
+          bar_div.id = "ft-div-" + i.toString();
+
+          var loc_i = i;
+
+          var link = document.createElement("a");
+
+          link.style.maxWidth = "125px"; 
+          link.id = "feat-" + i.toString();
+
+
+          ft_div.append(link);
+          td.append(monot);
+          td.append(ft_div);
+          td.append(bar_div);
+          tr.append(td);
+          ft_table.append(tr);
+        }
+
+        document.getElementById("left-panel").append(ft_table);
+
+        var reset = document.createElement("button");
+        reset.innerHTML = "Reset";
+        reset.id = "reset-button";
+        reset.onclick = function(){ resetFeatures(); };
+        document.getElementById("left-panel").append(reset);
+      }
+
+      // Reset button
+      function resetFeatures() {
+
+        selected_fts = [-1];
+        var curr_alg = "True";
+
+        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+          curr_alg = "False";
+        }
+        
+        for (i=0; i<23; i++){
+          document.getElementById("feat-" + i.toString()).style.fontSize = "12px";
+          document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
+        }
+        makeRequest3(selected_fts, curr_alg);
+      }
+
+      // Select/deselect features in left panel
+      function flip_feature(elemn) {
+
+        var curr_alg = "True";
+
+        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+          curr_alg = "False";
+        }
+
+        var index = selected_fts.indexOf(-1);
+        if (index > -1) {
+          selected_fts.splice(index, 1);
+        }
+        if (selected_fts.includes(elemn)){
+          index = selected_fts.indexOf(elemn);
+          selected_fts.splice(index, 1);
+          elemn.style.fontSize = "12px";
+          elemn.style.fontWeight = "550";
+          makeRequest3(selected_fts, curr_alg);
+        }
+        else if (selected_fts.length < 5){
+          selected_fts.push(elemn);
+          makeRequest3(selected_fts, curr_alg);
+        }
+      }
+
+      // Start global screen after instructions
+      function begin_glob(){
+
+        var right = document.getElementById("demo");
+        if (right.childNodes[1].id == "glob-instruction"){
+          right.removeChild(right.childNodes[1]);
+        }
+
+        var k_btn = document.createElement("button");
+        var c_btn = document.createElement("button");
+
+        k_btn.className = "algo-button";
+        k_btn.id = "key-button";
+        k_btn.onclick = function(){buttonRequest(this);};
+        k_btn.innerHTML = "Key Features";
+        k_btn.style.backgroundColor = dark_shade;
+
+        c_btn.className = "algo-button";
+        c_btn.id = "chg-button";
+        c_btn.onclick = function(){buttonRequest(this);};
+        c_btn.innerHTML = "Changes";
+        c_btn.style.backgroundColor = light_shade;
+
+        document.getElementsByClassName("btn-group")[0].append(k_btn);
+        document.getElementsByClassName("btn-group")[0].append(c_btn);
+
+        ft_list();
+        makeGlobRequest();
+      }
+
+      fetch_csv();
+      draw_summary(".id-list");
 
 
     </script>

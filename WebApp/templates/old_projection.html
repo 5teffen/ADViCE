@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Visual Interface</title>
+    <meta name="author" content="NYU UGR Team">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="static/css/scratchstyle-light.css" rel="stylesheet" type="text/css">
+    <!-- D3.js and jQuery source -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
+    <!-- SVG scripts -->
+    <script type="text/javascript" src="static/js/main_graph.js"></script>
+    <script type="text/javascript" src="static/js/model_summary.js"></script>
+    <script type="text/javascript" src="static/js/direction_signs.js"></script>
+    <script type="text/javascript" src="static/js/anchor_graphs.js"></script>
+    <script type="text/javascript" src="static/js/square_graphs_simple.js"></script>
+    <script type="text/javascript" src="static/js/occ_bar.js"></script>
+    <script type="text/javascript" src="static/js/mini_graph.js"></script>
+    <script type="text/javascript" src="static/js/percentage_bar.js"></script>
+    <script type="text/javascript" src="static/js/squares.js"></script>
+    <script type="text/javascript" src="static/js/aggregation.js"></script>
+  </head>
+
+  <body>
+    
+    <p>PROJECTION</p>
+
+    <script>
+    
+      var httpRequest;
+
+      // Left panel global
+      function makeGlobRequest() {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        // var id_list = elem.id_list;
+        var id_list = [18, 44, 66, 123, 195, 312, 352, 408, 422, 441, 480, 488, 517, 521, 539, 586, 625, 632, 654, 660, 738, 765, 794, 934, 941, 1180, 1182, 1296, 1320, 1437, 1457, 1479, 1581, 1595, 1603, 1660, 1702, 1723, 1734, 1802, 1852, 1880, 1926, 1943, 1944, 2055, 2071, 2075, 2084, 2116, 2134, 2185, 2255, 2259, 2279, 2283, 2302, 2310, 2372, 2388, 2403, 2407, 2456, 2500, 2501, 2639, 2657, 2780, 2785, 2807, 2836, 2888, 2971, 3036, 3082, 3107];
+        httpRequest.onreadystatechange = alertGlobContents;
+        httpRequest.open('GET', 'proj_req?id-list='+id_list);
+        httpRequest.send();
+        return false;
+      }
+
+
+      // Left panel global
+      function alertGlobContents() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest.responseText;
+            var allData = JSON.parse(resp_arr);
+            
+            draw_aggregation_graph(allData,"body");
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+      makeGlobRequest();
+
+
+    </script>
+
+  </body>
+
+</html>
