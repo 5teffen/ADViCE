@@ -262,6 +262,12 @@ def proj_site_req():
 
 			return ret_string
 
+# ------- New Projection ------- #
+
+@app.route('/projection')
+def projection_site():
+	return render_template("index_projection.html")
+
 # show_projection("static/data/pred_data_x.csv","static/data/final_data_file.csv", bins_centred, X_pos_array, trans_dict)
 
 
