@@ -23,6 +23,7 @@
     <script type="text/javascript" src="static/js/mini_graph.js"></script>
     <script type="text/javascript" src="static/js/percentage_bar.js"></script>
     <script type="text/javascript" src="static/js/squares.js"></script>
+
   </head>
 
   <body>
@@ -56,7 +57,7 @@
 
         <div id="middle-panel-proj">
           <div id="bokeh-div">
-            bokeh
+            <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" style="height:350px; width:400px" scrolling="no" frameborder="no"></iframe>
           </div>
           <div id="filter-div">
             filters
@@ -140,7 +141,6 @@
         }
 
         // MAKE REQUEST TO GET ELEMENTS FOR MIDDLE PANEL
-
         
         req_arr = [];
 
@@ -157,7 +157,7 @@
 
         
         httpRequest.onreadystatechange = alertContents3;
-        httpRequest.open('GET', 'first_panel?features=['+req_arr+']&algorithm='+algo);
+        httpRequest.open('GET', 'bokeh_req?features=['+req_arr+']&algorithm='+algo);
         httpRequest.send();
         return false;
       }
@@ -200,16 +200,23 @@
           document.getElementById("middle-panel-proj").style.display = "inline-block";
           // document.getElementById("middle-panel-proj").innerHTML = "";
           // document.getElementById("right-panel-proj").innerHTML = "";
-          // add_loader(document.getElementById("middle-panel-proj"));        
+          // add_loader(document.getElementById("middle-panel-proj"));    
+          // add_loader2(document.getElementById("bokeh-div"));
+    
         }
 
         else if (httpRequest.readyState === XMLHttpRequest.DONE) {
           if (httpRequest.status === 200) {
             //Do stuff with the response
 
+            var bokeh_div = document.getElementById("bokeh-div");
+            console.log(bokeh_div.childNodes);
+            // bokeh_div.removeChild(bokeh_div.childNodes[3]);
             var resp_arr = httpRequest.responseText;
             console.log("HEREEE");
             console.log(resp_arr);
+            document.getElementById('bokeh-iframe').contentWindow.location.reload();
+            document.getElementById('bokeh-iframe').style.display = "inline-block";
 
             // Need to check condition properly
             if (resp_arr == ""){
@@ -222,8 +229,8 @@
               console.log("HEREEE");
               var middleData = JSON.parse(resp_arr);              
 
-              document.getElementById("middle-panel-proj").style.display = "inline-block";
-              document.getElementById("bokeh-div").innerHTML = "inline-block";
+              // document.getElementById("middle-panel-proj").style.display = "inline-block";
+              // document.getElementById("bokeh-div").stlye.display = "inline-block";
 
             }
 
@@ -317,6 +324,17 @@
       // Add loading animation
       function add_loader(elem) {
         elem.innerHTML="";
+        var load_wrap = document.createElement("div");
+        load_wrap.className = "loader_wrap";
+        var loader = document.createElement("div");
+        loader.className = "lds-dual-ring";
+        load_wrap.append(loader);
+        elem.append(load_wrap);
+      }
+
+      // Loader for projection
+      function add_loader2(elem) {
+        document.getElementById("bokeh-iframe").style.display = "none";
         var load_wrap = document.createElement("div");
         load_wrap.className = "loader_wrap";
         var loader = document.createElement("div");
@@ -473,6 +491,10 @@
 
         ft_list();
         makeGlobRequest();
+      }
+
+      function get_lasso_ids(lasso_ids){
+        document.getElementById("distribution-div").innerHTML = lasso_ids;
       }
 
       fetch_csv();
