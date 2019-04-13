@@ -7,6 +7,7 @@ from SVM_model import SVM_model
 from Functions import *
 from Text_Explanation import *
 from ILE import *
+from projection import *
 
 np.random.seed(12345)
 
@@ -172,7 +173,7 @@ def glob_site_bars():
 
 
 		keySort = sorted(range(len(keyTots)), key=lambda k: keyTots[k])[::-1]
-		chgSort = sorted(range(len(chgTots)), key = lambda k: chgTots[k])[::-1]
+		chgSort = sorted(range(len(chgTots)), key=lambda k: chgTots[k])[::-1]
 
 		ret_arr = [keySort, chgSort, ret_arr]
 
@@ -261,6 +262,40 @@ def proj_site_req():
 			ret_string = json.dumps(proj_arr)
 
 			return ret_string
+
+# ------- New Projection ------- #
+
+@app.route('/projection')
+def projection_site():
+	return render_template("index_projection.html")
+
+@app.route('/bokeh_req', methods=['GET'])
+def bokeh_request_ft():
+
+	if request.method == 'GET':
+
+		ft_list = request.args.get('features')
+		ft_list = ft_list[1:-1].split(',')
+
+		# False = changes, True = keyfts
+		algorithm = (request.args.get('algorithm') == "True")
+
+		if ft_list[0] == -1 or ft_list == ['']:
+			return ""
+		else:
+			ft_list = [int(x) for x in ft_list]
+			ft_list.sort()
+
+		ret_arr = ids_with_combination("static/data/pred_data_x.csv",ft_list,algorithm)
+
+		print(ret_arr)
+		show_projection(algorithm, ret_arr)
+
+		## Parse values into python dictionary
+		ret_string = json.dumps(ret_arr)
+
+		return ret_string
+
 
 # show_projection("static/data/pred_data_x.csv","static/data/final_data_file.csv", bins_centred, X_pos_array, trans_dict)
 

@@ -10,9 +10,15 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 
-def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transform):
+def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred,positions,transform):
 
-    filename = 'static/data/changes_PCA.csv'
+    filename = "static/data/anchs_PCA.csv"
+    title="2D Projection - Anchors"
+
+    if (not alg):
+        filename = "static/data/changes_PCA.csv"
+        title="2D Projection - Changes"
+
     fp = open(filename, 'r', encoding='utf-8')
 
     samples = 3114 #7468
@@ -21,6 +27,7 @@ def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transf
     X = np.zeros((samples,2))
     ids = []
     category = []
+    selected = []
 
     for i in range(samples):
 
@@ -31,6 +38,11 @@ def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transf
         ids.append(roww[0])
         X[i][0] = float(roww[3])
         X[i][1] = float(roww[4])
+
+        if i in selected_ids:
+            selected.append(1)
+        else:
+            selected.append(0)
 
         if roww[2] == "TP":
             category.append(0)
@@ -58,11 +70,14 @@ def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transf
         #################
         #################
 
-        color_opt = ["blue", "red", "green", "yellow"]
+        color_opt = ["blue", "red", "green", "yellow", "gray"]
 
         colors = []
         for k in range(samples):
-            colors.append(color_opt[category[k]])
+            if selected[k]:
+                colors.append(color_opt[category[k]])
+            else:
+                colors.append(color_opt[-1])
 
 
         output_file('2d_changes_map.html')
@@ -78,21 +93,22 @@ def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transf
         wheel_zoom = WheelZoomTool()
         lasso_select = LassoSelectTool()
 
-        p2 = figure(width = 700, height = 700)
-        p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b], toolbar_location="right", toolbar_sticky=False, title="FICO Challenge - Changes", width = 700, height = 700)
+        p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b],
+                    toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 340)
         p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 0.5, fill_color = 'colors', line_color = 'colors')
-        p1.title.text_font_size = '12pt'
+        p1.title.text_font_size = '10pt'
         p1.title.align = 'center'
         p1.toolbar.active_scroll = wheel_zoom
         p1.toolbar.active_drag = lasso_select
+        p1.axis.visible = False
+
+        lasso_select.select_every_mousemove = False
 
         s1.callback = CustomJS( code="""
 
-        console.log(cb_obj);
-
-        var inds = cb_obj.selected['1d'].indices;
-
-        my_glob_inds = inds;
+            var lasso_ids = cb_obj.selected['1d'].indices;
+            console.log(lasso_ids);
+            parent.get_lasso_ids(lasso_ids);
 
          """)
 
@@ -103,11 +119,13 @@ def show_projection():#pre_proc_file,all_data_file,bins_centred,positions,transf
         # show(grid)
 
         html = file_html(grid, CDN, "my_plot")
+        html = html.replace("auto;", "0px;")
 
-        fp = open("projection_file_raw.html", 'w')
+        fp = open("static/html/projection_file_raw.html", 'w')
         fp.write(html)
         fp.close()
 
 
 
-show_projection()
+# False = changes, True = key ftss
+# show_projection("")
