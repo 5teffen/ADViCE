@@ -1,6 +1,6 @@
 
 
-function draw_aggregation_graph(allData,place) {
+function draw_aggregation_graph(allData, place) {
 
 	testData = allData[0]
 
@@ -26,8 +26,8 @@ function draw_aggregation_graph(allData,place) {
             bottom: 140, 
             left: 70
         },
-        width = 1000 - margin.right - margin.left,
-        height = 500 - margin.top - margin.bottom;
+        width = 500 - margin.right - margin.left,
+        height = 300 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
