@@ -70,19 +70,28 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         #################
         #################
 
-        color_opt = ["blue", "red", "green", "yellow", "gray"]
-
+        color_opt = ["green", "red", "darkgreen", "darkred", "gray"]
+        alpha_opt = [0.6, 0.05]
+        if (len(selected)>0):
+            alpha_opt = [0.7, 0.02]
         colors = []
+        fill_alpha = []
+        line_alpha = []
+
         for k in range(samples):
             if selected[k]:
                 colors.append(color_opt[category[k]])
+                fill_alpha.append(alpha_opt[0])
+                line_alpha.append(alpha_opt[0])
             else:
                 colors.append(color_opt[-1])
+                fill_alpha.append(alpha_opt[1])
+                line_alpha.append(alpha_opt[1])
 
 
         output_file('2d_changes_map.html')
 
-        s1 = ColumnDataSource(data=dict(x=x, y=y, desc=ids, colors = colors))
+        s1 = ColumnDataSource(data=dict(x=x, y=y, desc=ids, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha))
         
         hover = HoverTool(tooltips=""" """)
         taptoolcallback = CustomJS(args=dict(source=s1),code = """    """)
@@ -95,7 +104,7 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
 
         p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b],
                     toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 340)
-        p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 0.5, fill_color = 'colors', line_color = 'colors')
+        p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'colors')
         p1.title.text_font_size = '10pt'
         p1.title.align = 'center'
         p1.toolbar.active_scroll = wheel_zoom
@@ -108,7 +117,7 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
 
             var lasso_ids = cb_obj.selected['1d'].indices;
             console.log(lasso_ids);
-            parent.get_lasso_ids(lasso_ids);
+            parent.makeBokehRequest(lasso_ids);
 
          """)
 
