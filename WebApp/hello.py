@@ -250,7 +250,7 @@ def proj_site_req():
 
 	if request.method == 'GET':
 
-		proj_samples = request.args.get('id-list').split(',')
+		proj_samples = request.args.get('id_list').split(',')
 
 		if len(proj_samples)>1:
 			
@@ -268,6 +268,25 @@ def proj_site_req():
 @app.route('/projection')
 def projection_site():
 	return render_template("index_projection.html")
+
+@app.route('/projection_req')
+def projection_site_req():
+
+	if request.method == 'GET':
+
+		proj_samples = request.args.get('id_list').split(',')
+
+		if True: #len(proj_samples)>0:
+			
+			sample_cap = min(len(proj_samples), 30)
+			proj_samples = [int(x) for x in proj_samples][:sample_cap]
+
+			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
+
+			ret_string = json.dumps(proj_arr)
+
+			return ret_string
+
 
 @app.route('/bokeh_req', methods=['GET'])
 def bokeh_request_ft():
@@ -295,7 +314,6 @@ def bokeh_request_ft():
 		ret_string = json.dumps(ret_arr)
 
 		return ret_string
-
 
 # show_projection("static/data/pred_data_x.csv","static/data/final_data_file.csv", bins_centred, X_pos_array, trans_dict)
 

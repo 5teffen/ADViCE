@@ -23,6 +23,7 @@
     <script type="text/javascript" src="static/js/mini_graph.js"></script>
     <script type="text/javascript" src="static/js/percentage_bar.js"></script>
     <script type="text/javascript" src="static/js/squares.js"></script>
+    <script type="text/javascript" src="static/js/aggregation.js"></script>
 
   </head>
 
@@ -100,13 +101,11 @@
                       "Installment Trades w/ Balance",
                       "Bank Trades w/ High Utilization Ratio",
                       "% Trades w/ Balance"]
-
       var selected_fts = [];
-
       var dark_shade = "rgb(177, 196, 209)";
       var light_shade = "white";
-
       var txtFile;
+      var httpRequest;
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -129,8 +128,6 @@
           }
         }
       }
-
-      var httpRequest;
 
       // Middle panel graphs
       function makeRequest3(features, algo) {
@@ -296,6 +293,45 @@
           }
         }
       }
+
+
+      // Request from bokeh plot to right panels
+
+      function makeBokehRequest(id_list) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        httpRequest.onreadystatechange = alertBokehContentsAggregation;
+        httpRequest.open('GET', 'proj_req?id_list='+[5,14]);   //id_list);
+        httpRequest.send();
+        return false;
+      }
+
+      // Right panel aggregation
+
+      function alertBokehContentsAggregation() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest.responseText;
+            var allData = JSON.parse(resp_arr);
+            console.log("right panel aggregation");
+            document.getElementById("aggregation-div").innerHTML = "";
+            
+            draw_aggregation_graph(allData,"#aggregation-div");
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+
+
 
       // Hovering over left panel elements
       function hoverStyleEnter(elem){
@@ -493,9 +529,6 @@
         makeGlobRequest();
       }
 
-      function get_lasso_ids(lasso_ids){
-        document.getElementById("distribution-div").innerHTML = lasso_ids;
-      }
 
       fetch_csv();
       draw_summary(".id-list");
