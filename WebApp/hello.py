@@ -41,6 +41,8 @@ def display_data (sample):
 		return sample, good_percent, model_correct, category, predicted
 
 trans_dict = {}
+
+# From id in entire list to id in restricted list
 def sample_transf ():
 	my_count = 0
 	for sample in range(10459):
@@ -239,30 +241,6 @@ def handle_request_ft():
 
 
 
-# ------- Projections ------- #
-
-@app.route('/proj')
-def proj_site():
-	return render_template("projection_file.html")
-
-@app.route('/proj_req')
-def proj_site_req():
-
-	if request.method == 'GET':
-
-		proj_samples = request.args.get('id_list').split(',')
-
-		if len(proj_samples)>1:
-			
-			sample_cap = min(len(proj_samples), 30)
-			proj_samples = [int(x) for x in proj_samples][:sample_cap]
-
-			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
-
-			ret_string = json.dumps(proj_arr)
-
-			return ret_string
-
 # ------- New Projection ------- #
 
 @app.route('/projection')
@@ -276,7 +254,10 @@ def projection_site_req():
 
 		proj_samples = request.args.get('id_list').split(',')
 
-		if True: #len(proj_samples)>0:
+		if (proj_samples[0]==''):
+			return ""
+			
+		else:
 			
 			sample_cap = min(len(proj_samples), 30)
 			proj_samples = [int(x) for x in proj_samples][:sample_cap]
@@ -286,7 +267,6 @@ def projection_site_req():
 			ret_string = json.dumps(proj_arr)
 
 			return ret_string
-
 
 @app.route('/bokeh_req', methods=['GET'])
 def bokeh_request_ft():
@@ -300,7 +280,7 @@ def bokeh_request_ft():
 		algorithm = (request.args.get('algorithm') == "True")
 
 		if ft_list[0] == -1 or ft_list == ['']:
-			return ""
+			return json.dumps(list(range(X_no_9.shape[0])))
 		else:
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
@@ -315,8 +295,26 @@ def bokeh_request_ft():
 
 		return ret_string
 
-# show_projection("static/data/pred_data_x.csv","static/data/final_data_file.csv", bins_centred, X_pos_array, trans_dict)
+@app.route('/violin_req')
+def violin_site_req():
 
+	if request.method == 'GET':
+
+		proj_samples = request.args.get('id_list').split(',')
+
+		if (proj_samples[0]==''):
+			return ""
+
+		else:
+			
+			sample_cap = min(len(proj_samples), 30)
+			proj_samples = np.array([int(x) for x in proj_samples][:sample_cap])
+
+			violin_arr = populate_violin_plot(X_pos_array, proj_samples)
+
+			ret_string = json.dumps(violin_arr)
+
+			return ret_string
 
 
 # ------- Run WebApp ------- #

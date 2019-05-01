@@ -14,20 +14,19 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
 
     filename = "static/data/anchs_PCA.csv"
     title="2D Projection - Anchors"
+    samples = 7468
 
     if (not alg):
         filename = "static/data/changes_PCA.csv"
         title="2D Projection - Changes"
+        samples = 3114
 
     fp = open(filename, 'r', encoding='utf-8')
-
-    samples = 3114 #7468
-
 
     X = np.zeros((samples,2))
     ids = []
     category = []
-    selected = []
+    ft_selected_ids = []
 
     for i in range(samples):
 
@@ -35,14 +34,14 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
 
         # print(roww)
 
-        ids.append(roww[0])
+        ids.append(int(roww[0]))
         X[i][0] = float(roww[3])
         X[i][1] = float(roww[4])
 
-        if i in selected_ids:
-            selected.append(1)
+        if int(roww[0]) in selected_ids:
+            ft_selected_ids.append(1)
         else:
-            selected.append(0)
+            ft_selected_ids.append(0)
 
         if roww[2] == "TP":
             category.append(0)
@@ -53,6 +52,7 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         elif roww[2] == "FN":
             category.append(3)
         # percentage.append(float(roww[4]))
+    fp.close()
 
 
     for p in range(1,2):
@@ -70,31 +70,35 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         #################
         #################
 
-        color_opt = ["green", "red", "darkgreen", "darkred", "gray"]
+        color_opt = ["rgb(27, 158, 119)", "rgb(217, 95, 2)", "rgb(27, 158, 119)", "rgb(217, 95, 2)", "gray"]
         alpha_opt = [0.6, 0.05]
-        if (len(selected)>0):
+        line_opt = ["rgb(27, 158, 119)", "rgb(217, 95, 2)", "black", "black", "gray"]
+        if (len(ft_selected_ids)>0):
             alpha_opt = [0.7, 0.02]
         colors = []
+        line_color = []
         fill_alpha = []
         line_alpha = []
 
         for k in range(samples):
-            if selected[k]:
+            if ft_selected_ids[k]:
                 colors.append(color_opt[category[k]])
+                line_color.append(line_opt[category[k]])
                 fill_alpha.append(alpha_opt[0])
                 line_alpha.append(alpha_opt[0])
             else:
                 colors.append(color_opt[-1])
-                fill_alpha.append(alpha_opt[1])
-                line_alpha.append(alpha_opt[1])
+                line_color.append(line_opt[-1])
+                fill_alpha.append(alpha_opt[-1])
+                line_alpha.append(alpha_opt[-1])
 
 
         output_file('2d_changes_map.html')
 
-        s1 = ColumnDataSource(data=dict(x=x, y=y, desc=ids, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha))
+        s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
         
         hover = HoverTool(tooltips=""" """)
-        taptoolcallback = CustomJS(args=dict(source=s1),code = """    """)
+        taptoolcallback = CustomJS(args=dict(source=s1),code = """  """)
         tap = TapTool(callback = taptoolcallback)
         boxtoolcallback = CustomJS(args=dict(source=s1),code = """  """)
         box = BoxSelectTool(callback = boxtoolcallback)
@@ -104,7 +108,13 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
 
         p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b],
                     toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 340)
-        p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'colors')
+        p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
+                   nonselection_fill_alpha=alpha_opt[-1],
+                   nonselection_fill_color=color_opt[-1],
+                   nonselection_line_color=color_opt[-1],
+                   nonselection_line_alpha=alpha_opt[-1] 
+                  )
+
         p1.title.text_font_size = '10pt'
         p1.title.align = 'center'
         p1.toolbar.active_scroll = wheel_zoom
@@ -116,8 +126,23 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         s1.callback = CustomJS( code="""
 
             var lasso_ids = cb_obj.selected['1d'].indices;
-            console.log(lasso_ids);
-            parent.makeBokehRequest(lasso_ids);
+            //console.log(lasso_ids);
+            var ft_selected_ids = cb_obj.data['ft_selected_ids'];
+            var ids = cb_obj.data['ids'];
+            //console.log(ft_selected_ids);
+
+            var aggregation_ids = [];
+
+            for (i=0; i<ft_selected_ids.length; i++){
+                if (ft_selected_ids[i] == 1 && lasso_ids.includes(i)){
+                    //console.log(ids[i]);
+                    aggregation_ids.push(ids[i]);
+                }
+            }
+
+            //console.log(aggregation_ids);
+            parent.makeBokehRequest(aggregation_ids);
+            parent.makeBokehRequest2(aggregation_ids);
 
          """)
 
@@ -133,8 +158,3 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         fp = open("static/html/projection_file_raw.html", 'w')
         fp.write(html)
         fp.close()
-
-
-
-# False = changes, True = key ftss
-# show_projection("")
