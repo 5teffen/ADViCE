@@ -24,6 +24,8 @@
     <script type="text/javascript" src="static/js/percentage_bar.js"></script>
     <script type="text/javascript" src="static/js/squares.js"></script>
     <script type="text/javascript" src="static/js/aggregation.js"></script>
+    <!-- <script type="text/javascript" src="static/js/agg_graph.js"></script> -->
+    <script type="text/javascript" src="static/js/violin_graph.js"></script>
 
   </head>
 
@@ -106,6 +108,7 @@
       var light_shade = "white";
       var txtFile;
       var httpRequest;
+      var httpRequest2;
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -129,7 +132,7 @@
         }
       }
 
-      // Middle panel graphs
+      // Request to send feature list
       function makeRequest3(features, algo) {
         httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
@@ -190,7 +193,7 @@
         makeGlobRequest();
       }
       
-      // Middle panel graphs
+      // Bokeh middle panel
       function alertContents3() {
 
         if (httpRequest.readyState === XMLHttpRequest.OPENED){
@@ -207,29 +210,10 @@
             //Do stuff with the response
 
             var bokeh_div = document.getElementById("bokeh-div");
-            console.log(bokeh_div.childNodes);
-            // bokeh_div.removeChild(bokeh_div.childNodes[3]);
             var resp_arr = httpRequest.responseText;
-            console.log("HEREEE");
-            console.log(resp_arr);
+            // console.log(resp_arr);
             document.getElementById('bokeh-iframe').contentWindow.location.reload();
             document.getElementById('bokeh-iframe').style.display = "inline-block";
-
-            // Need to check condition properly
-            if (resp_arr == ""){
-              console.log("HEREEE");
-              // document.getElementById("middle-panel-proj").innerHTML = "";
-              // document.getElementById("right-panel-proj").innerHTML = "";
-            }
-            else{
-
-              console.log("HEREEE");
-              var middleData = JSON.parse(resp_arr);              
-
-              // document.getElementById("middle-panel-proj").style.display = "inline-block";
-              // document.getElementById("bokeh-div").stlye.display = "inline-block";
-
-            }
 
           }
           else {
@@ -295,7 +279,7 @@
       }
 
 
-      // Request from bokeh plot to right panels
+      // Request from bokeh plot to right panel aggregation
 
       function makeBokehRequest(id_list) {
         httpRequest = new XMLHttpRequest();
@@ -304,7 +288,7 @@
           return false;
         }
         httpRequest.onreadystatechange = alertBokehContentsAggregation;
-        httpRequest.open('GET', 'proj_req?id_list='+[5,14]);   //id_list);
+        httpRequest.open('GET', 'projection_req?id_list='+id_list);   //id_list);
         httpRequest.send();
         return false;
       }
@@ -322,6 +306,7 @@
             document.getElementById("aggregation-div").innerHTML = "";
             
             draw_aggregation_graph(allData,"#aggregation-div");
+            // makeBokehRequest2(id_list);
 
           }
           else {
@@ -331,6 +316,40 @@
       }
 
 
+      // Request from bokeh plot to right panel violin plot
+
+      function makeBokehRequest2(id_list) {
+        httpRequest2 = new XMLHttpRequest();
+        if (!httpRequest2) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        httpRequest2.onreadystatechange = alertBokehContentsViolin;
+        httpRequest2.open('GET', 'violin_req?id_list='+id_list);   //id_list);
+        httpRequest2.send();
+        return false;
+      }
+
+      // Right panel violin plot
+
+      function alertBokehContentsViolin() {
+        if (httpRequest2.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest2.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest2.responseText;
+            var allData = JSON.parse(resp_arr);
+            console.log("right panel violin");
+            document.getElementById("distribution-div").innerHTML = "";
+            
+            play_violin(allData,"#distribution-div");
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
 
 
       // Hovering over left panel elements
