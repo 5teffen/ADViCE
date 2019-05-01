@@ -24,7 +24,7 @@ function draw_aggregation_graph(allData, place) {
             top: 10, 
             right: 60, 
             bottom: 140, 
-            left: 70
+            left: 100
         },
         width = 500 - margin.right - margin.left,
         height = 300 - margin.top - margin.bottom;
