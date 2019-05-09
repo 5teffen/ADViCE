@@ -170,8 +170,8 @@ function play_violin(allData,place){
 
         width = 50, 
         height = 100,
-        full_width = 450 - margin.right - margin.left, 
-        full_height = 300 - margin.top - margin.bottom;
+        full_width = 850 - margin.right - margin.left, 
+        full_height = 320 - margin.top - margin.bottom;
 
 
     var yScale = d3.scaleBand()
