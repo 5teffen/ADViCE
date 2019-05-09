@@ -107,7 +107,7 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         lasso_select = LassoSelectTool()
 
         p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b],
-                    toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 340)
+                    toolbar_location="right", toolbar_sticky=False, title=title, width = 490, height = 490)
         p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
                    nonselection_fill_alpha=alpha_opt[-1],
                    nonselection_fill_color=color_opt[-1],
@@ -140,7 +140,7 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
                 }
             }
 
-            //console.log(aggregation_ids);
+            console.log(aggregation_ids);
             parent.makeBokehRequest(aggregation_ids);
             parent.makeBokehRequest2(aggregation_ids);
 
