@@ -24,10 +24,10 @@ function draw_aggregation_graph(allData, place) {
             top: 10, 
             right: 60, 
             bottom: 140, 
-            left: 70
+            left: 100
         },
-        width = 500 - margin.right - margin.left,
-        height = 300 - margin.top - margin.bottom;
+        width = 850 - margin.right - margin.left,
+        height = 350 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
@@ -116,7 +116,8 @@ function draw_aggregation_graph(allData, place) {
             .style("text-anchor", "end")
             .attr("dy", "0.5em")
             .attr("dx", "-0.5em")
-            .attr("transform","rotate(-40)");
+            .attr("transform","rotate(-40)")
+            .attr("class", "feature-name");
 
     // -- Drawing the initial level (blue) --
 //     svg.append("g")
@@ -227,29 +228,29 @@ function draw_aggregation_graph(allData, place) {
     //     .attr("text-anchor",'middle');
 
 
-    function wrap(text, width) {
-      text.each(function() {
-        var text = d3.select(this),
-            words = text.text().split(/\s+/).reverse(),
-            word,
-            line = [],
-            lineNumber = 0,
-            lineHeight = 1.1, // ems
-            y = text.attr("y"),
-            dy = parseFloat(text.attr("dy")),
-            tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-        while (word = words.pop()) {
-          line.push(word);
-          tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
-            line.pop();
-            tspan.text(line.join(" "));
-            line = [word];
-            tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-          }
-        }
-      });
-    }
+    // function wrap(text, width) {
+    //   text.each(function() {
+    //     var text = d3.select(this),
+    //         words = text.text().split(/\s+/).reverse(),
+    //         word,
+    //         line = [],
+    //         lineNumber = 0,
+    //         lineHeight = 1.1, // ems
+    //         y = text.attr("y"),
+    //         dy = parseFloat(text.attr("dy")),
+    //         tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    //     while (word = words.pop()) {
+    //       line.push(word);
+    //       tspan.text(line.join(" "));
+    //       if (tspan.node().getComputedTextLength() > width) {
+    //         line.pop();
+    //         tspan.text(line.join(" "));
+    //         line = [word];
+    //         tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+    //       }
+    //     }
+    //   });
+    // }
 }
 
 // CALL THIS
