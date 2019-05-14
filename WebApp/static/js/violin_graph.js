@@ -157,20 +157,21 @@
 
 function play_violin(allData,place){
 
-    var separator = 0.015;
+    var separator = 0.015,
+        div = 1;
 
     var buffer = 25;
 
     var margin = {
-        top: 10, 
+        top: 50, 
         right: 20, 
         bottom: 20, 
-        left: 20
+        left: 15.5
     },
 
-        width = 50, 
-        height = 100,
-        full_width = 850 - margin.right - margin.left, 
+        width = 31, 
+        height = 230,
+        full_width = 800 - margin.right - margin.left, 
         full_height = 320 - margin.top - margin.bottom;
 
 
@@ -244,6 +245,7 @@ function play_violin(allData,place){
             .attr("y2",height+buffer/4)
             .attr("x2",0)
             .style("stroke","black")
+            .style("opacity",0.2)
             .style("stroke-width",2);  
 
 
@@ -277,7 +279,7 @@ function play_violin(allData,place){
 
         // -- Centre the image -- 
         svg = svg.append("g")
-                .attr("transform","translate(" + (xScaleRight(1)) + ',0)');
+                .attr("transform","translate(" + (xScaleRight(1)+div) + ',0)');
 
         xShift += 2*xScaleRight(1)
         // console.log(xShift)

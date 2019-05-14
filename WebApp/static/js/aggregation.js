@@ -1,11 +1,10 @@
 
-
 function draw_aggregation_graph(allData, place) {
 
 	testData = allData[0]
 
-    var good_col = "#1b9e77",
-        bad_col = "#d95f02";
+    var good_col = "#d95f02",
+        bad_col = "#1b9e77";
 
     var the_colour = "";
     var opp_colour = "";
@@ -22,14 +21,14 @@ function draw_aggregation_graph(allData, place) {
     // -- Establishing margins and canvas bounds -- 
     var margin = {
             top: 10, 
-            right: 60, 
-            bottom: 140, 
-            left: 100
+            right: 20, 
+            bottom: 120, 
+            left: 10
         },
-        width = 850 - margin.right - margin.left,
+        width = 800 - margin.right - margin.left,
         height = 350 - margin.top - margin.bottom;
 
-    var padding_top = 0.2,
+    var padding_top = 0.1,
         padding_bottom = 0.1;
 
     var outlier = 1 + padding_top/2;
@@ -76,7 +75,7 @@ function draw_aggregation_graph(allData, place) {
     
     
     // -- Drawing dividing lines -- 
-    svg.selectAll("line")
+    svg.append("g").selectAll("line")
         .data(testData)
         .enter()
         .append("line")
@@ -91,15 +90,16 @@ function draw_aggregation_graph(allData, place) {
         .style("stroke-width",0.7);
     
     // -- Drawing surrounding box -- 
-        svg.append("rect")
-        .attr("class","border")
-        .attr('x',xScale(testData[0].name))
-        .attr('y',0)
-        .attr("height",function(d){return yScale(0-padding_bottom)})
-        .attr("width",(xScale.bandwidth()+1)*testData.length)
-        .attr("fill","None")
-        .attr("stroke","#A9A9A9")
-        .attr("stroke-width",1);
+        
+    // svg.append("rect")
+    //     .attr("class","border")
+    //     .attr('x',xScale(testData[0].name))
+    //     .attr('y',0)
+    //     .attr("height",function(d){return yScale(0-padding_bottom)})
+    //     .attr("width",(xScale.bandwidth()+separator)*testData.length)
+    //     .attr("fill","None")
+    //     .attr("stroke","#A9A9A9")
+    //     .attr("stroke-width",1);
 
   
 
@@ -114,9 +114,9 @@ function draw_aggregation_graph(allData, place) {
         .selectAll("text")  
             .style("fill","black")
             .style("text-anchor", "end")
-            .attr("dy", "0.5em")
+            .attr("dy", "-0.5em")
             .attr("dx", "-0.5em")
-            .attr("transform","rotate(-40)")
+            .attr("transform","rotate(-90)")
             .attr("class", "feature-name");
 
     // -- Drawing the initial level (blue) --

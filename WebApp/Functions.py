@@ -52,6 +52,8 @@ def model_overview(pre_proc_file):
 	# print("Key Features:",key_count)
 	# print("Changes",changes_count)
 
+
+
 def separate_bins_feature(feat_column,special_case = False):
 	no_bins = 10
 
@@ -166,16 +168,17 @@ def prepare_for_analysis(filename):
 	return data_array
 
 def sample_transf(X):
-	trans_dict = {}
-	my_count = 0
-	for sample in range(10459):
-		if X[sample][0] != -9:
-			trans_dict[str(sample)] = my_count
-			my_count += 1
-		else:
-			trans_dict[str(sample)] = -9
+    trans_dict = {}
+    my_count = 0
+    for sample in range(10459):
+        if X[sample][0] != -9:
+            trans_dict[str(sample)] = my_count
+            my_count += 1
+        else:
+            trans_dict[str(sample)] = -9
 
-	return trans_dict
+    return trans_dict
+
 
 def occurance_counter(pre_proc_file):
 	# --- Finds how many changes and anchors there are in ratio form ---
@@ -716,67 +719,109 @@ def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,pos
 
 	return final_data
 
-def populate_violin_plot(pos_array, id_list, monot=False):
+def populate_violin_plot(pos_array, id_list, transform, monot=False,):
 
-    names = ["External Risk Estimate", 
-                      "Months Since Oldest Trade Open",
-                      "Months Since Last Trade Open",
-                      "Average Months in File",
-                      "Satisfactory Trades",
-                      "Trades 60+ Ever",
-                      "Trades 90+ Ever",
-                      "% Trades Never Delq.",
-                      "Months Since Last Delq.",
-                      "Max Delq. Last 12M",
-                      "Max Delq. Ever",
-                      "Total Trades",
-                      "Trades Open Last 12M",
-                      "% Installment Trades",
-                      "Months Since Most Recent Inq",
-                      "Inq Last 6 Months",
-                      "Inq Last 6 Months exl. 7 days",
-                      "Revolving Burden",
-                      "Installment Burden",
-                      "Revolving Trades w/ Balance:",
-                      "Installment Trades w/ Balance",
-                      "Bank Trades w/ High Utilization Ratio",
-                      "% Trades w/ Balance"]
+	names = ["External Risk Estimate", 
+				"Months Since Oldest Trade Open",
+				"Months Since Last Trade Open",
+				"Average Months in File",
+				"Satisfactory Trades",
+				"Trades 60+ Ever",
+				"Trades 90+ Ever",
+				"% Trades Never Delq.",
+				"Months Since Last Delq.",
+				"Max Delq. Last 12M",
+				"Max Delq. Ever",
+				"Total Trades",
+				"Trades Open Last 12M",
+				"% Installment Trades",
+				"Months Since Most Recent Inq",
+				"Inq Last 6 Months",
+				"Inq Last 6 Months exl. 7 days",
+				"Revolving Burden",
+				"Installment Burden",
+				"Revolving Trades w/ Balance:",
+				"Installment Trades w/ Balance",
+				"Bank Trades w/ High Utilization Ratio",
+				"% Trades w/ Balance"]
 
-    monot_array = np.array([1,1,1,1,1,0,0,1,1,1,1,-1,0,-1,1,0,0,0,0,-1,-1,0,-1])
+	monot_array = np.array([1,1,1,1,1,0,0,1,1,1,1,-1,0,-1,1,0,0,0,0,-1,-1,0,-1])
 
-    all_graphs = []
+	all_graphs = []
 
-    total_length = pos_array.shape[0]
-    id_length = id_list.shape[0]
+	total_length = pos_array.shape[0]
+	id_length = id_list.shape[0]
 
-    for col in range(pos_array.shape[1]):
+	for col in range(pos_array.shape[1]):
 
-        # -- Creating 10 empty dictionaries -- 
-        single_graph = []
+		# -- Creating 10 empty dictionaries -- 
+		single_graph = []
 
-        for i in range(10):
-            single_graph.append({'bin':str(i+1), "left":0, "right":0})
-
-        
-        # -- Incramenting total counts --
-        column = pos_array[:,col]
-
-        for bin_no in column:
-            single_graph[int(bin_no)]['right'] += 1/total_length
+		for i in range(10):
+			single_graph.append({'bin':str(i+1), "left":0, "right":0})
 
 
-        # -- Incramenting relative counts -- 
-        for id_no in id_list:
-            to_incrament = column[id_no-1]
-            single_graph[int(to_incrament)]['left'] += 1/id_length  # assuming 1 indexing
+		# -- Incramenting total counts --
+		column = pos_array[:,col]
+
+		for bin_no in column:
+			single_graph[int(bin_no)]['right'] += 1
 
 
-        # print(single_graph)
-        all_graphs.append(single_graph)
+		# -- Incramenting relative counts -- 
+		for id_no in id_list:
+			id_no = int(transform[str(id_no)])
 
-    return all_graphs
+			to_incrament = column[id_no-1]   # CHECK IF THIS IS CORRECT!!!
+			single_graph[int(to_incrament)]['left'] += 1  # assuming 1 indexing
 
 
+		all_graphs.append(single_graph)
+
+
+	# -- Scaling the graphs with relative sizes -- 
+	for each_graph in all_graphs:
+		max_left = 0
+		max_right = 0
+
+		for pos in each_graph:
+			if pos['right'] > max_right:
+				max_right = pos['right']
+
+			if pos['left'] > max_left:
+				max_left = pos['left']
+
+		
+		for pos in each_graph:
+			pos['right'] = pos['right']/max_right
+			pos['left'] = pos['left']/max_left
+
+	return all_graphs
+
+
+
+if __name__ == '__main__':
+    vals = pd.read_csv("static/data/final_data_file.csv", header=None).values
+    X = vals[:,1:]
+    y = vals[:,0]
+
+    vals_no_9 = prepare_for_analysis("static/data/final_data_file.csv")
+    X_no_9 = vals_no_9[:,1:]
+
+    no_samples, no_features = X.shape
+
+
+    bins_centred, X_pos_array, init_vals = divide_data_bins(X_no_9,[9,10])
+    # density_array = scaling_data_density(X_no_9, bins_centred)
+    # print(len(density_array))
+
+    trans = sample_transf(X)
+
+    result = populate_violin_plot(X_pos_array, np.array([1,2,3,4,5,6,7]),trans)
+
+
+    # count_total = occurance_counter("static/data/pred_data_x.csv")
+    # sample_transf()
 
 
 
