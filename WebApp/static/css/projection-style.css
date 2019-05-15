@@ -1191,7 +1191,7 @@ table #model-display {
 #middle-panel-proj {
   margin-left: 30px;
   /*width: calc(100% - 300px);*/
-  width: 500px;
+  width: 400px;
   height: calc(100% - 100px);
   margin-top: 15px;
   /*background-color: darkgrey;*/
@@ -1214,8 +1214,8 @@ table #model-display {
 #bokeh-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 500px;
-  height: 500px;
+  width: 400px;
+  height: 400px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
@@ -1224,10 +1224,16 @@ table #model-display {
 /*  float: right;
   margin-left: 100px;*/
   -webkit-transition: all 2s;
-  border: 1px solid lightgray;
+  /*border: 1px solid lightgray;*/
   /*position: absolute;*/
 
 }
+
+#bokeh-iframe {
+  height: 400px;
+  width: 400px;
+}
+
 
 #filter-div {
   margin-left: 0px;
@@ -1283,8 +1289,8 @@ table #model-display {
 #distribution-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 800px;
-  height: 320px;
+  width: 820px;
+  height: 250px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
@@ -1294,22 +1300,24 @@ table #model-display {
   margin-left: 100px;*/
   -webkit-transition: all 2s;
   border: 1px solid lightgray;
+  border-bottom: none;
   /*position: absolute;*/
 }
 
 #aggregation-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 800px;
-  height: 350px;
+  width: 820px;
+  height: 400px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
   /*display: none;*/
   float: left;
   /*float: right;*/
-  margin-top: 10px;
+  margin-top: 0px;
   -webkit-transition: all 2s;
   border: 1px solid lightgray;
+  border-top: none;
   /*position: absolute;*/
 }
