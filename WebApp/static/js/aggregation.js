@@ -22,11 +22,11 @@ function draw_aggregation_graph(allData, place) {
     var margin = {
             top: 10, 
             right: 20, 
-            bottom: 120, 
+            bottom: 170, 
             left: 10
         },
         width = 800 - margin.right - margin.left,
-        height = 350 - margin.top - margin.bottom;
+        height = 400 - margin.top - margin.bottom;
 
     var padding_top = 0.1,
         padding_bottom = 0.1;
@@ -116,7 +116,7 @@ function draw_aggregation_graph(allData, place) {
             .style("text-anchor", "end")
             .attr("dy", "-0.5em")
             .attr("dx", "-0.5em")
-            .attr("transform","rotate(-90)")
+            .attr("transform","rotate(-70)")
             .attr("class", "feature-name");
 
     // -- Drawing the initial level (blue) --

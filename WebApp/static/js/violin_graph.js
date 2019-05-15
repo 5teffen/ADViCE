@@ -1,160 +1,3 @@
-// var oneGraph = [
-// {
-//     bin: "1",
-//     left: 0.5,
-//     right: 0.1
-// },
-// {
-//     bin: "2",
-//     left: 0.3,
-//     right: 0.3
-// },
-// {
-//     bin: "3",
-//     left: 0.1,
-//     right: 0.5
-// },
-// {
-//     bin: "4",
-//     left: 0.7,
-//     right: 0.7
-// },
-// {
-//     bin: "5",
-//     left: 0.8,
-//     right: 0.9
-// },
-// {
-//     bin: "6",
-//     left: 0.5,
-//     right: 0.1
-// },
-// {
-//     bin: "7",
-//     left: 0.3,
-//     right: 0.3
-// },
-// {
-//     bin: "8",
-//     left: 0.1,
-//     right: 0.5
-// },
-// {
-//     bin: "9",
-//     left: 0.7,
-//     right: 0.7
-// },
-// {
-//     bin: "10",
-//     left: 0.8,
-//     right: 0.9
-// },
-// {
-//     bin: "11",
-//     left: 0.5,
-//     right: 0.1
-// },
-// {
-//     bin: "12",
-//     left: 0.3,
-//     right: 0.3
-// },
-// {
-//     bin: "13",
-//     left: 0.1,
-//     right: 0.5
-// },
-// {
-//     bin: "14",
-//     left: 0.7,
-//     right: 0.7
-// },
-// {
-//     bin: "15",
-//     left: 0.8,
-//     right: 0.9
-// },
-// {
-//     bin: "16",
-//     left: 0.6,
-//     right: 0.2
-// }];
-
-
-// var leftie = [
-// {
-//     bin: "1",
-//     count: 0.1
-// },
-// {
-//     bin: "2",
-//     count: 0.3
-// },
-// {
-//     bin: "3",
-//     count: 0.5
-// },
-// {
-//     bin: "4",
-//     count: 0.7
-// },
-// {
-//     bin: "5",
-//     count: 0.9
-// },
-// {
-//     bin: "6",
-//     count: 0.1
-// },
-// {
-//     bin: "7",
-//     count: 0.3
-// },
-// {
-//     bin: "8",
-//     count: 0.5
-// },
-// {
-//     bin: "9",
-//     count: 0.7
-// },
-// {
-//     bin: "10",
-//     count: 0.9
-// },
-// {
-//     bin: "11",
-//     count: 0.1
-// },
-// {
-//     bin: "12",
-//     count: 0.3
-// },
-// {
-//     bin: "13",
-//     count: 0.5
-// },
-// {
-//     bin: "4",
-//     count: 0.7
-// },
-// {
-//     bin: "15",
-//     count: 0.9
-// },
-// {
-//     bin: "16",
-//     count: 0.2
-// }];
-
-
-// // var pair1 = [leftie, rightie]
-// // var pair2 = [leftie, rightie]
-// var allData = [oneGraph, oneGraph, oneGraph,
-//         oneGraph, oneGraph, oneGraph, oneGraph, oneGraph, oneGraph, 
-//         oneGraph, oneGraph, oneGraph, oneGraph, oneGraph, oneGraph]
-
-
 function play_violin(allData,place){
 
     var separator = 0.015,
@@ -163,16 +6,16 @@ function play_violin(allData,place){
     var buffer = 25;
 
     var margin = {
-        top: 50, 
+        top: 20, 
         right: 20, 
-        bottom: 20, 
+        bottom: 5, 
         left: 15.5
     },
 
         width = 31, 
         height = 230,
         full_width = 800 - margin.right - margin.left, 
-        full_height = 320 - margin.top - margin.bottom;
+        full_height = 250 - margin.top - margin.bottom;
 
 
     var yScale = d3.scaleBand()
