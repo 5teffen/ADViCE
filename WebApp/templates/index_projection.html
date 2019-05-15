@@ -52,13 +52,6 @@
       
       <div class="right-side-proj" id="demo">
 
-        <!-- <div id="left-panel">
-          <div class="btn-group"> -->
-            <!-- <button class="algo-button" id="key-button" onclick="buttonRequest(this)">Key Features</button> -->
-            <!-- <button class="algo-button" id="chg-button" onclick="buttonRequest(this)">Changes</button> -->
-        <!--   </div>
-        </div> -->
-
         <div id="middle-panel-proj">
           <div class="btn-group">
             <!-- <button class="algo-button" id="key-button" onclick="buttonRequest(this)">Key Features</button> -->
@@ -66,7 +59,7 @@
           </div>
 
           <div id="bokeh-div">
-            <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" style="height:500px; width:500px" scrolling="no" frameborder="no"></iframe>
+            <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe>
           </div>
           
         </div>
@@ -113,6 +106,7 @@
       var txtFile;
       var httpRequest;
       var httpRequest2;
+      var cold_start = true;
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -166,37 +160,6 @@
         return false;
       }
 
-      // Left panel global
-      function makeGlobRequest() {
-        httpRequest = new XMLHttpRequest();
-        if (!httpRequest) {
-          alert('Giving up :( Cannot create an XMLHTTP instance');
-          return false;
-        }
-        
-        httpRequest.onreadystatechange = alertGlobContents;
-        httpRequest.open('GET', 'glob_req');
-        httpRequest.send();
-        return false;
-      }
-
-      // Style buttons and send request
-      function buttonRequest(elem) {
-
-        if (elem.innerHTML == "Key Features") {
-          elem.style.backgroundColor = dark_shade;
-          var c_but = document.getElementById('chg-button');
-          c_but.style.backgroundColor = light_shade;
-        }
-        else {
-          elem.style.backgroundColor = dark_shade;
-          var c_but = document.getElementById('key-button');
-          c_but.style.backgroundColor = light_shade;
-        }
-        resetFeatures();
-        // makeGlobRequest();
-      }
-      
       // Bokeh middle panel
       function alertContents3() {
 
@@ -226,6 +189,19 @@
         }
       }
 
+      // Left panel global
+      function makeGlobRequest() {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        
+        httpRequest.onreadystatechange = alertGlobContents;
+        httpRequest.open('GET', 'glob_req');
+        httpRequest.send();
+        return false;
+      }
 
       // Left panel global
       function alertGlobContents() {
@@ -282,9 +258,24 @@
         }
       }
 
+      // Style buttons and send request
+      function buttonRequest(elem) {
 
+        if (elem.innerHTML == "Key Features") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('chg-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('key-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        resetFeatures();
+        // makeGlobRequest();
+      }
+      
       // Request from bokeh plot to right panel aggregation
-
       function makeBokehRequest(id_list) {
         httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
@@ -298,19 +289,21 @@
       }
 
       // Right panel aggregation
-
       function alertBokehContentsAggregation() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
           if (httpRequest.status === 200) {
             //Do stuff with the response
             
             var resp_arr = httpRequest.responseText;
-            var allData = JSON.parse(resp_arr);
-            console.log("right panel aggregation");
-            document.getElementById("aggregation-div").innerHTML = "";
-            
-            draw_aggregation_graph(allData,"#aggregation-div");
-            ft_list();
+            if (resp_arr!="-1"){
+              var allData = JSON.parse(resp_arr);
+              console.log("right panel aggregation");
+              document.getElementById("aggregation-div").innerHTML = "";
+              draw_aggregation_graph(allData,"#aggregation-div");
+              // highlight_features(selected_fts);
+              ft_list();
+              cold_start = false;
+            }
             // makeBokehRequest2(id_list);
 
           }
@@ -320,9 +313,7 @@
         }
       }
 
-
       // Request from bokeh plot to right panel violin plot
-
       function makeBokehRequest2(id_list) {
         httpRequest2 = new XMLHttpRequest();
         if (!httpRequest2) {
@@ -330,24 +321,24 @@
           return false;
         }
         httpRequest2.onreadystatechange = alertBokehContentsViolin;
-        httpRequest2.open('GET', 'violin_req?id_list='+id_list);   //id_list);
+        httpRequest2.open('GET', 'violin_req?id_list='+id_list);  
         httpRequest2.send();
         return false;
       }
 
       // Right panel violin plot
-
       function alertBokehContentsViolin() {
         if (httpRequest2.readyState === XMLHttpRequest.DONE) {
           if (httpRequest2.status === 200) {
             //Do stuff with the response
             
             var resp_arr = httpRequest2.responseText;
-            var allData = JSON.parse(resp_arr);
-            console.log("right panel violin");
-            document.getElementById("distribution-div").innerHTML = "";
-            
-            play_violin(allData,"#distribution-div");
+            if (resp_arr!="-1"){
+              var allData = JSON.parse(resp_arr);
+              console.log("right panel violin");
+              document.getElementById("distribution-div").innerHTML = "";
+              play_violin(allData,"#distribution-div");
+            }
 
           }
           else {
@@ -355,7 +346,6 @@
           }
         }
       }
-
 
       // Hovering over left panel elements
       function hoverStyleEnter(elem){
@@ -373,13 +363,6 @@
           elem.style.cursor = "normal";
           // elem.style.fontSize = "12px";
         }
-      }
-
-      // Initialize contents
-      function prep_content() {
-
-        document.getElementById("key-button").style.backgroundColor = dark_shade;
-        document.getElementById("chg-button").style.backgroundColor = light_shade;     
       }
 
       // Add loading animation
@@ -427,9 +410,11 @@
           curr_alg = "False";
         }
         
-        for (i=0; i<23; i++){
-          document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
-          document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
+        if (!cold_start){
+          for (i=0; i<23; i++){
+            document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
+            document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
+          }
         }
         makeRequest3(selected_fts, curr_alg);
       }
@@ -471,13 +456,13 @@
         k_btn.id = "key-button";
         k_btn.onclick = function(){buttonRequest(this);};
         k_btn.innerHTML = "Key Features";
-        k_btn.style.backgroundColor = dark_shade;
+        k_btn.style.backgroundColor = light_shade;
 
         c_btn.className = "algo-button";
         c_btn.id = "chg-button";
         c_btn.onclick = function(){buttonRequest(this);};
         c_btn.innerHTML = "Changes";
-        c_btn.style.backgroundColor = light_shade;
+        c_btn.style.backgroundColor = dark_shade;
 
         document.getElementsByClassName("btn-group")[0].append(k_btn);
         document.getElementsByClassName("btn-group")[0].append(c_btn);
