@@ -40,17 +40,20 @@ def display_data (sample):
 			category = "TP"
 		return sample, good_percent, model_correct, category, predicted
 
-trans_dict = {}
+
 
 # From id in entire list to id in restricted list
-def sample_transf ():
-	my_count = 0
-	for sample in range(10459):
-		if X[sample][0] != -9:
-			trans_dict[str(sample)] = my_count
-			my_count += 1
-		else:
-			trans_dict[str(sample)] = -9
+def sample_transf(X):
+    trans_dict = {}
+    my_count = 0
+    for sample in range(10459):
+        if X[sample][0] != -9:
+            trans_dict[str(sample)] = my_count
+            my_count += 1
+        else:
+            trans_dict[str(sample)] = -9
+
+    return trans_dict
 
 
 
@@ -74,7 +77,7 @@ bins_centred, X_pos_array, init_vals = divide_data_bins(X_no_9,[9,10])
 dict_array_orig = scaling_data_density(X_no_9, bins_centred, False)
 dict_array_monot = scaling_data_density(X_no_9, bins_centred, True)
 count_total = occurance_counter("static/data/pred_data_x.csv")
-sample_transf()
+trans_dict = sample_transf(X)
 
 
 
@@ -311,7 +314,7 @@ def violin_site_req():
 			# sample_cap = min(len(proj_samples), 30)
 			proj_samples = np.array([int(x) for x in proj_samples])#[:sample_cap])
 
-			violin_arr = populate_violin_plot(X_pos_array, proj_samples)
+			violin_arr = populate_violin_plot(X_pos_array, proj_samples,trans_dict)
 
 			ret_string = json.dumps(violin_arr)
 
@@ -325,3 +328,5 @@ if __name__ == '__main__':
 	np.random.seed(12345)
 
 	app.run(port=5005, host="0.0.0.0", debug=True)
+
+

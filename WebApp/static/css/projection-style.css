@@ -1283,7 +1283,7 @@ table #model-display {
 #distribution-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 850px;
+  width: 800px;
   height: 320px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
@@ -1300,7 +1300,7 @@ table #model-display {
 #aggregation-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 850px;
+  width: 800px;
   height: 350px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
