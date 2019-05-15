@@ -100,7 +100,7 @@
                       "Installment Trades w/ Balance",
                       "Bank Trades w/ High Utilization Ratio",
                       "% Trades w/ Balance"]
-      var selected_fts = [];
+      var selected_fts = [-1];
       var dark_shade = "rgb(177, 196, 209)";
       var light_shade = "white";
       var txtFile;
@@ -147,9 +147,11 @@
         }
         else {
           for (i=0; i<features.length; i++) {
-            req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            ft_nm = document.getElementById("feat-" + features[i].toString()).innerHTML;
+            // req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            req_arr.push(ft_names.indexOf(ft_nm));
             // features[i].style.fontSize = "15px";
-            features[i].style.fontWeight = "bold"; 
+            document.getElementById("feat-" + features[i].toString()).style.fontWeight = "bold"; 
           }
         }
 
@@ -300,8 +302,8 @@
               console.log("right panel aggregation");
               document.getElementById("aggregation-div").innerHTML = "";
               draw_aggregation_graph(allData,"#aggregation-div");
-              // highlight_features(selected_fts);
               ft_list();
+              highlight_features();
               cold_start = false;
             }
             // makeBokehRequest2(id_list);
@@ -349,19 +351,15 @@
 
       // Hovering over left panel elements
       function hoverStyleEnter(elem){
-        if (elem.style.fontWeight != "bold"){
-          elem.style.fontWeight = "bold";
-          elem.style.cursor = "pointer";
-          // elem.style.fontSize = "13px";
-        }
+        elem.style.fontWeight = "bold";
+        elem.style.cursor = "pointer";
       }
       function hoverStyleLeave(elem){
-        if (selected_fts.includes(elem)){
+        if (selected_fts.includes(elem.attributes.id.nodeValue.toString().substring(5))){
         }
         else{
           elem.style.fontWeight = "normal";
           elem.style.cursor = "normal";
-          // elem.style.fontSize = "12px";
         }
       }
 
@@ -412,17 +410,19 @@
         
         if (!cold_start){
           for (i=0; i<23; i++){
-            document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
+            // document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
             document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
           }
         }
         makeRequest3(selected_fts, curr_alg);
       }
 
-      // Select/deselect features in left panel
+      // Select/deselect features
       function flip_feature(elemn) {
 
         var curr_alg = "True";
+
+        console.log(elemn.attributes.id.nodeValue.toString().substring(5));
 
         if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
           curr_alg = "False";
@@ -432,16 +432,34 @@
         if (index > -1) {
           selected_fts.splice(index, 1);
         }
-        if (selected_fts.includes(elemn)){
-          index = selected_fts.indexOf(elemn);
+        if (selected_fts.includes(elemn.attributes.id.nodeValue.toString().substring(5))) {
+          index = selected_fts.indexOf(elemn.attributes.id.nodeValue.toString().substring(5));
           selected_fts.splice(index, 1);
           // elemn.style.fontSize = "12px";
-          elemn.style.fontWeight = "550";
+          elemn.style.fontWeight = "normal";
           makeRequest3(selected_fts, curr_alg);
         }
         else if (selected_fts.length < 5){
-          selected_fts.push(elemn);
+          selected_fts.push(elemn.attributes.id.nodeValue.toString().substring(5));
           makeRequest3(selected_fts, curr_alg);
+        }
+      }
+
+      // Select previously selected features
+      function highlight_features() {
+
+        // console.log(selected_fts);
+        var index = selected_fts.indexOf(-1);
+        if (index > -1) {
+          return;
+        }
+        for (i=0; i < selected_fts.length; i++){
+          // elemn = selected_fts[i];
+          // var ft_id = elemn.attributes.id.nodeValue.toString();//.substring(5);
+          // console.log(ft_id);
+          console.log(selected_fts[i]);
+          // document.getElementById(ft_id).style.fontWeight = "bold";
+          document.getElementById("feat-" + selected_fts[i].toString()).style.fontWeight = "bold";
         }
       }
 
