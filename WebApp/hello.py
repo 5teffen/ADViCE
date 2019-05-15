@@ -40,8 +40,6 @@ def display_data (sample):
 			category = "TP"
 		return sample, good_percent, model_correct, category, predicted
 
-
-
 # From id in entire list to id in restricted list
 def sample_transf(X):
     trans_dict = {}
@@ -248,7 +246,7 @@ def handle_request_ft():
 
 @app.route('/projection')
 def projection_site():
-	show_projection(True, list(range(X.shape[0])))
+	show_projection(False, list(range(X.shape[0])))
 	return render_template("index_projection.html")
 
 @app.route('/bokeh_req', methods=['GET'])
@@ -264,7 +262,7 @@ def bokeh_request_ft():
 
 		if ft_list[0] == '-1' or ft_list == ['']:
 			ret_arr = list(range(X.shape[0]))
-			print(ret_arr)
+
 		else:
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
@@ -285,8 +283,8 @@ def projection_site_req():
 
 		proj_samples = request.args.get('id_list').split(',')
 
-		if (proj_samples[0]==''):
-			return ""
+		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
+			return "-1"
 			
 		else:
 			
@@ -306,8 +304,8 @@ def violin_site_req():
 
 		proj_samples = request.args.get('id_list').split(',')
 
-		if (proj_samples[0]==''):
-			return ""
+		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
+			return "-1"
 
 		else:
 			
@@ -326,7 +324,5 @@ def violin_site_req():
 if __name__ == '__main__':
 
 	np.random.seed(12345)
-
 	app.run(port=5005, host="0.0.0.0", debug=True)
-
 

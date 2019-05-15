@@ -98,16 +98,12 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
         
         hover = HoverTool(tooltips=""" """)
-        taptoolcallback = CustomJS(args=dict(source=s1),code = """  """)
-        tap = TapTool(callback = taptoolcallback)
-        boxtoolcallback = CustomJS(args=dict(source=s1),code = """  """)
-        box = BoxSelectTool(callback = boxtoolcallback)
         help_b = HelpTool(help_tooltip = """    """)
         wheel_zoom = WheelZoomTool()
         lasso_select = LassoSelectTool()
 
-        p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b],
-                    toolbar_location="right", toolbar_sticky=False, title=title, width = 490, height = 490)
+        p1 = figure(tools=[hover, lasso_select, "reset", "tap", wheel_zoom, "pan", help_b],
+                    toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 390)
         p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
                    nonselection_fill_alpha=alpha_opt[-1],
                    nonselection_fill_color=color_opt[-1],
@@ -138,6 +134,10 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
                     //console.log(ids[i]);
                     aggregation_ids.push(ids[i]);
                 }
+            }
+
+            if (!(aggregation_ids && aggregation_ids.length)) {
+                aggregation_ids = [-1];
             }
 
             console.log(aggregation_ids);
