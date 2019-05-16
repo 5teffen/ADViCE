@@ -10,16 +10,22 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 
-def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred,positions,transform):
+def show_projection(alg, selected_ids, dim_red, directionality):
 
-    filename = "static/data/anchs_PCA.csv"
-    title="2D Projection - Anchors"
+    filename = "static/data/anchs_"
+    title = "2D Projection - Key Features"
     samples = 7468
-
     if (not alg):
-        filename = "static/data/changes_PCA.csv"
-        title="2D Projection - Changes"
         samples = 3114
+        filename = "static/data/changes_"
+        title = "2D Projection - Changes"
+
+    filename += dim_red
+
+    if (not directionality):
+        filename += "_dir_False"
+
+    filename += ".csv"
 
     fp = open(filename, 'r', encoding='utf-8')
 
