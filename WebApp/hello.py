@@ -40,8 +40,6 @@ def display_data (sample):
 			category = "TP"
 		return sample, good_percent, model_correct, category, predicted
 
-
-
 # From id in entire list to id in restricted list
 def sample_transf(X):
     trans_dict = {}
@@ -81,7 +79,7 @@ trans_dict = sample_transf(X)
 
 
 
-# ------ Initialize WebApp ------- #
+# ------- Initialize WebApp ------- #
 
 app = Flask(__name__) # static_folder="C:/Users/Oscar/Documents/UGR 2018/Fico-Challenge-master/VisualApp1/static")
 
@@ -92,6 +90,7 @@ def hello():
 @app.route('/intro')
 def intro_site():
 	return render_template("index_intro.html")
+
 
 
 # ------- Individual Explanations ------- #
@@ -239,7 +238,6 @@ def handle_request_ft():
 
 		## Parse values into python dictionary
 		ret_string = json.dumps(ret_arr)
-
 		return ret_string
 
 
@@ -248,7 +246,7 @@ def handle_request_ft():
 
 @app.route('/projection')
 def projection_site():
-	show_projection(True, list(range(X.shape[0])))
+	show_projection(False, list(range(X.shape[0])), "PCA", True)
 	return render_template("index_projection.html")
 
 @app.route('/bokeh_req', methods=['GET'])
@@ -261,21 +259,23 @@ def bokeh_request_ft():
 
 		# False = changes, True = keyfts
 		algorithm = (request.args.get('algorithm') == "True")
+		dim_red = request.args.get('dim_red')
+		directionality = (request.args.get('directionality') == "True")
 
 		if ft_list[0] == '-1' or ft_list == ['']:
 			ret_arr = list(range(X.shape[0]))
-			print(ret_arr)
+
 		else:
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
 			ret_arr = ids_with_combination("static/data/pred_data_x.csv",ft_list,algorithm)
 
 		print(ret_arr)
-		show_projection(algorithm, ret_arr)
+		# show_projection(algorithm, ret_arr)
+		show_projection(algorithm, ret_arr, dim_red, directionality)
 
 		## Parse values into python dictionary
 		ret_string = json.dumps(ret_arr)
-
 		return ret_string
 
 @app.route('/aggregation_req')
@@ -285,18 +285,14 @@ def projection_site_req():
 
 		proj_samples = request.args.get('id_list').split(',')
 
-		if (proj_samples[0]==''):
-			return ""
+		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
+			return "-1"
 			
-		else:
-			
+		else:	
 			# sample_cap = min(len(proj_samples), 30)
 			proj_samples = [int(x) for x in proj_samples]#[:sample_cap]
-
 			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
-
 			ret_string = json.dumps(proj_arr)
-
 			return ret_string
 
 @app.route('/violin_req')
@@ -306,19 +302,16 @@ def violin_site_req():
 
 		proj_samples = request.args.get('id_list').split(',')
 
-		if (proj_samples[0]==''):
-			return ""
+		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
+			return "-1"
 
-		else:
-			
+		else:	
 			# sample_cap = min(len(proj_samples), 30)
 			proj_samples = np.array([int(x) for x in proj_samples])#[:sample_cap])
-
 			violin_arr = populate_violin_plot(X_pos_array, proj_samples,trans_dict)
-
 			ret_string = json.dumps(violin_arr)
-
 			return ret_string
+
 
 
 # ------- Run WebApp ------- #
@@ -326,7 +319,5 @@ def violin_site_req():
 if __name__ == '__main__':
 
 	np.random.seed(12345)
-
 	app.run(port=5005, host="0.0.0.0", debug=True)
-
 

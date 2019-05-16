@@ -10,16 +10,22 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 
 
-def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred,positions,transform):
+def show_projection(alg, selected_ids, dim_red, directionality):
 
-    filename = "static/data/anchs_PCA.csv"
-    title="2D Projection - Anchors"
+    filename = "static/data/anchs_"
+    title = "2D Projection - Key Features"
     samples = 7468
-
     if (not alg):
-        filename = "static/data/changes_PCA.csv"
-        title="2D Projection - Changes"
         samples = 3114
+        filename = "static/data/changes_"
+        title = "2D Projection - Changes"
+
+    filename += dim_red
+
+    if (not directionality):
+        filename += "_dir_False"
+
+    filename += ".csv"
 
     fp = open(filename, 'r', encoding='utf-8')
 
@@ -98,16 +104,12 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
         s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
         
         hover = HoverTool(tooltips=""" """)
-        taptoolcallback = CustomJS(args=dict(source=s1),code = """  """)
-        tap = TapTool(callback = taptoolcallback)
-        boxtoolcallback = CustomJS(args=dict(source=s1),code = """  """)
-        box = BoxSelectTool(callback = boxtoolcallback)
         help_b = HelpTool(help_tooltip = """    """)
         wheel_zoom = WheelZoomTool()
         lasso_select = LassoSelectTool()
 
-        p1 = figure(tools=[hover, lasso_select, "reset", tap, wheel_zoom, box, "pan", help_b],
-                    toolbar_location="right", toolbar_sticky=False, title=title, width = 490, height = 490)
+        p1 = figure(tools=[hover, lasso_select, "reset", "tap", wheel_zoom, "pan", help_b],
+                    toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 390)
         p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
                    nonselection_fill_alpha=alpha_opt[-1],
                    nonselection_fill_color=color_opt[-1],
@@ -138,6 +140,10 @@ def show_projection(alg, selected_ids):#pre_proc_file,all_data_file,bins_centred
                     //console.log(ids[i]);
                     aggregation_ids.push(ids[i]);
                 }
+            }
+
+            if (!(aggregation_ids && aggregation_ids.length)) {
+                aggregation_ids = [-1];
             }
 
             console.log(aggregation_ids);

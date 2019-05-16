@@ -683,10 +683,10 @@ table #model-display {
     display: inline-block;
     margin-bottom: 25px;
 }
-.btn-group .algo-button:not(:last-child) {
+#key-button {
     border-right: none; /* Prevent double borders */
 }
-.btn-group .algo-button:focus {
+.algo-button:focus {
     outline: none;
 }
 
@@ -1191,7 +1191,7 @@ table #model-display {
 #middle-panel-proj {
   margin-left: 30px;
   /*width: calc(100% - 300px);*/
-  width: 500px;
+  width: 400px;
   height: calc(100% - 100px);
   margin-top: 15px;
   /*background-color: darkgrey;*/
@@ -1211,11 +1211,38 @@ table #model-display {
   /*display: table-cell; vertical-align: middle;*/
 }
 
+.btn-group .dimred-button {
+    background-color: #BEBEBE; /* Green */
+    border: 1px solid black;
+    color: black;
+    padding: 8px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    cursor: pointer;
+    float: left;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+#pca-button {
+    border-right: none; /* Prevent double borders */
+    margin-left: 5px;
+}
+#direction-button {
+  margin-left: 5px;
+}
+.btn-group .dimred-button:focus {
+    outline: none;
+}
+
+
 #bokeh-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 500px;
-  height: 500px;
+  width: 400px;
+  height: 400px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
@@ -1224,10 +1251,16 @@ table #model-display {
 /*  float: right;
   margin-left: 100px;*/
   -webkit-transition: all 2s;
-  border: 1px solid lightgray;
+  /*border: 1px solid lightgray;*/
   /*position: absolute;*/
 
 }
+
+#bokeh-iframe {
+  height: 400px;
+  width: 400px;
+}
+
 
 #filter-div {
   margin-left: 0px;
@@ -1283,8 +1316,8 @@ table #model-display {
 #distribution-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 800px;
-  height: 320px;
+  width: 820px;
+  height: 250px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
@@ -1294,22 +1327,24 @@ table #model-display {
   margin-left: 100px;*/
   -webkit-transition: all 2s;
   border: 1px solid lightgray;
+  border-bottom: none;
   /*position: absolute;*/
 }
 
 #aggregation-div {
   margin-left: 0px;
   /*width: calc(100% - 300px);*/
-  width: 800px;
-  height: 350px;
+  width: 820px;
+  height: 400px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
   /*display: none;*/
   float: left;
   /*float: right;*/
-  margin-top: 10px;
+  margin-top: 0px;
   -webkit-transition: all 2s;
   border: 1px solid lightgray;
+  border-top: none;
   /*position: absolute;*/
 }
