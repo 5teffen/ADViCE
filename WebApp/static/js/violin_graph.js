@@ -62,6 +62,18 @@ function play_violin(allData,place){
         .style("opacity",0.5)
         .style("fill","#7570b3");
 
+        // // -- Drawing left side line -- 
+        // svg.append("line")
+        //     .attr("class","middle_line")
+        //     .attr("x1",0)
+        //     .attr('y1',-buffer/4)
+        //     .attr("y2",height+buffer/4)
+        //     .attr("x2",0)
+        //     .style("stroke","black")
+        //     .style("opacity",0.2)
+        //     .style("stroke-width",2);  
+
+
          // -- Centre the image -- 
         svg = svg.append("g")
                 .attr("transform","translate(" + (xScaleRight(1)) + ',0)'); 
@@ -77,19 +89,34 @@ function play_violin(allData,place){
         .attr("height",yScale.bandwidth())
         .attr("width",function(d) {return xScaleRight(d.right);})
         .style("opacity",1)
-        .style("fill","#7570b3");   
+        .style("fill","#7570b3");
+
+        // // -- Drawing ride side line -- 
+        // svg.append("line")
+        //     .attr("class","middle_line")
+        //     .attr("x1",xScaleRight(1))
+        //     .attr('y1',-buffer/4)
+        //     .attr("y2",height+buffer/4)
+        //     .attr("x2",xScaleRight(1))
+        //     .style("stroke","black")
+        //     .style("opacity",0.2)
+        //     .style("stroke-width",2);  
 
 
-        // -- Drawing dividing middle line -- 
-        svg.append("line")
-            .attr("class","middle_line")
-            .attr("x1",0)
-            .attr('y1',-buffer/4)
-            .attr("y2",height+buffer/4)
-            .attr("x2",0)
-            .style("stroke","black")
-            .style("opacity",0.2)
-            .style("stroke-width",2);  
+
+
+        // // -- Drawing dividing middle line -- 
+        // svg.append("line")
+        //     .attr("class","middle_line")
+        //     .attr("x1",0)
+        //     .attr('y1',-buffer/4)
+        //     .attr("y2",height+buffer/4)
+        //     .attr("x2",0)
+        //     .style("stroke","black")
+        //     .style("opacity",0.2)
+        //     .style("stroke-width",2);  
+
+
 
 
         function draw_density_boxed(testData,data) {
