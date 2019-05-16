@@ -131,7 +131,7 @@
       }
 
       // Request to send feature list
-      function makeRequest3(features, algo) {
+      function makeRequest3(features, algo, dim_red, directionality) {
         httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
@@ -157,7 +157,7 @@
 
         
         httpRequest.onreadystatechange = alertContents3;
-        httpRequest.open('GET', 'bokeh_req?features=['+req_arr+']&algorithm='+algo);
+        httpRequest.open('GET', 'bokeh_req?features=['+req_arr+']&algorithm='+algo + '&dim_red='+dim_red + '&directionality='+directionality);
         httpRequest.send();
         return false;
       }
@@ -263,16 +263,35 @@
       // Style buttons and send request
       function buttonRequest(elem) {
 
-        if (elem.innerHTML == "Key Features") {
+        if (elem.id == "key-button") {
           elem.style.backgroundColor = dark_shade;
           var c_but = document.getElementById('chg-button');
           c_but.style.backgroundColor = light_shade;
         }
-        else {
+        else if (elem.id == "chg-button") {
           elem.style.backgroundColor = dark_shade;
           var c_but = document.getElementById('key-button');
           c_but.style.backgroundColor = light_shade;
         }
+        else if (elem.id == "pca-button") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('tsne-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else if (elem.id == "tsne-button") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('pca-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else if (elem.id == "direction-button") {
+          if (elem.style.backgroundColor == dark_shade){
+            elem.style.backgroundColor = light_shade;
+          }
+          else{
+            elem.style.backgroundColor = dark_shade;
+          }   
+        }
+
         resetFeatures();
         // makeGlobRequest();
       }
@@ -403,29 +422,44 @@
 
         selected_fts = [-1];
         var curr_alg = "True";
+        var dim_red = "tSNE";
+        var directionality = "False";
 
         if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
           curr_alg = "False";
         }
+        if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
+          dim_red = "PCA";
+        }
+        if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
+          directionality = "True";
+        }
         
         if (!cold_start){
           for (i=0; i<23; i++){
-            // document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
             document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
           }
         }
-        makeRequest3(selected_fts, curr_alg);
+        makeRequest3(selected_fts, curr_alg, dim_red, directionality);
       }
 
       // Select/deselect features
       function flip_feature(elemn) {
 
         var curr_alg = "True";
+        var dim_red = "tSNE";
+        var directionality = "False";
 
         console.log(elemn.attributes.id.nodeValue.toString().substring(5));
 
         if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
           curr_alg = "False";
+        }
+        if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
+          dim_red = "PCA";
+        }
+        if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
+          directionality = "True";
         }
 
         var index = selected_fts.indexOf(-1);
@@ -437,11 +471,11 @@
           selected_fts.splice(index, 1);
           // elemn.style.fontSize = "12px";
           elemn.style.fontWeight = "normal";
-          makeRequest3(selected_fts, curr_alg);
+          makeRequest3(selected_fts, curr_alg, dim_red, directionality);
         }
         else if (selected_fts.length < 5){
           selected_fts.push(elemn.attributes.id.nodeValue.toString().substring(5));
-          makeRequest3(selected_fts, curr_alg);
+          makeRequest3(selected_fts, curr_alg, dim_red, directionality);
         }
       }
 
@@ -469,6 +503,9 @@
         var right = document.getElementById("demo");
         var k_btn = document.createElement("button");
         var c_btn = document.createElement("button");
+        var pca_btn = document.createElement("button");
+        var tsne_btn = document.createElement("button");
+        var dir_btn = document.createElement("button");
 
         k_btn.className = "algo-button";
         k_btn.id = "key-button";
@@ -482,8 +519,29 @@
         c_btn.innerHTML = "Changes";
         c_btn.style.backgroundColor = dark_shade;
 
+        pca_btn.className = "dimred-button";
+        pca_btn.id = "pca-button";
+        pca_btn.onclick = function(){buttonRequest(this);};
+        pca_btn.innerHTML = "PCA";
+        pca_btn.style.backgroundColor = dark_shade;
+
+        tsne_btn.className = "dimred-button";
+        tsne_btn.id = "tsne-button";
+        tsne_btn.onclick = function(){buttonRequest(this);};
+        tsne_btn.innerHTML = "tSNE";
+        tsne_btn.style.backgroundColor = light_shade;
+
+        dir_btn.className = "dimred-button";
+        dir_btn.id = "direction-button";
+        dir_btn.onclick = function(){buttonRequest(this);};
+        dir_btn.innerHTML = "Direct.";
+        dir_btn.style.backgroundColor = dark_shade;
+
         document.getElementsByClassName("btn-group")[0].append(k_btn);
         document.getElementsByClassName("btn-group")[0].append(c_btn);
+        document.getElementsByClassName("btn-group")[0].append(pca_btn);
+        document.getElementsByClassName("btn-group")[0].append(tsne_btn);
+        document.getElementsByClassName("btn-group")[0].append(dir_btn);
 
         var reset = document.createElement("button");
         reset.innerHTML = "Reset";
