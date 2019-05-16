@@ -231,12 +231,16 @@ def perform_tsne(file_name, output_file_name):
 # change_distances(change_vectors, y_c, False)
 # anch_distances(anch_vectors, y_a, False)
 
-# perform_pca("static/data/changes_no_red_dir_False.csv","static/data/changes_PCA_dir_False.csv")
-# perform_pca("static/data/anchs_no_red_dir_False.csv","static/data/anchs_PCA_dir_False.csv")
+# perform_pca("static/data/anchs_no_red.csv","static/data/anchs_PCA.csv")
+# perform_pca("static/data/changes_no_red.csv","static/data/changes_PCA.csv")
 
-# perform_tsne("static/data/anchs_no_red.csv","static/data/anchs_tSNE.csv")
+# perform_pca("static/data/anchs_no_red_dir_False.csv","static/data/anchs_PCA_dir_False.csv")
+# perform_pca("static/data/changes_no_red_dir_False.csv","static/data/changes_PCA_dir_False.csv")
+
+perform_tsne("static/data/anchs_no_red.csv","static/data/anchs_tSNE.csv")
 # perform_tsne("static/data/changes_no_red.csv","static/data/changes_tSNE.csv")
 
-perform_tsne("static/data/changes_no_red_dir_False.csv","static/data/changes_tSNE_dir_False.csv")
 # perform_tsne("static/data/anchs_no_red_dir_False.csv","static/data/anchs_tSNE_dir_False.csv")
+# perform_tsne("static/data/changes_no_red_dir_False.csv","static/data/changes_tSNE_dir_False.csv")
+
 
