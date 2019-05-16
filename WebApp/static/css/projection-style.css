@@ -683,10 +683,10 @@ table #model-display {
     display: inline-block;
     margin-bottom: 25px;
 }
-.btn-group .algo-button:not(:last-child) {
+#key-button {
     border-right: none; /* Prevent double borders */
 }
-.btn-group .algo-button:focus {
+.algo-button:focus {
     outline: none;
 }
 
@@ -1210,6 +1210,33 @@ table #model-display {
   display: inline-block;
   /*display: table-cell; vertical-align: middle;*/
 }
+
+.btn-group .dimred-button {
+    background-color: #BEBEBE; /* Green */
+    border: 1px solid black;
+    color: black;
+    padding: 8px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    cursor: pointer;
+    float: left;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+#pca-button {
+    border-right: none; /* Prevent double borders */
+    margin-left: 5px;
+}
+#direction-button {
+  margin-left: 5px;
+}
+.btn-group .dimred-button:focus {
+    outline: none;
+}
+
 
 #bokeh-div {
   margin-left: 0px;
