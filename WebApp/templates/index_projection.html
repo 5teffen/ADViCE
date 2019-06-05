@@ -44,7 +44,7 @@
 
         </nav>
         <div id="filter-div">
-          filters
+          <!-- filters -->
         </div>
         <!-- <nav class="id-list">
         </nav> -->
@@ -318,7 +318,7 @@
             var resp_arr = httpRequest.responseText;
             if (resp_arr!="-1"){
               var allData = JSON.parse(resp_arr);
-              console.log("right panel aggregation");
+              // console.log("right panel aggregation");
               document.getElementById("aggregation-div").innerHTML = "";
               draw_aggregation_graph(allData,"#aggregation-div");
               ft_list();
@@ -356,7 +356,7 @@
             var resp_arr = httpRequest2.responseText;
             if (resp_arr!="-1"){
               var allData = JSON.parse(resp_arr);
-              console.log("right panel violin");
+              // console.log("right panel violin");
               document.getElementById("distribution-div").innerHTML = "";
               play_violin(allData,"#distribution-div");
             }
@@ -450,7 +450,7 @@
         var dim_red = "tSNE";
         var directionality = "False";
 
-        console.log(elemn.attributes.id.nodeValue.toString().substring(5));
+        // console.log(elemn.attributes.id.nodeValue.toString().substring(5));
 
         if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
           curr_alg = "False";
@@ -491,7 +491,7 @@
           // elemn = selected_fts[i];
           // var ft_id = elemn.attributes.id.nodeValue.toString();//.substring(5);
           // console.log(ft_id);
-          console.log(selected_fts[i]);
+          // console.log(selected_fts[i]);
           // document.getElementById(ft_id).style.fontWeight = "bold";
           document.getElementById("feat-" + selected_fts[i].toString()).style.fontWeight = "bold";
         }
