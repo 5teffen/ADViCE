@@ -86,7 +86,7 @@ def extract_vectors(all_data_file, pre_data_file):
 
 	return anch_vectors,change_vectors,y_anch,y_change
 
-def anch_distances(anch_vectors , y):
+def anch_distances(anch_vectors , y, directionality):
 	# -- Anchor Distance Martix --
 	# --- Intersection/Union --- 
 	no_samp = anch_vectors.shape[0]
@@ -122,13 +122,13 @@ def anch_distances(anch_vectors , y):
 			else:
 				i_over_u = np.round(inter/union,3)
 
-			if (y[ts] != y[cs]):
+			if (directionality and y[ts] != y[cs]):
 				i_over_u *= -1
 
 
 			anch_dist[ts][cs] = i_over_u
 	
-	np.savetxt("anchs_no_red.csv",np.append(ids,anch_dist,axis=1) , delimiter=",",fmt='%s')
+	np.savetxt("anchs_no_red_dir_" + str(directionality) + ".csv",np.append(ids,anch_dist,axis=1) , delimiter=",",fmt='%s')
 	
 	# embedding = MDS(n_components=2)
 	# transformed = embedding.fit_transform(anch_dist)
@@ -138,7 +138,7 @@ def anch_distances(anch_vectors , y):
 
 	# np.savetxt("anchs.csv", all_results, delimiter=",",fmt='%s')
 
-def change_distances(change_vectors , y):
+def change_distances(change_vectors , y, directionality):
 	# -- Changes Distance Martix --
 	no_samp = change_vectors.shape[0]
 	change_dist = np.zeros((no_samp,no_samp))
@@ -164,9 +164,16 @@ def change_distances(change_vectors , y):
 				
 				if (test_val and comp_val):
 					if (abs(test_val)>abs(comp_val)):
-						inter += comp_val/test_val
+						if (directionality):
+							inter += comp_val/test_val
+						else:
+							inter += abs(comp_val/test_val)
 					else:
-						inter += test_val/comp_val
+						if (directionality):
+							inter += test_val/comp_val
+						else:
+							inter += abs(test_val/comp_val)
+
 
 				if (test_val or comp_val):
 					union += 1
@@ -179,7 +186,7 @@ def change_distances(change_vectors , y):
 
 			change_dist[ts][cs] = i_over_u
 
-	np.savetxt("changes_no_red.csv",np.append(ids,change_dist,axis=1) , delimiter=",",fmt='%s')
+	np.savetxt("changes_no_red_dir_" + str(directionality) + ".csv",np.append(ids,change_dist,axis=1) , delimiter=",",fmt='%s')
 	
 	# embedding = MDS(n_components=2)
 	# transformed = embedding.fit_transform(change_dist)
@@ -202,11 +209,11 @@ def perform_dr(file_name,output_file_name):
 	np.savetxt(output_file_name, output, delimiter=",",fmt='%s')
 	print("Done")
 
-anch_vectors,change_vectors,y_a, y_c = extract_vectors("static/data/final_data_file.csv","static/data/pred_data_x.csv")
-print(anch_vectors,change_vectors,y_a, y_c)
+anch_vectors, change_vectors, y_a, y_c = extract_vectors("static/data/final_data_file.csv","static/data/pred_data_x.csv")
+print(anch_vectors, change_vectors, y_a, y_c)
 
-change_distances(change_vectors,y_c)
-anch_distances(anch_vectors,y_a)
+change_distances(change_vectors, y_c, False)
+anch_distances(anch_vectors, y_a, False)
 
 # perform_dr("changes_no_reduction.csv","changes_PCA")
 # perform_dr("anchs_no_reduction.csv","anchs_PCA")

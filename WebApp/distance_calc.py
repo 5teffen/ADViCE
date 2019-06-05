@@ -237,7 +237,7 @@ def perform_tsne(file_name, output_file_name):
 # perform_pca("static/data/anchs_no_red_dir_False.csv","static/data/anchs_PCA_dir_False.csv")
 # perform_pca("static/data/changes_no_red_dir_False.csv","static/data/changes_PCA_dir_False.csv")
 
-perform_tsne("static/data/anchs_no_red.csv","static/data/anchs_tSNE.csv")
+# perform_tsne("static/data/anchs_no_red.csv","static/data/anchs_tSNE.csv")
 # perform_tsne("static/data/changes_no_red.csv","static/data/changes_tSNE.csv")
 
 # perform_tsne("static/data/anchs_no_red_dir_False.csv","static/data/anchs_tSNE_dir_False.csv")

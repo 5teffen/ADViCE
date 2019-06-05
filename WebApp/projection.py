@@ -1,13 +1,9 @@
 import numpy as np
-from sklearn.manifold import TSNE
-import matplotlib.pyplot as plt
-from bokeh.layouts import row, gridplot, layout
+from bokeh.layouts import gridplot
 from bokeh.models import CustomJS, ColumnDataSource, HoverTool, TapTool, WheelZoomTool, LassoSelectTool, BoxSelectTool, PanTool, HelpTool
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, output_file
 from bokeh.resources import CDN
 from bokeh.embed import file_html
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
 
 
 def show_projection(alg, selected_ids, dim_red, directionality):

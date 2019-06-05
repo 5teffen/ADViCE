@@ -765,14 +765,14 @@ def populate_violin_plot(pos_array, id_list, transform, monot=False,):
 		column = pos_array[:,col]
 
 		for bin_no in column:
-			single_graph[int(bin_no)]['right'] += 1
+			single_graph[9-int(bin_no)]['right'] += 1
 
 
 		# -- Incramenting relative counts -- 
 		for id_no in id_list:
 			id_no = int(transform[str(id_no)])
 
-			to_incrament = column[id_no-1]   # CHECK IF THIS IS CORRECT!!!
+			to_incrament = 9-column[id_no-1]   # CHECK IF THIS IS CORRECT!!!
 			single_graph[int(to_incrament)]['left'] += 1  # assuming 1 indexing
 
 
@@ -822,7 +822,6 @@ if __name__ == '__main__':
 
     # count_total = occurance_counter("static/data/pred_data_x.csv")
     # sample_transf()
-
 
 
 
