@@ -152,9 +152,8 @@ function draw_aggregation_graph(allData, place) {
         for(n=0 ; n < data.length; n++){
             var d = data[n];
 
-            if (d.scl_val != d.scl_change) {
-            x1 = xScale(d.name) + xScale.bandwidth()*0.35
-            x2 = xScale(d.name) + xScale.bandwidth()*0.65
+            x1 = xScale(d.name) + xScale.bandwidth()*0.30
+            x2 = xScale(d.name) + xScale.bandwidth()*0.70
             x3 = xScale(d.name) + xScale.bandwidth()*0.5
             y1 = yScale(d.scl_val)
             y2 = yScale(d.scl_change)
@@ -162,34 +161,37 @@ function draw_aggregation_graph(allData, place) {
 
             one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
                 +"L"+x1+","+y1;
+
+
             full_string += one_tri
-
-            }
         }
-   		return full_string
-   	}
+        return full_string
+    }
 
 
 
 
-   	svg.append('g').selectAll("path")
-   	.data(allData)
+    svg.append('g').selectAll("path")
+    .data(allData)
     .enter()
     .append("path")
-    .attr('d',function(d){return draw_triangle(d);})
-    .attr("opacity",0.2)
-    .attr("fill",function(d){
-    	if (d[0].dec == 0) {
-	        return bad_col;}
-   		else {
-	        return good_col;}
+    .on('mouseover',function(){
+        d3.select(this)
+        .attr('stroke','black')
     })
-    .attr("stroke",function(d){
-    	if (d[0].dec == 0) {
-	        return bad_col;}
-   		else {
-	        return good_col;}
-    });
+    .on('mouseout',function(){
+        d3.select(this)
+        .attr("stroke",'none')
+    })
+    .attr('d',function(d){return draw_triangle(d);})
+    .attr("fill-opacity",0.5)
+    .attr("fill",function(d){
+        if (d[0].dec == 0) {
+            return bad_col;}
+        else {
+            return good_col;}
+    })
+    .attr("stroke-width", 1.5);
 
 	// svg.append("g").append('path')
 	// 	.data(testData)
