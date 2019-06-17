@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from sklearn.neighbors.kde import KernelDensity
+from sklearn import preprocessing
 from operator import itemgetter
 import copy
 
@@ -626,7 +628,7 @@ def prep_for_D3_global(pre_proc_file,all_data_file,samples,bins_centred,position
 
 	return final_data
 
-def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,positions,transform):
+def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,positions,transform,sort = True):
 
 	names = ["External Risk Estimate", 
                       "Months Since Oldest Trade Open",
@@ -659,7 +661,6 @@ def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,pos
 
 	
 	for s in samples:
-
 		s -= 1
 		single_dict_list = []
 		for i in range(all_data.shape[1]):
@@ -717,7 +718,36 @@ def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,pos
 			
 		final_data.append(single_dict_list)
 
-	return final_data
+	# return final_data
+	final_data = np.array(final_data)
+	# return(final_data.tolist())
+	
+	# -- Sorting based on the number of arrows -- 
+	if sort == True:
+		count_list = np.zeros((final_data.shape[1],))
+		for c in range(final_data.shape[1]):
+			col = final_data[:,c]
+			count = 0
+			for sample in col:
+				if sample['scl_val'] != sample['scl_change']:
+					count += 1
+
+			count_list[c] = count
+
+		keySort = np.argsort(count_list)[::-1]
+
+		final_result = np.array([])
+
+		for key in keySort:
+			if final_result.any() == False:
+				final_result = final_data[:,key].reshape(-1,1)
+			else:
+				final_result = np.append(final_result,final_data[:,key].reshape(-1,1), axis = 1)
+
+		return final_result.tolist()
+	
+	else:
+		return final_data.tolist()
 
 def populate_violin_plot(pos_array, id_list, transform, monot=False,):
 
@@ -796,7 +826,81 @@ def populate_violin_plot(pos_array, id_list, transform, monot=False,):
 			pos['right'] = pos['right']/max_right
 			pos['left'] = pos['left']/max_left
 
+
 	return all_graphs
+
+
+
+
+def kernel_density(X,samples,transform):
+
+	all_kernels = []
+	partial_kernels = []
+
+
+	# --- Identifying sample densities --- 
+	transformed_samples = []
+	for s in samples:
+		transformed_samples.append(int(transform[str(s)]))
+
+	filtered_X = X[transformed_samples]
+
+	col_mean, col_median, sam_mean, sam_median = [], [], [], []
+
+	for c in range(X.shape[1]):
+
+		# --- Isolate feature column --- 
+		col = X[:,c]  # All samples
+		sam = filtered_X[:,c]  # Select samples
+
+
+		# --- Set paramaters --- 
+		max_val = max(10,np.amax(col))
+		min_val = min(0,np.amin(col))
+		scale = max_val+1 - min_val
+
+		fineness = 1000
+
+
+		# --- Reshaping --- 
+		col = np.reshape(col, (col.shape[0],1))
+		sam = np.reshape(sam, (sam.shape[0],1))
+
+		X_axis = np.linspace(min_val,max_val,fineness)[:, np.newaxis]
+
+
+		# --- Estimate density --- 
+		kde_col = KernelDensity(kernel='gaussian', bandwidth=scale/20).fit(col)
+		kde_sam = KernelDensity(kernel='gaussian', bandwidth=scale/20).fit(sam)
+		log_dens_col = kde_col.score_samples(X_axis)
+		log_dens_sam = kde_sam.score_samples(X_axis)
+
+		kernel_col = np.exp(log_dens_col)
+		kernel_sam = np.exp(log_dens_sam)
+
+
+		# --- Normalize and Convert --- 
+		min_max_scaler = preprocessing.MinMaxScaler(copy=True, feature_range=(0, 1))
+
+		kernel_col = np.reshape(kernel_col, (kernel_col.shape[0],1))
+		kernel_sam = np.reshape(kernel_sam, (kernel_sam.shape[0],1))
+
+		kernel_col = min_max_scaler.fit_transform(kernel_col)
+		kernel_sam = min_max_scaler.fit_transform(kernel_sam)
+
+		all_kernels.append(kernel_col.flatten())
+		partial_kernels.append(kernel_sam.flatten())
+		
+		# --- Estimate statistics values --- 
+		col_mean.append(np.mean(col))
+		col_median.append(np.median(col))
+		
+		sam_mean.append(np.mean(sam))
+		sam_median.append(np.median(sam))
+
+
+	return all_kernels, partial_kernels, sam_median, col_median 
+
 
 
 
@@ -815,10 +919,14 @@ if __name__ == '__main__':
     # density_array = scaling_data_density(X_no_9, bins_centred)
     # print(len(density_array))
 
+    proj_samples = [x+1 for x in range(1000)]
+
     trans = sample_transf(X)
 
-    result = populate_violin_plot(X_pos_array, np.array([1,2,3,4,5,6,7]),trans)
+    # prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans, True)
+    # result = populate_violin_plot(X_pos_array, np.array([1,2,3,4,5,6,7]),trans)
 
+    all_den, select_den, all_median , select_median = kernel_density(X_no_9, [1,2,3,4,5],trans)   # Density Code!!
 
     # count_total = occurance_counter("static/data/pred_data_x.csv")
     # sample_transf()
