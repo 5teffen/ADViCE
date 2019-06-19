@@ -713,7 +713,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
             bottom: 170, 
             left: 10
         },
-        width = 209 - margin.right - margin.left,
+        width = 809 - margin.right - margin.left,
         // width = 800 - margin.right - margin.left,
         height = 400 - margin.top - margin.bottom;
 
