@@ -270,30 +270,29 @@ def bokeh_request_ft():
 			ft_list.sort()
 			ret_arr = ids_with_combination("static/data/pred_data_x.csv",ft_list,algorithm)
 
-		print(ret_arr)
-		# show_projection(algorithm, ret_arr)
+		# print(ret_arr)
 		show_projection(algorithm, ret_arr, dim_red, directionality)
 
 		## Parse values into python dictionary
 		ret_string = json.dumps(ret_arr)
 		return ret_string
 
-@app.route('/aggregation_req')
-def projection_site_req():
+# @app.route('/aggregation_req')
+# def projection_site_req():
 
-	if request.method == 'GET':
+# 	if request.method == 'GET':
 
-		proj_samples = request.args.get('id_list').split(',')
+# 		proj_samples = request.args.get('id_list').split(',')
 
-		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
-			return "-1"
+# 		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
+# 			return "-1"
 			
-		else:	
-			# sample_cap = min(len(proj_samples), 30)
-			proj_samples = [int(x) for x in proj_samples]#[:sample_cap]
-			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
-			ret_string = json.dumps(proj_arr)
-			return ret_string
+# 		else:	
+# 			# sample_cap = min(len(proj_samples), 30)
+# 			proj_samples = [int(x) for x in proj_samples]#[:sample_cap]
+# 			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
+# 			ret_string = json.dumps(proj_arr)
+# 			return ret_string
 
 @app.route('/violin_req')
 def violin_site_req():
@@ -308,8 +307,11 @@ def violin_site_req():
 		else:	
 			# sample_cap = min(len(proj_samples), 30)
 			proj_samples = np.array([int(x) for x in proj_samples])#[:sample_cap])
-			violin_arr = populate_violin_plot(X_pos_array, proj_samples,trans_dict)
-			ret_string = json.dumps(violin_arr)
+			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
+			all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
+			# ret_string = json.dumps([np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
+			aggr_data = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
+			ret_string = json.dumps([aggr_data, np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
 			return ret_string
 
 

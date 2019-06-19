@@ -1,7 +1,8 @@
 import numpy as np
-from bokeh.layouts import gridplot
-from bokeh.models import CustomJS, ColumnDataSource, HoverTool, TapTool, WheelZoomTool, LassoSelectTool, BoxSelectTool, PanTool, HelpTool
-from bokeh.plotting import figure, output_file
+from bokeh.layouts import gridplot, column
+from bokeh.models import CustomJS, ColumnDataSource, HoverTool, TapTool, WheelZoomTool, LassoSelectTool, BoxSelectTool, PanTool, HelpTool, CustomJSFilter, CDSView
+from bokeh.plotting import figure, output_file, show
+from bokeh.models.widgets import CheckboxGroup
 from bokeh.resources import CDN
 from bokeh.embed import file_html
 
@@ -97,21 +98,21 @@ def show_projection(alg, selected_ids, dim_red, directionality):
 
         output_file('2d_changes_map.html')
 
-        s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
+        s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, category=category, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
         
         hover = HoverTool(tooltips=""" """)
-        help_b = HelpTool(help_tooltip = """    """)
+        # help_b = HelpTool(help_tooltip = """    """)
         wheel_zoom = WheelZoomTool()
         lasso_select = LassoSelectTool()
 
-        p1 = figure(tools=[hover, lasso_select, "reset", "tap", wheel_zoom, "pan", help_b],
+        p1 = figure(tools=[hover, lasso_select, "reset", "tap", wheel_zoom, "pan"],
                     toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 390)
-        p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
-                   nonselection_fill_alpha=alpha_opt[-1],
-                   nonselection_fill_color=color_opt[-1],
-                   nonselection_line_color=color_opt[-1],
-                   nonselection_line_alpha=alpha_opt[-1] 
-                  )
+        # p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
+        #            nonselection_fill_alpha=alpha_opt[-1],
+        #            nonselection_fill_color=color_opt[-1],
+        #            nonselection_line_color=color_opt[-1],
+        #            nonselection_line_alpha=alpha_opt[-1] 
+        #           )
 
         p1.title.text_font_size = '10pt'
         p1.title.align = 'center'
@@ -120,6 +121,25 @@ def show_projection(alg, selected_ids, dim_red, directionality):
         p1.axis.visible = False
 
         lasso_select.select_every_mousemove = False
+
+        # CheckboxGroup to select categories
+        category_selection = CheckboxGroup(labels=["TP", "TN", "FP", "FN"], active = [0, 1, 2, 3])
+
+        selection_callback = CustomJS(args=dict(source=s1), code="""
+            source.change.emit();
+        """)
+        category_selection.js_on_change('active', selection_callback)
+
+        # Define the custom filter to return the indices, compare against values in source.data
+        js_filter = CustomJSFilter(args=dict(category_selection=category_selection, source=s1), code="""
+                var indices = [];
+                for (var i = 0; i <= source.data['category'].length; i++){
+                    if (category_selection.active.includes(source.data['category'][i])) {
+                        indices.push(i)
+                    }
+                }
+                return indices;
+                """)
 
         s1.callback = CustomJS( code="""
 
@@ -143,20 +163,33 @@ def show_projection(alg, selected_ids, dim_red, directionality):
             }
 
             console.log(aggregation_ids);
-            parent.makeBokehRequest(aggregation_ids);
+            //parent.makeBokehRequest(aggregation_ids);
             parent.makeBokehRequest2(aggregation_ids);
 
          """)
 
+        # Use the filter in a view
+        view = CDSView(source=s1, filters=[js_filter])
+        p1.circle('x', 'y', source=s1, view=view, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
+                   nonselection_fill_alpha=alpha_opt[-1],
+                   nonselection_fill_color=color_opt[-1],
+                   nonselection_line_color=color_opt[-1],
+                   nonselection_line_alpha=alpha_opt[-1] 
+                  )
 
+        layout = column(p1, category_selection)
 
-        grid = gridplot([[p1, None]], merge_tools=False)
+        # show(layout)
 
-        # show(grid)
+        # grid = gridplot([[p1, None]], merge_tools=False)
 
-        html = file_html(grid, CDN, "my_plot")
+        # # show(grid)
+
+        html = file_html(layout, CDN, "my_plot")
         html = html.replace("auto;", "0px;")
 
         fp = open("static/html/projection_file_raw.html", 'w')
         fp.write(html)
         fp.close()
+
+# show_projection(False, list(range(7468)), "pca", True )
