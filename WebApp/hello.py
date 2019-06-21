@@ -77,6 +77,8 @@ dict_array_monot = scaling_data_density(X_no_9, bins_centred, True)
 count_total = occurance_counter("static/data/pred_data_x.csv")
 trans_dict = sample_transf(X)
 
+all_den, all_median = all_kernel_densities(X_no_9) # Pre-load density distributions
+
 
 
 # ------- Initialize WebApp ------- #
@@ -308,10 +310,11 @@ def violin_site_req():
 			# sample_cap = min(len(proj_samples), 30)
 			proj_samples = np.array([int(x) for x in proj_samples])#[:sample_cap])
 			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
-			all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
+			select_den, select_median = specific_kernel_densities(X_no_9, proj_samples, trans_dict)
+			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
 			# ret_string = json.dumps([np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
-			aggr_data = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
-			ret_string = json.dumps([aggr_data, np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
+			aggr_data = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict,)
+			ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
 
 

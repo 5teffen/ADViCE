@@ -628,7 +628,7 @@ def prep_for_D3_global(pre_proc_file,all_data_file,samples,bins_centred,position
 
 	return final_data
 
-def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,positions,transform,sort = True):
+def prep_for_D3_aggregation(pre_proc_file,all_data_file,samples,bins_centred,positions,transform,sort = False):
 
 	names = ["External Risk Estimate", 
                       "Months Since Oldest Trade Open",
@@ -888,9 +888,21 @@ def kernel_density(X,samples,transform):
 		kernel_col = min_max_scaler.fit_transform(kernel_col)
 		kernel_sam = min_max_scaler.fit_transform(kernel_sam)
 
-		all_kernels.append(kernel_col.flatten())
-		partial_kernels.append(kernel_sam.flatten())
+
+		kernel_col = [0]+kernel_col.flatten().tolist()+[0]
+		kernel_sam = [0]+kernel_sam.flatten().tolist()+[0]
+
+
+		# # --- Needed to optimize graph --- 
+		# kernel_col.append(0)
+		# kernel_sam.append(0)
+
+		all_kernels.append(kernel_col)
+		partial_kernels.append(kernel_sam)
+		print(len(all_kernels))
+		print(len(all_kernels[0]))
 		
+
 		# --- Estimate statistics values --- 
 		col_mean.append(np.mean(col))
 		col_median.append(np.median(col))
@@ -899,8 +911,174 @@ def kernel_density(X,samples,transform):
 		sam_median.append(np.median(sam))
 
 
-	return all_kernels, partial_kernels, sam_median, col_median 
+	return all_kernels, partial_kernels, sam_median, col_median
 
+
+
+
+def all_kernel_densities(X):
+
+	names = ["External Risk Estimate", 
+			"Months Since Oldest Trade Open",
+			"Months Since Last Trade Open",
+			"Average Months in File",
+			"Satisfactory Trades",
+			"Trades 60+ Ever",
+			"Trades 90+ Ever",
+			"% Trades Never Delq.",
+			"Months Since Last Delq.",
+			"Max Delq. Last 12M",
+			"Max Delq. Ever",
+			"Total Trades",
+			"Trades Open Last 12M",
+			"% Installment Trades",
+			"Months Since Most Recent Inq",
+			"Inq Last 6 Months",
+			"Inq Last 6 Months exl. 7 days",
+			"Revolving Burden",
+			"Installment Burden",
+			"Revolving Trades w/ Balance:",
+			"Installment Trades w/ Balance",
+			"Bank Trades w/ High Utilization Ratio",
+			"% Trades w/ Balance"]
+
+	all_kernels = []
+
+	col_mean, col_median = [], []
+
+	for c in range(X.shape[1]):
+
+		# --- Isolate feature column --- 
+		col = X[:,c]  # All samples
+
+
+		# --- Set paramaters --- 
+		max_val = max(10,np.amax(col))
+		min_val = min(0,np.amin(col))
+		scale = max_val+1 - min_val
+		fineness = 1000
+
+		# --- Reshaping --- 
+		col = np.reshape(col, (col.shape[0],1))
+		X_axis = np.linspace(min_val,max_val,fineness)[:, np.newaxis]
+
+		# --- Estimate density --- 
+		kde_col = KernelDensity(kernel='gaussian', bandwidth=scale/20).fit(col)
+		log_dens_col = kde_col.score_samples(X_axis)
+		kernel_col = np.exp(log_dens_col)
+
+		# --- Normalize and Convert --- 
+		min_max_scaler = preprocessing.MinMaxScaler(copy=True, feature_range=(0, 1))
+
+		kernel_col = np.reshape(kernel_col, (kernel_col.shape[0],1))
+		kernel_col = min_max_scaler.fit_transform(kernel_col)
+
+		kernel_col = [0]+kernel_col.flatten().tolist()+[0]
+
+		# --- Single Dictionary --- 
+
+		one_dict = {'name':names[c], 'data':kernel_col}
+		
+		all_kernels.append(one_dict)
+
+		# --- Estimate statistics values ---
+
+		med_val = np.median(col)/(max_val-min_val)
+		mean_val = np.mean(col)/(max_val-min_val) 
+		
+		col_mean.append(mean_val)
+		col_median.append(med_val)
+
+	return all_kernels, col_median
+
+def specific_kernel_densities(X,samples,transform):
+	partial_kernels = []
+
+	names = ["External Risk Estimate", 
+			"Months Since Oldest Trade Open",
+			"Months Since Last Trade Open",
+			"Average Months in File",
+			"Satisfactory Trades",
+			"Trades 60+ Ever",
+			"Trades 90+ Ever",
+			"% Trades Never Delq.",
+			"Months Since Last Delq.",
+			"Max Delq. Last 12M",
+			"Max Delq. Ever",
+			"Total Trades",
+			"Trades Open Last 12M",
+			"% Installment Trades",
+			"Months Since Most Recent Inq",
+			"Inq Last 6 Months",
+			"Inq Last 6 Months exl. 7 days",
+			"Revolving Burden",
+			"Installment Burden",
+			"Revolving Trades w/ Balance:",
+			"Installment Trades w/ Balance",
+			"Bank Trades w/ High Utilization Ratio",
+			"% Trades w/ Balance"]
+
+	# --- Identifying sample densities --- 
+	transformed_samples = []
+	for s in samples:
+		transformed_samples.append(int(transform[str(s)]))
+
+	filtered_X = X[transformed_samples]
+
+	sam_mean, sam_median = [], []
+
+	for c in range(X.shape[1]):
+
+		# --- Isolate feature column --- 
+		col = X[:,c]  # All samples
+		sam = filtered_X[:,c]  # Select samples
+
+
+		# --- Set paramaters --- 
+		max_val = max(10,np.amax(col))
+		min_val = min(0,np.amin(col))
+		scale = max_val+1 - min_val
+
+		fineness = 1000
+
+		# --- Reshaping --- 
+		sam = np.reshape(sam, (sam.shape[0],1))
+
+		X_axis = np.linspace(min_val,max_val,fineness)[:, np.newaxis]
+
+
+		# --- Estimate density --- 
+		kde_sam = KernelDensity(kernel='gaussian', bandwidth=scale/20).fit(sam)
+		log_dens_sam = kde_sam.score_samples(X_axis)
+
+		kernel_sam = np.exp(log_dens_sam)
+
+
+		# --- Normalize and Convert --- 
+		min_max_scaler = preprocessing.MinMaxScaler(copy=True, feature_range=(0, 1))
+
+		kernel_sam = np.reshape(kernel_sam, (kernel_sam.shape[0],1))
+
+		kernel_sam = min_max_scaler.fit_transform(kernel_sam)
+
+		kernel_sam = [0]+kernel_sam.flatten().tolist()+[0]
+
+
+		# --- Single Dictionary --- 
+
+		one_dict = {'name':names[c], 'data':kernel_sam}
+		
+		partial_kernels.append(one_dict)
+
+		# --- Estimate statistics values ---
+
+		med_val = np.median(sam)/(max_val-min_val)
+		mean_val = np.mean(sam)/(max_val-min_val) 
+		
+		sam_mean.append(mean_val)
+		sam_median.append(med_val)
+
+	return partial_kernels, sam_median
 
 
 
@@ -926,7 +1104,9 @@ if __name__ == '__main__':
     # prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans, True)
     # result = populate_violin_plot(X_pos_array, np.array([1,2,3,4,5,6,7]),trans)
 
-    all_den, select_den, all_median , select_median = kernel_density(X_no_9, [1,2,3,4,5],trans)   # Density Code!!
+    # all_den, select_den, all_median , select_median = kernel_density(X_no_9, [1,2,3,4,5],trans)   # Density Code!!
+    # all_den, all_median = all_kernel_densities(X_no_9)
+    select_den, select_median = specific_kernel_densities(X_no_9, [1,2,3,4,5],trans)
 
     # count_total = occurance_counter("static/data/pred_data_x.csv")
     # sample_transf()
