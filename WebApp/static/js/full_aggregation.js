@@ -1,7 +1,7 @@
 
 
-function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,place) {
-
+function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,leftMean,rightMean,place, button1, button2, button3) {
+// function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,place) {
 
 	var add_density = true;
 
@@ -107,20 +107,20 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
         });
     
     
-    // -- Drawing dividing lines -- 
-    svg.append("g").selectAll("line")
-        .data(testData)
-        .enter()
-        .append("line")
-        .attr("class","split_lines")
-        .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth();})
-        .attr('y',0)
-        .attr("y2",function(d){return yScale(0-padding_bottom)})
-        .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth();})
-        .style("stroke",function(d,i){
-            if (i == testData.length-1) {return "None";}
-            else {return "#A9A9A9";}})
-        .style("stroke-width",0.7);
+    // // -- Drawing dividing lines -- 
+    // svg.append("g").selectAll("line")
+    //     .data(testData)
+    //     .enter()
+    //     .append("line")
+    //     .attr("class","split_lines")
+    //     .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth();})
+    //     .attr('y',0)
+    //     .attr("y2",function(d){return yScale(0-padding_bottom)})
+    //     .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth();})
+    //     .style("stroke",function(d,i){
+    //         if (i == testData.length-1) {return "None";}
+    //         else {return "#A9A9A9";}})
+    //     .style("stroke-width",0.7);
     
     // -- Drawing surrounding box -- 
         
@@ -167,11 +167,8 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
         	left = leftList[ind].data,
 
 	        right_name = rightList[ind].name,
-	        left_name = leftList[ind].name,
-	       
-	       	med_right = rightMid[ind],
-	        med_left = leftMid[ind];
-
+	        left_name = leftList[ind].name;
+	   
 
 	    // -- Allign SVG canvas -- 
         den_svg = den_svg.append("g")
@@ -183,35 +180,77 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
         .attr('d',left_line)
         .attr('stroke',den_colour)
         .attr('fill',den_colour)
-        .attr('opacity',0.2);
+        .attr('opacity',function(d){
+            if (button3){
+                return 0.2;
+            }
+            else{
+                return 0;
+            }});
 
 
          // -- Centre the image -- 
         den_svg = den_svg.append("g")
                 .attr("transform","translate(" + (xDenScaleRight(1)) + ',0)'); 
 
-        // -- Drawing median lines -- 
-        var tick_size = 4;
-       
-        den_svg.append("g")
-            .append("line")
-            .attr("class","split_lines")
-            .attr("x1",0)
-            .attr('y1',function(d){return yScale(med_right);})
-            .attr("y2",function(d){return yScale(med_right);})
-            .attr("x2",tick_size)
-            .style("stroke",den_colour)
-            .style("stroke-width",3);
+        // ==== Drawing median lines ====
 
-        den_svg.append("g")
-            .append("line")
-            .attr("class","split_lines")
-            .attr("x1",0)
-            .attr('y1',function(d){return yScale(med_left);})
-            .attr("y2",function(d){return yScale(med_left);})
-            .attr("x2",-tick_size)
-            .style("stroke",den_colour)
-            .style("stroke-width",3);
+        if (button1) {
+            var med_right = rightMed[ind],
+            med_left = leftMed[ind];
+        
+            var tick_size = 4;
+           
+            den_svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",0)
+                .attr('y1',function(d){return yScale(med_right);})
+                .attr("y2",function(d){return yScale(med_right);})
+                .attr("x2",tick_size)
+                .style("stroke",den_colour)
+                .style("stroke-width",3);
+
+            den_svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",0)
+                .attr('y1',function(d){return yScale(med_left);})
+                .attr("y2",function(d){return yScale(med_left);})
+                .attr("x2",-tick_size)
+                .style("stroke",den_colour)
+                .style("stroke-width",3);
+            };
+
+
+        // ==== Drawing mean lines ====
+        if (button2) {
+            var med_right = rightMean[ind],
+            med_left = leftMean[ind]
+            mean_col = "#e7298a";
+        
+            var tick_size = 4;
+           
+            den_svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",0)
+                .attr('y1',function(d){return yScale(med_right);})
+                .attr("y2",function(d){return yScale(med_right);})
+                .attr("x2",tick_size)
+                .style("stroke",mean_col)
+                .style("stroke-width",3);
+
+            den_svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",0)
+                .attr('y1',function(d){return yScale(med_left);})
+                .attr("y2",function(d){return yScale(med_left);})
+                .attr("x2",-tick_size)
+                .style("stroke",mean_col)
+                .style("stroke-width",3);
+        };
 
 
         // -- Drawing right density distribution --
@@ -219,8 +258,13 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
         .attr('d',right_line)
         .attr('stroke', den_colour)
         .attr('fill',den_colour)
-        .attr('opacity',0.4);
-  
+        .attr('opacity',function(d){
+            if (button3){
+                return 0.4;
+            }
+            else{
+                return 0;
+            }});
     }
 
     function draw_triangle(data) {
@@ -244,6 +288,18 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
         }
         return full_string
     }
+
+
+
+
+    // Deselect other triangles when clicking instead of border. 
+    // Remove levels when hovering over 
+    // Parallel coordinates test
+    // Add data sheet in the bottom.
+    // Highlight concurrently 
+
+
+
 
 
     svg.append('g').selectAll("path")
@@ -289,4 +345,4 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMid,rightMid,plac
 }
 
 
-// draw_aggregation_graph(allData,leftList,rightList,leftMid, rightMid,'body')
+// draw_aggregation_graph(allData,leftList,rightList,leftMed, rightMed,'body')
