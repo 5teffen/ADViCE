@@ -899,8 +899,7 @@ def kernel_density(X,samples,transform):
 
 		all_kernels.append(kernel_col)
 		partial_kernels.append(kernel_sam)
-		print(len(all_kernels))
-		print(len(all_kernels[0]))
+
 		
 
 		# --- Estimate statistics values --- 
@@ -989,7 +988,9 @@ def all_kernel_densities(X):
 		col_mean.append(mean_val)
 		col_median.append(med_val)
 
-	return all_kernels, col_median
+	
+
+	return all_kernels, col_median, col_mean
 
 def specific_kernel_densities(X,samples,transform):
 	partial_kernels = []
@@ -1078,7 +1079,8 @@ def specific_kernel_densities(X,samples,transform):
 		sam_mean.append(mean_val)
 		sam_median.append(med_val)
 
-	return partial_kernels, sam_median
+
+	return partial_kernels, sam_median, sam_mean
 
 
 
@@ -1105,8 +1107,8 @@ if __name__ == '__main__':
     # result = populate_violin_plot(X_pos_array, np.array([1,2,3,4,5,6,7]),trans)
 
     # all_den, select_den, all_median , select_median = kernel_density(X_no_9, [1,2,3,4,5],trans)   # Density Code!!
-    # all_den, all_median = all_kernel_densities(X_no_9)
-    select_den, select_median = specific_kernel_densities(X_no_9, [1,2,3,4,5],trans)
+    all_den, all_median, all_mean = all_kernel_densities(X_no_9)
+    select_den, select_median, select_mean = specific_kernel_densities(X_no_9, [1,2,3,4,5],trans)
 
     # count_total = occurance_counter("static/data/pred_data_x.csv")
     # sample_transf()

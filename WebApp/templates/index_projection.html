@@ -361,10 +361,27 @@
             var resp_arr = httpRequest2.responseText;
             if (resp_arr!="-1"){
               var resp_list = JSON.parse(resp_arr);
+
+
+              // --- Toggle Median Marker ---
+              var median_toggle = true;
+
+              // --- Toggle Mean Marker ---
+              var mean_toggle = false;
+
+              // --- Toggle Density --- 
+              var density_toggle = true;
+
+              // --- Sort Features --- 
+
+              // --- Monotonisity ---  
+
+
               // console.log("right panel violin");
               document.getElementById("distribution-div").innerHTML = "";
               // play_violin(allData,"#distribution-div");
-              draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4], "#distribution-div");
+              draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
+                median_toggle, mean_toggle, density_toggle);
             }
 
           }
