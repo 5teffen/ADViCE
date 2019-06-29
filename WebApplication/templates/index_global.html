@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Visual Interface</title>
+    <meta name="author" content="NYU UGR Team">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="static/css/scratchstyle-light.css" rel="stylesheet" type="text/css">
+    <!-- D3.js and jQuery source -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
+    <!-- SVG scripts -->
+    <script type="text/javascript" src="static/js/main_graph.js"></script>
+    <script type="text/javascript" src="static/js/model_summary.js"></script>
+    <script type="text/javascript" src="static/js/direction_signs.js"></script>
+    <script type="text/javascript" src="static/js/anchor_graphs.js"></script>
+    <script type="text/javascript" src="static/js/square_graphs_simple.js"></script>
+    <script type="text/javascript" src="static/js/occ_bar.js"></script>
+    <script type="text/javascript" src="static/js/mini_graph.js"></script>
+    <script type="text/javascript" src="static/js/percentage_bar.js"></script>
+    <script type="text/javascript" src="static/js/squares.js"></script>
+  </head>
+
+  <body>
+    <div class="main">
+      <div class="left-sidebar">
+        <header class="site-header">
+          <h1><a href="intro">FICO CHALLENGE</a></h1>
+        </header>
+        <nav class="left-nav">
+          <ul>
+            <li><a href="individual"> LOCAL EXPLANATION </a></li>
+            <li><a href="projection"> PROJECTION </a></li>
+            <!-- <li><a href="projection"> PROJECTION </a></li> -->
+          </ul>
+        </nav>
+
+        <nav class="id-list">
+        </nav>
+      </div>
+      
+      <div class="right-side-global" id="demo">
+
+        <img src="static/images/global_ins.png" id="glob-instruction" onclick="begin_glob()">
+
+        <div id="left-panel">
+          <div class="btn-group">
+            <!-- <button class="algo-button" id="key-button" onclick="buttonRequest(this)">Key Features</button> -->
+            <!-- <button class="algo-button" id="chg-button" onclick="buttonRequest(this)">Changes</button> -->
+          </div>
+        </div>
+
+        <div id="middle-panel">
+        </div>
+
+        <div id="right-panel">
+        </div>
+          
+
+
+    <script>
+    
+      var ft_names = ["External Risk Estimate", 
+                      "Months Since Oldest Trade Open",
+                      "Months Since Last Trade Open",
+                      "Average Months in File",
+                      "Satisfactory Trades",
+                      "Trades 60+ Ever",
+                      "Trades 90+ Ever",
+                      "% Trades Never Delq.",
+                      "Months Since Last Delq.",
+                      "Max Delq. Last 12M",
+                      "Max Delq. Ever",
+                      "Total Trades",
+                      "Trades Open Last 12M",
+                      "% Installment Trades",
+                      "Months Since Most Recent Inq",
+                      "Inq Last 6 Months",
+                      "Inq Last 6 Months exl. 7 days",
+                      "Revolving Burden",
+                      "Installment Burden",
+                      "Revolving Trades w/ Balance:",
+                      "Installment Trades w/ Balance",
+                      "Bank Trades w/ High Utilization Ratio",
+                      "% Trades w/ Balance"]
+
+      var selected_fts = [];
+
+      var dark_shade = "rgb(177, 196, 209)";
+      var light_shade = "white";
+
+      var txtFile;
+
+      // Get preprocessed csv file
+      function fetch_csv(){
+        txtFile = new XMLHttpRequest();
+        txtFile.onreadystatechange = initContents;
+        txtFile.open("GET", "static/data/pred_data_x.csv");
+        txtFile.send()
+      }
+      
+      // Parse csv
+      var pre_array = [];
+      function initContents() {
+        if (txtFile.readyState === XMLHttpRequest.DONE) {
+          if (txtFile.status === 200) {
+            var rows = txtFile.responseText.split("\n");
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split(",");
+              pre_array.push(cells);
+            }
+          }
+        }
+      }
+
+      var httpRequest;
+
+      // Right panel mini graphs
+      function makeRequest2(elem, source) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+
+        if (source=="chg"){
+          var id_list = elem.id_list;
+        }
+
+        else {
+          if (elem.className.baseVal.toString().indexOf("good") > -1){
+            var id_list = elem.parentNode.parentNode.parentNode.id_list_good;
+          }
+          else{
+            var id_list = elem.parentNode.parentNode.parentNode.id_list_bad;
+          }
+
+        }
+
+        id_list = id_list.slice(0,100);
+
+        httpRequest.onreadystatechange = alertContents2;
+        httpRequest.open('GET', 'glob_feat?id_list='+id_list);
+        httpRequest.send();
+        return false;
+      }
+
+      // Middle panel graphs
+      function makeRequest3(features, algo) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+
+        // MAKE REQUEST TO GET ELEMENTS FOR MIDDLE PANEL
+
+        
+        req_arr = [];
+
+        if (features[0] == -1){
+          req_arr.push(-1);
+        }
+        else {
+          for (i=0; i<features.length; i++) {
+            req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            features[i].style.fontSize = "15px";
+            features[i].style.fontWeight = "bold"; 
+          }
+        }
+
+        
+        httpRequest.onreadystatechange = alertContents3;
+        httpRequest.open('GET', 'first_panel?features=['+req_arr+']&algorithm='+algo);
+        httpRequest.send();
+        return false;
+      }
+
+      // Left panel global
+      function makeGlobRequest() {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        
+        httpRequest.onreadystatechange = alertGlobContents;
+        httpRequest.open('GET', 'glob_req');
+        httpRequest.send();
+        return false;
+      }
+
+      // Style buttons and send request
+      function buttonRequest(elem) {
+
+        if (elem.innerHTML == "Key Features") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('chg-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('key-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        resetFeatures();
+        makeGlobRequest();
+      }
+
+      // Right panel mini graphs
+      function alertContents2() {
+        if (httpRequest.readyState === XMLHttpRequest.OPENED){
+          document.getElementById("right-panel").style.display = "inline-block";
+          document.getElementById("right-panel").innerHTML = "";
+          add_loader(document.getElementById("right-panel"));
+        
+        }
+        else if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+            document.getElementById("right-panel").innerHTML = "";
+            var table3 = document.createElement("table");     
+            table3.id = "feature-table3";
+
+            document.getElementById("right-panel").append(table3);
+            document.getElementById("right-panel").style.display = "inline-block";
+
+
+            var resp_arr = httpRequest.responseText;
+            var miniData = [];
+            miniData = JSON.parse(resp_arr);
+
+            var tr = document.createElement("tr");
+            var li = document.createElement("td");
+            var li_div = document.createElement("div");
+            li.id = "right-td-0";
+            li_div.id = "right-graph-0";                
+
+            li.append(li_div);
+            tr.append(li);
+            document.getElementById("feature-table3").append(tr);
+
+            draw_all_graphs(miniData[0], miniData[1]);
+
+            for (k=0; k<document.getElementsByClassName("mini-graph").length; k++){
+              document.getElementsByClassName("mini-graph")[k].onmouseover = function() {borderStyleEnter(this)};
+              document.getElementsByClassName("mini-graph")[k].onmouseleave = function() {borderStyleLeave(this)};
+            }
+            
+          }
+          else {
+              alert('HttpRequest Error')
+          }
+        }
+      }
+
+      // Right panel border
+      function borderStyleEnter (elem){
+        document.body.style.cursor = "pointer";
+        var idx = elem.id.substring(11);
+        document.getElementById("border-"+idx.toString()).style.stroke = "black";
+      }
+      function borderStyleLeave (elem){
+        document.body.style.cursor = "auto";
+        var idx = elem.id.substring(11);
+        document.getElementById("border-"+idx.toString()).style.stroke = "#A9A9A9";
+      }
+      
+      // Middle panel graphs
+      function alertContents3() {
+
+        if (httpRequest.readyState === XMLHttpRequest.OPENED){
+          document.getElementById("middle-panel").style.display = "inline-block";
+          document.getElementById("middle-panel").innerHTML = "";
+          document.getElementById("right-panel").innerHTML = "";
+          add_loader(document.getElementById("middle-panel"));        
+        }
+
+        else if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+
+            var resp_arr = httpRequest.responseText;
+            if (resp_arr == ""){
+              document.getElementById("middle-panel").innerHTML = "";
+              document.getElementById("right-panel").innerHTML = "";
+            }
+            else{
+
+              var middleData = JSON.parse(resp_arr);
+
+      
+
+              var table2 = document.createElement("table");     
+              table2.id = "feature-table2";
+
+              document.getElementById("middle-panel").innerHTML = "";
+              document.getElementById("right-panel").innerHTML = "";
+
+              document.getElementById("middle-panel").append(table2);
+              document.getElementById("middle-panel").style.display = "inline-block";
+
+              for (var j = 0; j < middleData.length; j++) {
+
+                var tr = document.createElement("tr");
+                var li = document.createElement("td");
+                var li_div = document.createElement("div");
+
+                li.id = "middle-link-" + j.toString();
+                li_div.id = "middle-graph-" + j.toString();              
+
+                li.append(li_div);
+                tr.append(li);
+                document.getElementById("feature-table2").append(tr);
+
+   
+                var curr_alg = "True";
+
+                if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+                  curr_alg = "False";
+                }
+
+
+                if (curr_alg == "False") {
+                  draw_all_squares(middleData[j][0], 14, "#"+li_div.id);
+                  for (k=0; k<document.getElementsByClassName("mini-square-0")[j].parentNode.childNodes.length; k++){
+                    var idxx = $(".mini-square-" + k.toString()).length;
+                    idxx = Math.max(0,idxx-1);
+                    document.getElementsByClassName("mini-square-" + k.toString())[idxx].id_list = middleData[j][1][k].toString();
+                    document.getElementsByClassName("mini-square-" + k.toString())[idxx].onclick = function () { 
+                      drawBorderClick(this);
+                      makeRequest2(this, "chg"); };
+                    document.getElementsByClassName("mini-square-" + k.toString())[idxx].onmouseover = function() {
+                      hoverBorderEnter(this);
+                    };
+                    document.getElementsByClassName("mini-square-" + k.toString())[idxx].onmouseleave = function() {
+                      hoverBorderLeave(this);
+                    };
+                  }
+                  
+                  
+                }
+
+                else {
+                  draw_all_anchs(middleData[j][0], middleData[j][1], middleData[j][2], 30, "#"+li_div.id, j);
+
+                  document.getElementById("middle-section-"+j.toString()).id_list_good = middleData[j][3];
+                  document.getElementById("middle-section-"+j.toString()).id_list_bad = middleData[j][4];
+
+                  var tot_len;
+                  var curr_good = j;
+                  var curr_bad = j;
+                  while ((typeof document.getElementsByClassName("mini-square-good-0")[curr_good] == 'undefined') && curr_good>0){
+                    curr_good -= 1;
+                  }
+                  
+                  while ((typeof document.getElementsByClassName("mini-square-bad-0")[curr_bad] == 'undefined') && curr_bad>0){
+                    curr_bad -= 1;
+                  }
+
+                  var has_good = false;
+                  var has_bad = false;
+
+                  if (typeof document.getElementsByClassName("mini-square-good-0")[curr_good] != 'undefined'){
+                    if (document.getElementsByClassName("mini-square-good-0")[curr_good].parentNode.parentNode.parentNode.id.toString().substring(15) == j.toString()){
+                      tot_len = document.getElementsByClassName("mini-square-good-0")[curr_good].parentNode.childNodes.length;
+                      has_good = true;
+                    } 
+                  }
+                  if (typeof document.getElementsByClassName("mini-square-bad-0")[curr_bad] != 'undefined'){
+                    if (document.getElementsByClassName("mini-square-bad-0")[curr_bad].parentNode.parentNode.parentNode.id.toString().substring(15) == j.toString()){
+                      tot_len = document.getElementsByClassName("mini-square-bad-0")[curr_bad].parentNode.childNodes.length;
+                      has_bad = true;
+                    }
+                  }
+                
+
+                  var good_len = 0;
+                  var bad_len = 0;
+                  
+                  for (k=0; k<tot_len; k++){
+
+                    if (has_good == true){    
+                      var pcnt = document.getElementsByClassName("mini-square-good-0")[curr_good].parentNode.childNodes[k].className.baseVal.toString();
+                    }
+                    else if(has_bad == true){ 
+                      var pcnt = document.getElementsByClassName("mini-square-bad-0")[curr_bad].parentNode.childNodes[k].className.baseVal.toString();
+                    }
+                    if (pcnt.indexOf("good") > -1){
+                      good_len += 1;
+                    }
+                    else if (pcnt.indexOf("bad") > -1){
+                      bad_len += 1;
+                    }
+                  }
+
+
+
+                  if (has_good == true){
+                    for (k=0; k<good_len; k++){
+                      var idxx = $(".mini-square-good-" + k.toString()).length;
+                      idxx = Math.max(0,idxx-1);
+
+                      document.getElementsByClassName("mini-square-good-"+k.toString())[idxx].onclick = function () { 
+                        makeRequest2(this, "anch");
+                        drawBorderClickAnch(this);
+                        
+                      };
+                      document.getElementsByClassName("mini-square-good-"+k.toString())[idxx].onmouseover = function() {
+                        hoverEnterAnch(this);
+                      };
+                      document.getElementsByClassName("mini-square-good-"+k.toString())[idxx].onmouseleave = function() {
+                        hoverLeaveAnch(this);
+                      };
+                    }
+                  }
+
+                  if (has_bad == true){
+                    for (k=0; k<bad_len; k++){
+                      var idxx = $(".mini-square-bad-" + k.toString()).length;
+                      idxx = Math.max(0,idxx-1);
+                      document.getElementsByClassName("mini-square-bad-"+k.toString())[idxx].onclick = function () { 
+                        makeRequest2(this, "anch");
+                        drawBorderClickAnch(this);
+                        
+                      };
+                      document.getElementsByClassName("mini-square-bad-"+k.toString())[idxx].onmouseover = function () { 
+                        hoverEnterAnch(this);
+                      };
+                      document.getElementsByClassName("mini-square-bad-"+k.toString())[idxx].onmouseleave = function () { 
+                        hoverLeaveAnch(this);
+                      };
+                    }
+                  }
+
+                }
+
+              }
+            }
+          }
+          else {
+              alert('HttpRequest Error')
+          }
+        }
+      }
+
+
+      // Style for middle panel squares
+      // Changes
+      function drawBorderClick(elem) {
+        
+        if (document.getElementById("selected-border") != null){
+          document.getElementById("selected-border").style.strokeWidth = "0px";
+          document.getElementById("selected-border").id = "";
+        }
+        var border = elem.getElementsByClassName("border")[0];
+        border.style.stroke = "black";
+        border.style.strokeWidth = "1.5px";
+        border.id = "selected-border";
+      }
+      function hoverBorderEnter(elem){
+        document.body.style.cursor = "pointer";
+        var border = elem.getElementsByClassName("border")[0];
+        border.style.stroke = "black";
+        border.style.strokeWidth = "1.5px";
+      }
+      function hoverBorderLeave(elem){
+        document.body.style.cursor = "auto";
+        if (elem.getElementsByClassName("border")[0].id != "selected-border"){
+          var border = elem.getElementsByClassName("border")[0];
+          border.style.strokeWidth = "0px";
+        }
+      }
+
+      // Anchors
+      function drawBorderClickAnch(elem) {
+
+        var idx = elem.parentNode.childNodes[0].childNodes[0].className.baseVal.toString().substring(13);
+        var type = "good";
+        if (elem.className.baseVal.toString().indexOf("bad") > -1){
+          type = "bad";
+        }
+
+        if (document.getElementById("selected-section") != null){
+          document.getElementById("selected-section").style.strokeWidth = "0px";
+          document.getElementById("selected-section").id = "";
+        }
+        document.getElementsByClassName(type+"-section-"+idx.toString())[0].style.strokeWidth = "2px";
+        document.getElementsByClassName(type+"-section-"+idx.toString())[0].id = "selected-section";
+        
+        if (document.getElementById("selected-border") != null){
+          document.getElementById("selected-border").style.strokeWidth = "0px";
+          document.getElementById("selected-border").id = "";
+        }
+        var border = elem.getElementsByTagName("rect")[0];
+        border.style.stroke = "black";
+        border.style.strokeWidth = "1.5px";
+        border.id = "selected-border";
+      }
+      function hoverEnterAnch(elem){
+        document.body.style.cursor = "pointer";
+        var border = elem.getElementsByTagName("rect")[0];
+        border.style.strokeWidth = "1.5px";
+        border.style.stroke = "black";
+        var idx = border.className.baseVal.substring(12);
+        if (document.getElementById("mini-graph-"+idx.toString()) != null){
+          document.getElementById("border-"+idx.toString()).style.stroke = "black";
+        }
+      }
+      function hoverLeaveAnch(elem){
+        document.body.style.cursor = "auto";
+        var border = elem.getElementsByTagName("rect")[0];
+        if (border.id != "selected-border"){
+          border.style.strokeWidth = "0px";
+        }
+        var idx = border.className.baseVal.substring(12);
+        if (document.getElementById("mini-graph-"+idx.toString()) != null){
+          document.getElementById("border-"+idx.toString()).style.stroke = "#A9A9A9";
+        }
+      }
+
+      // Left panel global
+      function alertGlobContents() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest.responseText;
+            var totalData = JSON.parse(resp_arr);
+            var monot_arr = [1,1,1,1,1,-1,-1,1,1,1,1,0,-1,0,1,-1,-1,-1,-1,0,0,-1,0];
+
+            var barData = totalData[2];
+            var keySort = totalData[0];
+            var chgSort = totalData[1];
+
+            document.getElementById("bar-div-header").innerHTML = '';
+            document.getElementById("middle-panel").innerHTML = "";
+            document.getElementById("right-panel").innerHTML = "";
+
+            if (document.getElementById("chg-button").style.backgroundColor == dark_shade){
+              draw_occurance_text("chg");
+              for (i=0; i<23; i++){
+                document.getElementById("ft-div-" + i.toString()).innerHTML = '';
+                document.getElementById("monot-" + i.toString()).innerHTML = '';
+                draw_occurance_bar(false,barData[chgSort[i]][2],barData[chgSort[i]][3],i);
+                draw_dir(monot_arr[chgSort[i]], i);
+                document.getElementById("bar-div-header").style.marginRight = "5px";
+                document.getElementById("feat-" + i.toString()).innerHTML = ft_names[chgSort[i]];
+                document.getElementById("feat-" + i.toString()).onclick = function () {flip_feature(this);};
+                document.getElementById("feat-" + i.toString()).onmouseover = function(){hoverStyleEnter(this);};
+                document.getElementById("feat-" + i.toString()).onmouseleave = function(){hoverStyleLeave(this);};
+              }
+            }
+            else{
+              draw_occurance_text("key");
+              for (i=0; i<23; i++){
+                document.getElementById("ft-div-" + i.toString()).innerHTML = '';
+                document.getElementById("monot-" + i.toString()).innerHTML = '';
+                draw_occurance_bar(true,barData[keySort[i]][0],barData[keySort[i]][1],i);
+                draw_dir(monot_arr[keySort[i]], i);
+                document.getElementById("bar-div-header").style.marginRight = "16px";
+                document.getElementById("feat-" + i.toString()).innerHTML = ft_names[keySort[i]];
+                document.getElementById("feat-" + i.toString()).onclick = function () { flip_feature(this);};
+                document.getElementById("feat-" + i.toString()).onmouseover = function(){hoverStyleEnter(this);};
+                document.getElementById("feat-" + i.toString()).onmouseleave = function(){hoverStyleLeave(this);};
+              }
+            } 
+
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+      // Hovering over left panel elements
+      function hoverStyleEnter(elem){
+        if (elem.style.fontWeight != "bold"){
+          elem.style.fontWeight = "bold";
+          elem.style.fontSize = "13px";
+        }
+      }
+      function hoverStyleLeave(elem){
+        if (selected_fts.includes(elem)){
+        }
+        else{
+          elem.style.fontWeight = "normal";
+          elem.style.fontSize = "12px";
+        }
+      }
+
+      // Initialize contents
+      function prep_content() {
+
+        document.getElementById("key-button").style.backgroundColor = dark_shade;
+        document.getElementById("chg-button").style.backgroundColor = light_shade;
+        
+      }
+
+      // Add loading animation
+      function add_loader(elem) {
+        elem.innerHTML="";
+        var load_wrap = document.createElement("div");
+        load_wrap.className = "loader_wrap";
+        var loader = document.createElement("div");
+        loader.className = "lds-dual-ring";
+        load_wrap.append(loader);
+        elem.append(load_wrap);
+      }
+
+      // Initialize feature list for global
+      function ft_list() {
+        var features = 23;
+
+        var ft_table = document.createElement("table");
+        ft_table.id = "feature-table1";
+
+        // Header
+
+        var tr = document.createElement("tr");
+        var td = document.createElement("td");
+        var ft_div = document.createElement("div");
+        var bar_div = document.createElement("div");
+        var monot = document.createElement("div");
+
+        monot.innerHTML = "Monot.";
+        monot.className = "monot-div";
+
+        ft_div.className = "ft-div-header";
+        td.id = "ft-header";
+
+        bar_div.className = "bar-div";
+        bar_div.id = "bar-div-header";
+
+        var link = document.createElement("a");
+
+        link.innerHTML = "Feature Name";
+        link.style.maxWidth = "125px"; 
+        link.id = "feat-header";
+
+        ft_div.append(link);
+        td.append(monot);
+        td.append(ft_div);
+        td.append(bar_div);
+        tr.append(td);
+        ft_table.append(tr);
+
+        for (i = 0; i < features; i++) {
+          var tr = document.createElement("tr");
+          var td = document.createElement("td");
+          var ft_div = document.createElement("div");
+          var bar_div = document.createElement("div");
+          var monot = document.createElement("div");
+
+          monot.className = "monot-div";
+          monot.id = "monot-" + i.toString();
+
+          ft_div.className = "ft-div";
+
+          bar_div.className = "bar-div";
+          bar_div.id = "ft-div-" + i.toString();
+
+          var loc_i = i;
+
+          var link = document.createElement("a");
+
+          link.style.maxWidth = "125px"; 
+          link.id = "feat-" + i.toString();
+
+
+          ft_div.append(link);
+          td.append(monot);
+          td.append(ft_div);
+          td.append(bar_div);
+          tr.append(td);
+          ft_table.append(tr);
+        }
+
+        document.getElementById("left-panel").append(ft_table);
+
+        var reset = document.createElement("button");
+        reset.innerHTML = "Reset";
+        reset.id = "reset-button";
+        reset.onclick = function(){ resetFeatures(); };
+        document.getElementById("left-panel").append(reset);
+      }
+
+      // Link from global to local
+      function redirect_to_instance(elem) {
+        var id_numb = elem.id.substring(11);
+        var location = window.location.href;
+        if (location.indexOf("nyuvis") > -1){
+          window.location.replace("http://nyuvis-web.poly.edu/projects/fico/individual?sample="+id_numb.toString());  
+        }
+        else if (location.indexOf("python") > -1){
+          window.location.replace("http://oscargomezq.pythonanywhere.com/individual?sample="+id_numb.toString());  
+        }
+        else if (location.indexOf("explainer") > -1){
+          window.location.replace("http://www.ml-explainer.com/individual?sample="+id_numb.toString());  
+        }
+        else{
+          window.location.replace("http://localhost:5005/individual?sample="+id_numb.toString());  
+        }     
+      }
+
+      // Reset button
+      function resetFeatures() {
+
+        selected_fts = [-1];
+        var curr_alg = "True";
+
+        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+          curr_alg = "False";
+        }
+        
+        for (i=0; i<23; i++){
+          document.getElementById("feat-" + i.toString()).style.fontSize = "12px";
+          document.getElementById("feat-" + i.toString()).style.fontWeight = "550";
+        }
+        makeRequest3(selected_fts, curr_alg);
+      }
+
+      // Select/deselect features in left panel
+      function flip_feature(elemn) {
+
+        var curr_alg = "True";
+
+        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+          curr_alg = "False";
+        }
+
+        var index = selected_fts.indexOf(-1);
+        if (index > -1) {
+          selected_fts.splice(index, 1);
+        }
+        if (selected_fts.includes(elemn)){
+          index = selected_fts.indexOf(elemn);
+          selected_fts.splice(index, 1);
+          elemn.style.fontSize = "12px";
+          elemn.style.fontWeight = "550";
+          makeRequest3(selected_fts, curr_alg);
+        }
+        else if (selected_fts.length < 5){
+          selected_fts.push(elemn);
+          makeRequest3(selected_fts, curr_alg);
+        }
+      }
+
+      // Start global screen after instructions
+      function begin_glob(){
+
+        var right = document.getElementById("demo");
+        if (right.childNodes[1].id == "glob-instruction"){
+          right.removeChild(right.childNodes[1]);
+        }
+
+        var k_btn = document.createElement("button");
+        var c_btn = document.createElement("button");
+
+        k_btn.className = "algo-button";
+        k_btn.id = "key-button";
+        k_btn.onclick = function(){buttonRequest(this);};
+        k_btn.innerHTML = "Key Features";
+        k_btn.style.backgroundColor = dark_shade;
+
+        c_btn.className = "algo-button";
+        c_btn.id = "chg-button";
+        c_btn.onclick = function(){buttonRequest(this);};
+        c_btn.innerHTML = "Changes";
+        c_btn.style.backgroundColor = light_shade;
+
+        document.getElementsByClassName("btn-group")[0].append(k_btn);
+        document.getElementsByClassName("btn-group")[0].append(c_btn);
+
+        ft_list();
+        makeGlobRequest();
+      }
+
+      fetch_csv();
+      draw_summary(".id-list");
+
+
+    </script>
+
+  </body>
+
+</html>

@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Visual Interface</title>
+    <meta name="author" content="NYU UGR Team">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="static/css/projection-style.css" rel="stylesheet" type="text/css">
+    <!-- D3.js and jQuery source -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
+    <!-- SVG scripts -->
+    <script type="text/javascript" src="static/js/main_graph.js"></script>
+    <script type="text/javascript" src="static/js/model_summary.js"></script>
+    <script type="text/javascript" src="static/js/direction_signs.js"></script>
+    <script type="text/javascript" src="static/js/anchor_graphs.js"></script>
+    <script type="text/javascript" src="static/js/square_graphs_simple.js"></script>
+    <script type="text/javascript" src="static/js/occ_bar.js"></script>
+    <script type="text/javascript" src="static/js/mini_graph.js"></script>
+    <script type="text/javascript" src="static/js/percentage_bar.js"></script>
+    <script type="text/javascript" src="static/js/squares.js"></script>
+    <!-- <script type="text/javascript" src="static/js/aggregation.js"></script> -->
+    <!-- <script type="text/javascript" src="static/js/agg_graph.js"></script> -->
+    <script type="text/javascript" src="static/js/violin_graph.js"></script>
+    <script type="text/javascript" src="static/js/full_aggregation.js"></script>
+
+  </head>
+
+  <body>
+    <div class="main">
+      <div class="left-sidebar-proj">
+        <header class="site-header-proj">
+          <h1><a href="intro">HOME</a></h1>
+        </header>
+        <nav class="left-nav-proj">
+          <ul>
+            <li><a href="global"> GLOBAL </a></li>
+            <li><a href="individual"> LOCAL </a></li>
+            <!-- <li><a href="projection"> PROJECTION </a></li> -->
+          </ul>
+
+        </nav>
+        
+        <!-- <nav class="id-list">
+        </nav> -->
+      </div>
+      
+      <div class="right-side-proj" id="demo">
+
+        <div id="middle-panel-proj">
+          <div class="btn-group">
+          </div>
+
+          <div id="bokeh-div">
+            <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe>
+          </div>
+
+          <button id="reset-button-proj">
+            Reset
+          </button>
+
+          <!-- <div id="filter-div">
+            Filters
+          </div> -->
+
+        </div>
+
+        <div id="right-panel-proj">
+          <div id="distribution-div">
+            Distribution
+          </div>
+          <!-- <div id="aggregation-div">
+            Aggregation
+          </div> -->
+        </div>
+          
+
+
+    <script>
+    
+      var ft_names = ["External Risk Estimate", 
+                      "Months Since Oldest Trade Open",
+                      "Months Since Last Trade Open",
+                      "Average Months in File",
+                      "Satisfactory Trades",
+                      "Trades 60+ Ever",
+                      "Trades 90+ Ever",
+                      "% Trades Never Delq.",
+                      "Months Since Last Delq.",
+                      "Max Delq. Last 12M",
+                      "Max Delq. Ever",
+                      "Total Trades",
+                      "Trades Open Last 12M",
+                      "% Installment Trades",
+                      "Months Since Most Recent Inq",
+                      "Inq Last 6 Months",
+                      "Inq Last 6 Months exl. 7 days",
+                      "Revolving Burden",
+                      "Installment Burden",
+                      "Revolving Trades w/ Balance:",
+                      "Installment Trades w/ Balance",
+                      "Bank Trades w/ High Utilization Ratio",
+                      "% Trades w/ Balance"]
+      var selected_fts = [-1];
+      var dark_shade = "rgb(177, 196, 209)";
+      var light_shade = "white";
+      var txtFile;
+      var httpRequest;
+      var httpRequest2;
+      var cold_start = true;
+
+      // Get preprocessed csv file
+      function fetch_csv(){
+        txtFile = new XMLHttpRequest();
+        txtFile.onreadystatechange = initContents;
+        txtFile.open("GET", "static/data/pred_data_x.csv");
+        txtFile.send()
+      }
+      
+      // Parse csv
+      var pre_array = [];
+      function initContents() {
+        if (txtFile.readyState === XMLHttpRequest.DONE) {
+          if (txtFile.status === 200) {
+            var rows = txtFile.responseText.split("\n");
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split(",");
+              pre_array.push(cells);
+            }
+          }
+        }
+      }
+
+      // Request to send feature list
+      function makeRequest3(features, algo, dim_red, directionality) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+
+        // MAKE REQUEST TO GET ELEMENTS FOR MIDDLE PANEL
+        
+        req_arr = [];
+
+        if (features[0] == -1){
+          req_arr.push(-1);
+        }
+        else {
+          for (i=0; i<features.length; i++) {
+            ft_nm = document.getElementById("feat-" + features[i].toString()).innerHTML;
+            // req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            req_arr.push(ft_names.indexOf(ft_nm));
+            // features[i].style.fontSize = "15px";
+            document.getElementById("feat-" + features[i].toString()).style.fontWeight = "bold"; 
+          }
+        }
+
+        
+        httpRequest.onreadystatechange = alertContents3;
+        httpRequest.open('GET', 'bokeh_req?features=['+req_arr+']&algorithm='+algo + '&dim_red='+dim_red + '&directionality='+directionality);
+        httpRequest.send();
+        return false;
+      }
+
+      // Bokeh middle panel
+      function alertContents3() {
+
+        if (httpRequest.readyState === XMLHttpRequest.OPENED){
+          document.getElementById("middle-panel-proj").style.display = "inline-block";
+          // document.getElementById("middle-panel-proj").innerHTML = "";
+          // document.getElementById("right-panel-proj").innerHTML = "";
+          // add_loader(document.getElementById("middle-panel-proj"));    
+          // add_loader2(document.getElementById("bokeh-div"));
+    
+        }
+
+        else if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+
+            var bokeh_div = document.getElementById("bokeh-div");
+            var resp_arr = httpRequest.responseText;
+            // console.log(resp_arr);
+            document.getElementById('bokeh-iframe').contentWindow.location.reload();
+            document.getElementById('bokeh-iframe').style.display = "inline-block";
+
+          }
+          else {
+              alert('HttpRequest Error')
+          }
+        }
+      }
+
+      // Left panel global
+      function makeGlobRequest() {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        
+        httpRequest.onreadystatechange = alertGlobContents;
+        httpRequest.open('GET', 'glob_req');
+        httpRequest.send();
+        return false;
+      }
+
+      // Left panel global
+      function alertGlobContents() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest.responseText;
+            var totalData = JSON.parse(resp_arr);
+            var monot_arr = [1,1,1,1,1,-1,-1,1,1,1,1,0,-1,0,1,-1,-1,-1,-1,0,0,-1,0];
+
+            var barData = totalData[2];
+            var keySort = totalData[0];
+            var chgSort = totalData[1];
+
+            // document.getElementById("bar-div-header").innerHTML = '';
+            // document.getElementById("middle-panel-proj").innerHTML = "";
+            // document.getElementById("right-panel-proj").innerHTML = "";
+
+            if (document.getElementById("chg-button").style.backgroundColor == dark_shade){
+              draw_occurance_text("chg");
+              for (i=0; i<23; i++){
+                document.getElementById("ft-div-" + i.toString()).innerHTML = '';
+                document.getElementById("monot-" + i.toString()).innerHTML = '';
+                draw_occurance_bar(false,barData[chgSort[i]][2],barData[chgSort[i]][3],i);
+                draw_dir(monot_arr[chgSort[i]], i);
+                // document.getElementById("bar-div-header").style.marginRight = "5px";
+                document.getElementById("feat-" + i.toString()).innerHTML = ft_names[chgSort[i]];
+                document.getElementById("feat-" + i.toString()).onclick = function () {flip_feature(this);};
+                document.getElementById("feat-" + i.toString()).onmouseover = function(){hoverStyleEnter(this);};
+                document.getElementById("feat-" + i.toString()).onmouseleave = function(){hoverStyleLeave(this);};
+              }
+            }
+            else{
+              draw_occurance_text("key");
+              for (i=0; i<23; i++){
+                document.getElementById("ft-div-" + i.toString()).innerHTML = '';
+                document.getElementById("monot-" + i.toString()).innerHTML = '';
+                draw_occurance_bar(true,barData[keySort[i]][0],barData[keySort[i]][1],i);
+                draw_dir(monot_arr[keySort[i]], i);
+                // document.getElementById("bar-div-header").style.marginRight = "16px";
+                document.getElementById("feat-" + i.toString()).innerHTML = ft_names[keySort[i]];
+                document.getElementById("feat-" + i.toString()).onclick = function () { flip_feature(this);};
+                document.getElementById("feat-" + i.toString()).onmouseover = function(){hoverStyleEnter(this);};
+                document.getElementById("feat-" + i.toString()).onmouseleave = function(){hoverStyleLeave(this);};
+              }
+            } 
+
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+      // Style buttons and send request
+      function buttonRequest(elem) {
+
+        if (elem.id == "key-button") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('chg-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else if (elem.id == "chg-button") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('key-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else if (elem.id == "pca-button") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('tsne-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else if (elem.id == "tsne-button") {
+          elem.style.backgroundColor = dark_shade;
+          var c_but = document.getElementById('pca-button');
+          c_but.style.backgroundColor = light_shade;
+        }
+        else if (elem.id == "direction-button") {
+          if (elem.style.backgroundColor == dark_shade){
+            elem.style.backgroundColor = light_shade;
+          }
+          else{
+            elem.style.backgroundColor = dark_shade;
+          }   
+        }
+
+        resetFeatures();
+        // makeGlobRequest();
+      }
+      
+      // Request from bokeh plot to right panel aggregation
+      function makeBokehRequest(id_list) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        httpRequest.onreadystatechange = alertBokehContentsAggregation;
+        httpRequest.open('GET', 'aggregation_req?id_list='+id_list);   //id_list);
+        httpRequest.send();
+        return false;
+      }
+
+      // Right panel aggregation
+      function alertBokehContentsAggregation() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest.responseText;
+            if (resp_arr!="-1"){
+              var allData = JSON.parse(resp_arr);
+              // console.log("right panel aggregation");
+              document.getElementById("aggregation-div").innerHTML = "";
+              draw_aggregation_graph(allData,"#aggregation-div");
+              ft_list();
+              highlight_features();
+              cold_start = false;
+            }
+            // makeBokehRequest2(id_list);
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+      // Request from bokeh plot to right panel violin plot
+      function makeBokehRequest2(id_list) {
+        httpRequest2 = new XMLHttpRequest();
+        if (!httpRequest2) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        httpRequest2.onreadystatechange = alertBokehContentsViolin;
+        httpRequest2.open('GET', 'violin_req?id_list='+id_list);  
+        httpRequest2.send();
+        return false;
+      }
+
+      // Right panel violin plot
+      function alertBokehContentsViolin() {
+        if (httpRequest2.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest2.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequest2.responseText;
+            if (resp_arr!="-1"){
+              var resp_list = JSON.parse(resp_arr);
+
+
+              // --- Toggle Median Marker ---
+              var median_toggle = true;
+
+              // --- Toggle Mean Marker ---
+              var mean_toggle = false;
+
+              // --- Toggle Density --- 
+              var density_toggle = true;
+
+              // --- Sort Features --- 
+
+              // --- Monotonisity ---  
+
+
+              // console.log("right panel violin");
+              document.getElementById("distribution-div").innerHTML = "";
+              // play_violin(allData,"#distribution-div");
+              draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
+                median_toggle, mean_toggle, density_toggle);
+            }
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+      // Hovering over left panel elements
+      function hoverStyleEnter(elem){
+        elem.style.fontWeight = "bold";
+        elem.style.cursor = "pointer";
+      }
+
+      function hoverStyleLeave(elem){
+        if (selected_fts.includes(elem.attributes.id.nodeValue.toString().substring(5))){
+        }
+        else{
+          elem.style.fontWeight = "normal";
+          elem.style.cursor = "normal";
+        }
+      }
+
+      // Add loading animation
+      function add_loader(elem) {
+        elem.innerHTML="";
+        var load_wrap = document.createElement("div");
+        load_wrap.className = "loader_wrap";
+        var loader = document.createElement("div");
+        loader.className = "lds-dual-ring";
+        load_wrap.append(loader);
+        elem.append(load_wrap);
+      }
+
+      // Loader for projection
+      function add_loader2(elem) {
+        document.getElementById("bokeh-iframe").style.display = "none";
+        var load_wrap = document.createElement("div");
+        load_wrap.className = "loader_wrap";
+        var loader = document.createElement("div");
+        loader.className = "lds-dual-ring";
+        load_wrap.append(loader);
+        elem.append(load_wrap);
+      }
+
+      // Initialize feature list for global
+      function ft_list() {
+        var features = 23;
+        for (i = 0; i < features; i++) {
+          var feature_name = document.getElementsByClassName("feature-name")[i];
+          feature_name.id =  "feat-" + i.toString();
+          feature_name.style.fontWeight = "normal";
+          feature_name.onclick = function () {flip_feature(this);};
+          feature_name.onmouseover = function(){hoverStyleEnter(this);};
+          feature_name.onmouseleave = function(){hoverStyleLeave(this);};
+        }
+      }
+
+      // Reset button
+      function resetFeatures() {
+
+        selected_fts = [-1];
+        var curr_alg = "True";
+        var dim_red = "tSNE";
+        var directionality = "False";
+
+        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+          curr_alg = "False";
+        }
+        if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
+          dim_red = "PCA";
+        }
+        if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
+          directionality = "True";
+        }
+        
+        if (!cold_start){
+          for (i=0; i<23; i++){
+            document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
+          }
+        }
+        makeRequest3(selected_fts, curr_alg, dim_red, directionality);
+      }
+
+      // Select/deselect features
+      function flip_feature(elemn) {
+
+        var curr_alg = "True";
+        var dim_red = "tSNE";
+        var directionality = "False";
+
+        // console.log(elemn.attributes.id.nodeValue.toString().substring(5));
+
+        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+          curr_alg = "False";
+        }
+        if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
+          dim_red = "PCA";
+        }
+        if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
+          directionality = "True";
+        }
+
+        var index = selected_fts.indexOf(-1);
+        if (index > -1) {
+          selected_fts.splice(index, 1);
+        }
+        if (selected_fts.includes(elemn.attributes.id.nodeValue.toString().substring(5))) {
+          index = selected_fts.indexOf(elemn.attributes.id.nodeValue.toString().substring(5));
+          selected_fts.splice(index, 1);
+          // elemn.style.fontSize = "12px";
+          elemn.style.fontWeight = "normal";
+        }
+        else if (selected_fts.length < 5){
+          selected_fts.push(elemn.attributes.id.nodeValue.toString().substring(5));
+        }
+        makeRequest3(selected_fts, curr_alg, dim_red, directionality);
+      }
+
+      // Select previously selected features
+      function highlight_features() {
+
+        // console.log(selected_fts);
+        var index = selected_fts.indexOf(-1);
+        if (index > -1) {
+          return;
+        }
+        for (i=0; i < selected_fts.length; i++){
+          // elemn = selected_fts[i];
+          // var ft_id = elemn.attributes.id.nodeValue.toString();//.substring(5);
+          // console.log(ft_id);
+          // console.log(selected_fts[i]);
+          // document.getElementById(ft_id).style.fontWeight = "bold";
+          document.getElementById("feat-" + selected_fts[i].toString()).style.fontWeight = "bold";
+        }
+      }
+
+      // Start global screen after instructions
+      function begin_glob(){
+
+        var right = document.getElementById("demo");
+        var k_btn = document.createElement("button");
+        var c_btn = document.createElement("button");
+        var pca_btn = document.createElement("button");
+        var tsne_btn = document.createElement("button");
+        var dir_btn = document.createElement("button");
+
+        k_btn.className = "algo-button";
+        k_btn.id = "key-button";
+        k_btn.onclick = function(){buttonRequest(this);};
+        k_btn.innerHTML = "Key Features";
+        k_btn.style.backgroundColor = light_shade;
+
+        c_btn.className = "algo-button";
+        c_btn.id = "chg-button";
+        c_btn.onclick = function(){buttonRequest(this);};
+        c_btn.innerHTML = "Changes";
+        c_btn.style.backgroundColor = dark_shade;
+
+        pca_btn.className = "dimred-button";
+        pca_btn.id = "pca-button";
+        pca_btn.onclick = function(){buttonRequest(this);};
+        pca_btn.innerHTML = "PCA";
+        pca_btn.style.backgroundColor = dark_shade;
+
+        tsne_btn.className = "dimred-button";
+        tsne_btn.id = "tsne-button";
+        tsne_btn.onclick = function(){buttonRequest(this);};
+        tsne_btn.innerHTML = "tSNE";
+        tsne_btn.style.backgroundColor = light_shade;
+
+        dir_btn.className = "dimred-button";
+        dir_btn.id = "direction-button";
+        dir_btn.onclick = function(){buttonRequest(this);};
+        dir_btn.innerHTML = "Direct.";
+        dir_btn.style.backgroundColor = dark_shade;
+
+        document.getElementsByClassName("btn-group")[0].append(k_btn);
+        document.getElementsByClassName("btn-group")[0].append(c_btn);
+        document.getElementsByClassName("btn-group")[0].append(pca_btn);
+        document.getElementsByClassName("btn-group")[0].append(tsne_btn);
+        document.getElementsByClassName("btn-group")[0].append(dir_btn);
+
+        // var reset = document.createElement("button");
+        // reset.innerHTML = "Reset";
+        // reset.id = "reset-button";
+        reset = document.getElementById("reset-button-proj");
+        reset.onclick = function(){ resetFeatures(); };
+        // document.getElementById("middle-panel-proj").append(reset);
+
+        // ft_list();
+        // makeGlobRequest();
+      }
+
+
+      fetch_csv();
+      begin_glob();
+      // draw_summary(".id-list");
+
+
+    </script>
+
+  </body>
+
+</html>
