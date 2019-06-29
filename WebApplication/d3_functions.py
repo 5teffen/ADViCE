@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from model import *
 from utils import *
-from global_functions import *
+from global_explanations import *
 
 
 

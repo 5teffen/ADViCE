@@ -7,7 +7,7 @@ import numpy as np
 from model import *
 from utils import *
 from individual_explanation import *
-from global_functions import *
+from global_explanations import *
 from d3_functions import *
 from preprocessing import create_summary_file
 
@@ -35,6 +35,7 @@ Last Column Target
 # --- Setting random seed -- 
 np.random.seed(150)
 
+
 # --- Parameters --- 
 data_path = "diabetes.csv"
 # data_path = "/static/data/diabetes.csv"
@@ -44,7 +45,7 @@ model_path = "TBD"   # Manual?
 
 
 # --- Advanced Parameters
-new = False
+new = False   # Where preprocessing has been done.
 density_fineness = 1000
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonisity
@@ -148,6 +149,7 @@ def handle_request():
 					ret_string += json.dumps(dct)
 					ret_string += "~"
 
+				
 				# text_exp = generate_text_explanation(good_percent, X[sample], change_row, change_vector , anchors)
 				similar_ids = detect_similarities("static/data/pred_data_x.csv","static/data/final_data_file.csv", data[sample], change_row, bins_centred, good_percent)
 				similar_ids = similar_ids[:min(len(similar_ids),10)]

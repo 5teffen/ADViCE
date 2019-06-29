@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from model import *
 from utils import *
-from global_functions import *
+from global_explanations import *
 from d3_functions import *
 
 
@@ -19,7 +19,7 @@ def evaluate_data_set(data):
           
     return avg_list, std_list
 
-def perturb_special(min_val,max_val,avg,std,no_val):
+def perturb_special(min_val,max_val,avg,std,no_val):  # Dealing with categorical features
     new_col = np.random.normal(avg, std, no_val)
     # Note: these functions have poor time complexity
     np.place(new_col,new_col < min_val, min_val)
@@ -33,7 +33,8 @@ def find_anchors(model, data_set, sample, no_val, special_cols = []):
     # --- Hardcoded Parameters --- 
     iterations = 4   # Iterations allowed
     
-    # --- Manually --- 
+
+    # --- Manually ---  # Dealing with categoricals. Assigning category range. 
     lowest_category = 0
     highest_category = 7
 
@@ -185,6 +186,7 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
     # --- Hardcoded Parameters --- 
     no_vertical_movement = 5
     no_lateral_movement = 5
+
 
 
     no_features = k_row.shape[0]

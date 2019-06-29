@@ -3,34 +3,6 @@ import numpy as np
 from model import SVM_model
 from individual_explanation import *
 
-# np.random.seed(12345)
-
-# vals = pd.read_csv("final_data_file.csv", header=None).values
-# X = vals[:,1:]
-# y = vals[:,0]
-
-# vals_no_9 = prepare_for_analysis("final_data_file.csv")
-# X_no_9 = vals_no_9[:,1:]
-
-# no_samples, no_features = X.shape
-
-# svm_model = SVM_model(None,"final_data_file.csv")
-# svm_model.train_model(0.001)
-# svm_model.test_model()
-
-# bins_centred, X_pos_array, init_vals = divide_data_bins(X_no_9,[9,10])
-
-
-
-
-
-# no_changes = 5
-
-# print(X.shape)
-# print(X_no_9.shape)
-
-
-# print(np.random.normal())
 
 
 def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, output_path):
@@ -85,6 +57,7 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 			anchors1 = list(anchors)
 		except:
 			pass
+
 		try:
 			change_vector1 = list(change_vector)
 		except:
@@ -101,7 +74,7 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 		else:
 			fp.write("0,")
 		if (change_vector is not None):
-			chg_cnt = 23 - change_vector1.count(0)
+			chg_cnt = no_features - change_vector1.count(0)
 			fp.write(str(chg_cnt)+",")
 		else:
 			fp.write("0,")
