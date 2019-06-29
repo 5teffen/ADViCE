@@ -1113,4 +1113,3 @@ if __name__ == '__main__':
     # count_total = occurance_counter("static/data/pred_data_x.csv")
     # sample_transf()
 
-
