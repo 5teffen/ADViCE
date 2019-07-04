@@ -42,7 +42,7 @@ class ML_model():
 		print("Test Accuracy:", acc_test*100, '%')
 
 	def __scaled_row(self, row):
-	    return = np.array([(row[k] - self.mean[k])/self.scale[k] for k in range(row.shape[0])])
+	    return np.array([(row[k] - self.mean[k])/self.scale[k] for k in range(row.shape[0])])
 
 	def run_model(self, sample):
 		sample = self.__scaled_row(sample)
