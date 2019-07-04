@@ -92,7 +92,7 @@ if not path.exists(preproc_path):
 
 
 
-generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+# generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
 
 # ------- Initialize WebApp ------- #
@@ -163,11 +163,10 @@ def handle_request():
 
 				
 				# text_exp = generate_text_explanation(good_percent, X[sample], change_row, change_vector , anchors)
-				similar_ids = detect_similarities("static/data/pred_data_x.csv","static/data/final_data_file.csv", data[sample], change_row, bins_centred, good_percent)
-				similar_ids = similar_ids[:min(len(similar_ids),10)]
+				# similar_ids = detect_similarities("static/data/pred_data_x.csv","static/data/final_data_file.csv", data[sample], change_row, bins_centred, good_percent)
+				# similar_ids = similar_ids[:min(len(similar_ids),10)]
 				ret_string += json.dumps({'sample': sample+1, 'good_percent': good_percent, 'model_correct': model_correct,
-										  'category': category, 'predicted': predicted,
-										  'similar_ids': similar_ids})
+										  'category': category, 'predicted': predicted})
 				
 				return ret_string
 
