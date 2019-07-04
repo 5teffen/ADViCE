@@ -10,6 +10,9 @@ from individual_explanation import *
 from global_explanations import *
 from d3_functions import *
 from preprocessing import create_summary_file
+from distance_function import generate_projection_files
+
+from os import path
 
 
 
@@ -36,16 +39,21 @@ Last Column Target
 np.random.seed(150)
 
 
+
 # --- Parameters --- 
 data_path = "diabetes.csv"
 # data_path = "/static/data/diabetes.csv"
 no_bins = 10
 preproc_path = "diabetes_preproc.csv"
+
+projection_changes_path = "changes_proj.csv"
+projection_anchs_path = "anchs_proj.csv"
+
 model_path = "TBD"   # Manual? 
 
 
+
 # --- Advanced Parameters
-new = False   # Where preprocessing has been done.
 density_fineness = 1000
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonisity
@@ -79,8 +87,12 @@ dict_array_orig = all_den
 
 
 # --- Perform Preprocessing if new data --- 
-if new: 
+if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
+
+
+
+generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
 
 # ------- Initialize WebApp ------- #
