@@ -1,20 +1,19 @@
 import pandas as pd
 import numpy as np
-from SVM_model import SVM_model
-from Functions import *
-from Text_Explanation import *
-from ILE import *
+from model import SVM_model
 from sklearn.manifold import MDS
 from sklearn.decomposition import PCA
 
 
-def extract_vectors(all_data_file, pre_data_file):
+def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_anchs):
+	# --- Hardcoded Parameters --- 
+	no_anchs = 4
+	no_changes = 5
 
-	pre_data = pd.read_csv(pre_data_file).values
-	all_data = pd.read_csv(all_data_file,header=None).values
 
-	X = all_data[:,1:]
-	y = pre_data[:,1] 
+	pre_data = pd.read_csv(pre_proc_file).values
+
+	# --- To ensure binary values ---
 	for val in range(y.shape[0]):
 		if y[val] > 0.5:
 			y[val] = 1
@@ -22,8 +21,28 @@ def extract_vectors(all_data_file, pre_data_file):
 			y[val] = 0
 
 
+	anch_vectors, change_vectors, y_a, y_c = extract_vectors(pre_data, X, y)
+
+
+	change_distances(change_vectors, y_c, False)
+	anch_distances(anch_vectors, y_a, False)
+
+
+
+
+	
+
+
+
+
+
+def extract_vectors(pre_data,X,y):
 	no_samp = X.shape[0]
 	no_feat = X.shape[1]
+
+	# --- Hardcoded Parameters --- 
+	no_anchs = 4
+	no_changes = 5
 
 	empty_row_test = np.zeros((1,no_feat))
 
@@ -36,7 +55,7 @@ def extract_vectors(all_data_file, pre_data_file):
 	for s in range(no_samp):
 		a_row = np.zeros((no_feat,))
 		empty = False
-		for c in range(5,9):
+		for c in range(5,5+no_anchs):
 			if (pre_data[s][3] == 0):
 				empty = True
 			if (pre_data[s][c] == -99 or pre_data[s][c] == -9):
@@ -57,7 +76,7 @@ def extract_vectors(all_data_file, pre_data_file):
 
 
 		c_row = np.zeros((no_feat,))
-		for c in range(9,14):
+		for c in range(5+no_anchs,5+no_anchs+no_changes):
 			empty = False
 			if (pre_data[s][4] == 0):
 				empty = True
@@ -65,7 +84,7 @@ def extract_vectors(all_data_file, pre_data_file):
 				break
 			else:
 				ind = pre_data[s][c]
-				change = pre_data[s][c+5]
+				change = pre_data[s][c+no_changes]
 				c_row[ind] = change
 
 		if not empty:
@@ -127,8 +146,10 @@ def anch_distances(anch_vectors , y, directionality):
 
 
 			anch_dist[ts][cs] = i_over_u
+
+	result = np.append(ids,anch_dist,axis=1)
+	result_red = perform_dr(result)
 	
-	np.savetxt("anchs_no_red_dir_" + str(directionality) + ".csv",np.append(ids,anch_dist,axis=1) , delimiter=",",fmt='%s')
 	
 	# embedding = MDS(n_components=2)
 	# transformed = embedding.fit_transform(anch_dist)
@@ -186,7 +207,10 @@ def change_distances(change_vectors , y, directionality):
 
 			change_dist[ts][cs] = i_over_u
 
-	np.savetxt("changes_no_red_dir_" + str(directionality) + ".csv",np.append(ids,change_dist,axis=1) , delimiter=",",fmt='%s')
+	result = np.append(ids,change_dist,axis=1)
+
+	result_red = perform_dr(result)
+	# np.savetxt("changes_no_red_dir_" + str(directionality) + ".csv",np.append(ids,change_dist,axis=1) , delimiter=",",fmt='%s')
 	
 	# embedding = MDS(n_components=2)
 	# transformed = embedding.fit_transform(change_dist)
@@ -195,9 +219,7 @@ def change_distances(change_vectors , y, directionality):
 
 	# np.savetxt("changes.csv", all_results, delimiter=",",fmt='%s')
 
-def perform_dr(file_name,output_file_name):
-	data = pd.read_csv(file_name,header=None).values
-
+def perform_dr(data):
 	ids = data[:,:3]
 	X = data[:,3:]
 
@@ -206,14 +228,16 @@ def perform_dr(file_name,output_file_name):
 
 	output = np.append(ids,X_pca,axis=1)
 
-	np.savetxt(output_file_name, output, delimiter=",",fmt='%s')
-	print("Done")
+	return output
 
-anch_vectors, change_vectors, y_a, y_c = extract_vectors("static/data/final_data_file.csv","static/data/pred_data_x.csv")
-print(anch_vectors, change_vectors, y_a, y_c)
 
-change_distances(change_vectors, y_c, False)
-anch_distances(anch_vectors, y_a, False)
+
+
+# anch_vectors, change_vectors, y_a, y_c = extract_vectors("static/data/final_data_file.csv","static/data/pred_data_x.csv")
+# print(anch_vectors, change_vectors, y_a, y_c)
+
+# change_distances(change_vectors, y_c, False)
+# anch_distances(anch_vectors, y_a, False)
 
 # perform_dr("changes_no_reduction.csv","changes_PCA")
 # perform_dr("anchs_no_reduction.csv","anchs_PCA")

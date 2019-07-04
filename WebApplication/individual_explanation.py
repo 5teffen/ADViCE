@@ -214,7 +214,8 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
 
     """
     if monotonicity_arr == []:
-        monotonicity_arr = np.ones(no_features)
+        monotonicity_arr = np.ones(no_features)*-1
+        # print(monotonicity_arr)
 
 
     monotonicity_arr_c = np.copy(monotonicity_arr)
@@ -370,7 +371,6 @@ if __name__ == '__main__':
 
     # create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
     res = prepare_for_D3(data[sample_no], bins_centred, change_row, change_vector, anchors, percent, feature_names, False, monotonicity_arr)
-    print(res)
 
 
 
