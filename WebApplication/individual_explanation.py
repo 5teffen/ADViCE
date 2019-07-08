@@ -264,14 +264,13 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
 
 def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr):
     
+    np.random.seed(11)
     initial_percentage = model.run_model(k_row)
 
     change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr)
     anchors = find_anchors(model, data, k_row, 100)
 
     return change_vector, change_row, anchors, initial_percentage
-
-
 
     return trans_dict
 

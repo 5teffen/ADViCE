@@ -13,13 +13,12 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 	no_anchs = 4
 	no_changes = 5
 
-
 	no_samples, no_features = X.shape
 
 	fp = open(output_path, 'w')
 	fp.write("ID,Percentage,Category,no_Anch,no_Chg,Anch1,Anch2,Anch3,Anch4,Chg1,Chg2,Chg3,Chg4,Chg5,Hgt1,Hgt2,Hgt3,Hgt4,Hgt5\n")
 
-	# --- ID NUMBERS AND ANCHORS AMD CHANGES ARE INDEXED WITH 1 ---
+	# --- ID NUMBERS AND ANCHORS AND CHANGES ARE INDEXED WITH 1 ---
 	my_count = 0
 	for sample in range(no_samples):
 
@@ -33,7 +32,7 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 			print(sample)
 
 
-		### Run MSC Algorithm 
+		### Run Explanation Algorithms
 		change_vector, change_row, anchors, percent = instance_explanation(model, X, X[my_count], my_count, X_pos_array, bins_centred, no_bins, monotonicity_arr)
 
 		predicted = 0

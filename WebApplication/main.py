@@ -41,10 +41,12 @@ np.random.seed(150)
 
 
 # --- Parameters --- 
-data_path = "diabetes.csv"
-# data_path = "/static/data/diabetes.csv"
+# data_path = "static/data/ADS.csv"
+data_path = "static/data/diabetes.csv"
+
 no_bins = 10
-preproc_path = "diabetes_preproc.csv"
+# preproc_path = "static/data/ADS_preproc.csv"
+preproc_path = "static/data/diabetes_preproc.csv"
 
 projection_changes_path = "changes_proj.csv"
 projection_anchs_path = "anchs_proj.csv"
@@ -56,14 +58,23 @@ model_path = "TBD"   # Manual?
 # --- Advanced Parameters
 density_fineness = 1000
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
-monotonicity_arr = []  # Local test of monotonisity
+monotonicity_arr = []  # Local test of monotonicity
 
 
-
+# --- For diabetes ---
 df = pd.read_csv(data_path)
+
+# --- For education ---
+# df = pd.read_csv(data_path)
+# df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
+# df = df.drop(columns=['Academic Score',
+#                 'School','Grade',
+#                 'Term','Student'])
+# df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
+
+
 feature_names = np.array(df.columns)[:-1]
 all_data = np.array(df.values)
-
 
 # -- Split data and target values --
 data = all_data[:,:-1]
@@ -74,7 +85,7 @@ no_samples, no_features = data.shape
 
 # --- Initialize and train model ---
 svm_model = SVM_model(data,target)
-svm_model.train_model(0.001)
+svm_model.train_model()
 svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
@@ -89,8 +100,6 @@ dict_array_orig = all_den
 # --- Perform Preprocessing if new data --- 
 if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
-
-
 
 # generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
@@ -113,12 +122,12 @@ def intro_site():
 
 @app.route('/individual')
 def ind_site():
-    return render_template("index_individual.html")
+    return render_template("index_individual.html", no_samples=no_samples, no_features=no_features, preproc_path=preproc_path)
 
 @app.route('/instance', methods=['GET'])
 def handle_request():
 
-	np.random.seed(12345)
+	np.random.seed(0)
 
 	if request.method == 'GET':
 		sample = -10
@@ -137,38 +146,28 @@ def handle_request():
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample)
 				
 				### Run MSC and Anchors
-				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample], sample, X_pos_array, bins_centred, 
-																no_bins, monotonicity_arr)
+				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample], sample, X_pos_array,
+																				   bins_centred, no_bins, monotonicity_arr)
 
 				### Parse values into python dictionary
-				ret_string = ""
 				data_array = prepare_for_D3(data[sample], bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
-
 				dict_array = []
 				if monot:
 					dict_array = dict_array_monot
 				else:
 					dict_array = dict_array_orig
-
 				if sort:
 					data_array, dict_array = sort_by_val(data_array, dict_array)
 
-				for dct in data_array:
-					ret_string += json.dumps(dct)
-					ret_string += "~"
-
-				for dct in dict_array:
-					ret_string += json.dumps(dct)
-					ret_string += "~"
-
+				ret_arr = [data_array, dict_array]
 				
 				# text_exp = generate_text_explanation(good_percent, X[sample], change_row, change_vector , anchors)
 				# similar_ids = detect_similarities("static/data/pred_data_x.csv","static/data/final_data_file.csv", data[sample], change_row, bins_centred, good_percent)
 				# similar_ids = similar_ids[:min(len(similar_ids),10)]
-				ret_string += json.dumps({'sample': sample+1, 'good_percent': good_percent, 'model_correct': model_correct,
-										  'category': category, 'predicted': predicted})
+				ret_arr.append({'sample': sample+1, 'good_percent': good_percent, 'model_correct': model_correct,
+							   'category': category, 'predicted': predicted})
 				
-				return ret_string
+				return json.dumps(ret_arr)
 
 
 

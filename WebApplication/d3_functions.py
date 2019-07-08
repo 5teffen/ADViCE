@@ -44,12 +44,16 @@ def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, per
         else:
             result["anch"] = 0
         
-        val = sample[i].round(0)
+        val = round(sample[i]) #.round(0)
+        # try:
+        #   val = long(sample[i]).round(0)
+        # except:
+        #   print (sample[i],i, sample)
     
         if (change_row is None):
             change = val
         else:
-            change = change_row[i].round(0)
+            change = round(change_row[i]) #.round(0)
         
         max_bin = np.max(bins_centred[i])
         min_bin = np.min(bins_centred[i])
