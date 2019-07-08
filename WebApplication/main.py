@@ -88,7 +88,7 @@ svm_model = SVM_model(data,target)
 svm_model.train_model()
 svm_model.test_model()
 
-bins_centred, X_pos_array, init_vals = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
+bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
 
 density_fineness = 1000
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
