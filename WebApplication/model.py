@@ -65,7 +65,7 @@ class ML_model():
 		return pred 
 
 class SVM_model(ML_model):
-	def train_model(self,c_val=1):
+	def train_model(self, c_val=1):
 		self.model = svm.SVC(kernel='linear', C=c_val, probability=True)
 		self.model.fit(self.X_tr,self.y_tr.reshape(self.y_tr.shape[0],))
 
