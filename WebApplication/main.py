@@ -96,12 +96,32 @@ all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_
 dict_array = all_den
 dict_array_orig = all_den
 
-
 # --- Perform Preprocessing if new data --- 
 if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
 
 # generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+
+
+
+# -- Testing to match
+test_samples = 20
+def test_match(idx, p):
+	idx-=1
+	test_sample = data[idx]
+	single_bin_result = bin_single_sample(test_sample, col_ranges)
+	if p:
+		print(data[idx])
+		print(svm_model.X[idx])
+		print(single_bin_result)
+		print(X_pos_array[idx])
+	t = (single_bin_result == X_pos_array[idx]).all()
+	if not t:
+		print(idx+1, "no match")
+	return t
+
+for i in range(test_samples):
+	test_match(i, True)
 
 
 # ------- Initialize WebApp ------- #
@@ -141,6 +161,8 @@ def handle_request():
 				return "Please enter a sample number in the range (1, "+ str(no_samples) + ")."
 			else:			
 				
+				test_match(sample, True)
+
 				monot = (request.args.get('monot') == "True")
 				sort = (request.args.get('sort') == "True")
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample)
@@ -342,4 +364,3 @@ if __name__ == '__main__':
 
 	np.random.seed(12345)
 	app.run(port=5005, host="0.0.0.0", debug=True)
-
