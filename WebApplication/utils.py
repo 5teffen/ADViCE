@@ -106,6 +106,7 @@ def separate_bins_feature(feat_column, no_bins):
 	ceil = min_val + single_bin
 
 	ranges = []
+	str_ranges = []
 	bins = np.zeros(no_bins)
 	new_col = np.zeros(feat_column.shape[0])
 	new_col_vals = np.zeros(feat_column.shape[0])
@@ -132,12 +133,15 @@ def separate_bins_feature(feat_column, no_bins):
 							new_col[val_i] = i
 							new_col_vals[val_i] = centre
 			bins[i] = centre
-			ranges.append(range_str)
+			str_ranges.append(range_str)
+			ranges.append((floor,ceil))
 		
 		else:
 			bins[i] = -1
+			str_ranges.append("-1")
 			ranges.append("-1")
 
+		
 
 		floor += single_bin
 		ceil += single_bin
@@ -150,6 +154,7 @@ def divide_data_bins(data,no_bins):
     bins_centred = []
     X_pos_array = []
     in_vals = []
+    col_ranges = []
     
     for i in range(no_feat):
         # Handles special case
@@ -158,13 +163,56 @@ def divide_data_bins(data,no_bins):
         in_vals.append(val)
         bins_centred.append(bins)
         X_pos_array.append(new_col)
+        col_ranges.append(col_range)
         
     # Convert to numpy array
     in_vals = np.array(in_vals).transpose()
     bins_centred = np.array(bins_centred)
-    X_pos_array = (np.array(X_pos_array)).transpose() 
+    X_pos_array = (np.array(X_pos_array)).transpose()
+    col_ranges = np.array(col_ranges)
 
-    return bins_centred, X_pos_array, in_vals
+    return bins_centred, X_pos_array, in_vals, col_ranges
+
+
+def bin_single_sample(sample, col_ranges):
+	# -- Extract Basic Parameters -- 
+	no_features = len(sample)
+	no_bins = len(col_ranges[0])
+
+
+	pos_array = np.empty(no_features)
+
+
+	for col_i in range(no_features):
+		value = sample[col_i]
+		ranges = col_ranges[col_i]
+
+		for bin_no in range(no_bins):
+
+			floor = ranges[bin_no][0]
+			ceil = ranges[bin_no][1]
+			
+			# -- Dealing with edge cases -- 
+			if col_i == 0:
+				if value < ceil:
+					pos_array[col_i] = bin_no
+					break
+
+
+			elif bin_no == no_bins-1:
+				if value >= floor:
+					pos_array[col_i] = bin_no
+					break
+
+			else:
+				if (value < ceil) and (value >= floor):
+					pos_array[col_i] = bin_no
+					break
+
+	return pos_array
+
+
+
 
 def prepare_for_analysis(filename):
 	data_array = pd.read_csv(filename,header=None).values
@@ -201,37 +249,5 @@ def sort_by_val(main, density):
     return ordered_main, ordered_density
 
 
-
-
-
-
-if __name__ == '__main__':
-    vals = pd.read_csv("static/data/final_data_file.csv", header=None).values
-    X = vals[:,1:]
-    y = vals[:,0]
-
-    vals_no_9 = prepare_for_analysis("static/data/final_data_file.csv")
-    X_no_9 = vals_no_9[:,1:]
-
-    no_samples, no_features = X.shape
-
-
-    bins_centred, X_pos_array, init_vals = divide_data_bins(X_no_9,[9,10])
-    # density_array = scaling_data_density(X_no_9, bins_centred)
-    # print(len(density_array))
-
-    proj_samples = [x+1 for x in range(1000)]
-
-    trans = sample_transf(X)
-
-    # prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans, True)
-    # result = populate_violin_plot(X_pos_array, np.array([1,2,3,4,5,6,7]),trans)
-
-    # all_den, select_den, all_median , select_median = kernel_density(X_no_9, [1,2,3,4,5],trans)   # Density Code!!
-    all_den, all_median, all_mean = all_kernel_densities(X_no_9)
-    select_den, select_median, select_mean = specific_kernel_densities(X_no_9, [1,2,3,4,5],trans)
-
-    # count_total = occurance_counter("static/data/pred_data_x.csv")
-    # sample_transf()
 
 

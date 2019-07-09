@@ -355,21 +355,30 @@ if __name__ == '__main__':
     svm_model.train_model(0.001)
     svm_model.test_model()
 
-    bins_centred, X_pos_array, init_vals = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
+    test_sample = data[10]
 
-    density_fineness = 1000
-    all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
+    bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
+    
+
+    single_bin_result = bin_single_sample(test_sample, col_ranges)
+    
+    # -- Testing to match
+    print(single_bin_result)
+    print(X_pos_array[10])
+
+    # density_fineness = 1000
+    # all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 
 
-    sample_no = 1
+    # sample_no = 1
 
-    change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
-                                                        no_bins, monotonicity_arr)
+    # change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
+                                                        # no_bins, monotonicity_arr)
 
 
 
     # create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
-    res = prepare_for_D3(data[sample_no], bins_centred, change_row, change_vector, anchors, percent, feature_names, False, monotonicity_arr)
+    # res = prepare_for_D3(data[sample_no], bins_centred, change_row, change_vector, anchors, percent, feature_names, False, monotonicity_arr)
 
 
 
