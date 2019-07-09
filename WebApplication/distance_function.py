@@ -11,7 +11,7 @@ def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_an
 	no_changes = 5
 
 
-	pre_data = pd.read_csv(pre_proc_file).values
+	pre_data = pd.read_csv(pre_proc_file, index_col=False).values
 
 	# --- To ensure binary values ---
 	for val in range(y.shape[0]):
@@ -24,13 +24,14 @@ def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_an
 	anch_vectors, change_vectors, y_a, y_c = extract_vectors(pre_data, X, y)
 
 
-	change_distances(change_vectors, y_c, False)
-	anch_distances(anch_vectors, y_a, False)
+	print("Calculating Changes Distance Matrix")
+	changes = change_distances(change_vectors, y_c, False)
+	# print("Calculating Anchor Distance Matrix")
+	# anchs = anch_distances(anch_vectors, y_a, False)
 
 
-
-
-	
+	# np.savetxt(out_path_changes, changes, delimiter=",",fmt='%s')
+	# np.savetxt(out_path_anchs, anchs, delimiter=",",fmt='%s')
 
 
 
@@ -43,6 +44,7 @@ def extract_vectors(pre_data,X,y):
 	# --- Hardcoded Parameters --- 
 	no_anchs = 4
 	no_changes = 5
+	start_col = 6
 
 	empty_row_test = np.zeros((1,no_feat))
 
@@ -55,7 +57,7 @@ def extract_vectors(pre_data,X,y):
 	for s in range(no_samp):
 		a_row = np.zeros((no_feat,))
 		empty = False
-		for c in range(5,5+no_anchs):
+		for c in range(start_col,start_col+no_anchs):
 			if (pre_data[s][3] == 0):
 				empty = True
 			if (pre_data[s][c] == -99 or pre_data[s][c] == -9):
@@ -76,7 +78,7 @@ def extract_vectors(pre_data,X,y):
 
 
 		c_row = np.zeros((no_feat,))
-		for c in range(5+no_anchs,5+no_anchs+no_changes):
+		for c in range(start_col+no_anchs,start_col+no_anchs+no_changes):
 			empty = False
 			if (pre_data[s][4] == 0):
 				empty = True
@@ -105,6 +107,7 @@ def extract_vectors(pre_data,X,y):
 
 	return anch_vectors,change_vectors,y_anch,y_change
 
+
 def anch_distances(anch_vectors , y, directionality):
 	# -- Anchor Distance Martix --
 	# --- Intersection/Union --- 
@@ -113,11 +116,13 @@ def anch_distances(anch_vectors , y, directionality):
 
 
 	ids = anch_vectors[:,:3]
+	print(ids)
 	anch_vectors = anch_vectors[:,3:]
 
 	for ts in range(anch_vectors.shape[0]):
 		if (ts % 100 == 0):
-			print("Starting sample", ts)
+			pass
+			# print("Starting sample", ts)
 		test_sample = anch_vectors[ts]
 		for cs in range(anch_vectors.shape[0]):
 			compare_sample = anch_vectors[cs]
@@ -147,17 +152,12 @@ def anch_distances(anch_vectors , y, directionality):
 
 			anch_dist[ts][cs] = i_over_u
 
-	result = np.append(ids,anch_dist,axis=1)
-	result_red = perform_dr(result)
-	
-	
-	# embedding = MDS(n_components=2)
-	# transformed = embedding.fit_transform(anch_dist)
 
-	# all_results = np.append(ids,transformed,axis=1)
+	anchs_red = perform_dr(anch_dist)  # Reduced to two dimensions
+	result = np.append(ids, anchs_red, axis=1)
 
+	return result
 
-	# np.savetxt("anchs.csv", all_results, delimiter=",",fmt='%s')
 
 def change_distances(change_vectors , y, directionality):
 	# -- Changes Distance Martix --
@@ -165,13 +165,15 @@ def change_distances(change_vectors , y, directionality):
 	change_dist = np.zeros((no_samp,no_samp))
 
 	ids = change_vectors[:,:3]
+	print(ids)
 	change_vectors = change_vectors[:,3:]
 
 	for ts in range(change_vectors.shape[0]):
 
 		test_sample = change_vectors[ts]
 		if (ts % 100 == 0):
-			print("Starting sample", ts)
+			pass 
+			# print("Starting sample", ts)
 		
 		for cs in range(change_vectors.shape[0]):
 			compare_sample = change_vectors[cs]
@@ -207,38 +209,19 @@ def change_distances(change_vectors , y, directionality):
 
 			change_dist[ts][cs] = i_over_u
 
-	result = np.append(ids,change_dist,axis=1)
 
-	result_red = perform_dr(result)
-	# np.savetxt("changes_no_red_dir_" + str(directionality) + ".csv",np.append(ids,change_dist,axis=1) , delimiter=",",fmt='%s')
-	
-	# embedding = MDS(n_components=2)
-	# transformed = embedding.fit_transform(change_dist)
 
-	# all_results = np.append(ids,transformed,axis=1)
+	changes_red = perform_dr(change_dist)  # Reduced to two dimensions
+	result = np.append(ids, changes_red, axis=1)
 
-	# np.savetxt("changes.csv", all_results, delimiter=",",fmt='%s')
+	return result
+
 
 def perform_dr(data):
-	ids = data[:,:3]
-	X = data[:,3:]
 
 	PCA_model = PCA(n_components = 2, svd_solver = 'full')
-	X_pca = PCA_model.fit_transform(X)
+	X_pca = PCA_model.fit_transform(data)
 
-	output = np.append(ids,X_pca,axis=1)
+	return X_pca
 
-	return output
-
-
-
-
-# anch_vectors, change_vectors, y_a, y_c = extract_vectors("static/data/final_data_file.csv","static/data/pred_data_x.csv")
-# print(anch_vectors, change_vectors, y_a, y_c)
-
-# change_distances(change_vectors, y_c, False)
-# anch_distances(anch_vectors, y_a, False)
-
-# perform_dr("changes_no_reduction.csv","changes_PCA")
-# perform_dr("anchs_no_reduction.csv","anchs_PCA")
 

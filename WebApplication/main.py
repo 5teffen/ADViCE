@@ -48,8 +48,8 @@ no_bins = 10
 # preproc_path = "static/data/ADS_preproc.csv"
 preproc_path = "static/data/diabetes_preproc.csv"
 
-projection_changes_path = "changes_proj.csv"
-projection_anchs_path = "anchs_proj.csv"
+projection_changes_path = "static/data/changes_proj.csv"
+projection_anchs_path = "static/data/anchs_proj.csv"
 
 model_path = "TBD"   # Manual? 
 
@@ -100,10 +100,14 @@ dict_array_orig = all_den
 if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
 
-# generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+ 
+
+# if ((not path.exists(projection_changes_path)) and (not path.exists(projection_anchs_path))):
+# 	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
 
-
+generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+exit()
 
 # ------- Initialize WebApp ------- #
 
@@ -142,7 +146,6 @@ def handle_request():
 				return "Please enter a sample number in the range (1, "+ str(no_samples) + ")."
 			else:
 				row = data[sample]			
-				test_match(sample, True)
 
 				monot = (request.args.get('monot') == "True")
 				sort = (request.args.get('sort') == "True")
