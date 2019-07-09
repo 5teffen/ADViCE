@@ -11,10 +11,12 @@ class ModelError(Exception):
     pass
 
 class ML_model():
+
 	def __init__ (self, data, target, rand_state=11):
 
 		self.model = None
 		self.rand_state = rand_state
+		self.model_calls = 0
 
 		# -- Separate --
 		self.y = target
@@ -45,6 +47,7 @@ class ML_model():
 	    return np.array([(row[k] - self.mean[k])/self.scale[k] for k in range(row.shape[0])])
 
 	def run_model(self, sample):
+		self.model_calls += 1
 		sample = self.__scaled_row(sample)
 		if (not self.model):
 			raise ModelError("Train Model First")

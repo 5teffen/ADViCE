@@ -269,10 +269,16 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
 def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges):
     
     np.random.seed(11)
+
+    # --- To measure performance ---
+    model.model_calls = 0
+
     initial_percentage = model.run_model(k_row)
 
     change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges)
     anchors = find_anchors(model, data, k_row, 100)
+
+    print("Model calls for this explanation:", model.model_calls)
 
     return change_vector, change_row, anchors, initial_percentage
 
