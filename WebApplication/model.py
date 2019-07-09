@@ -47,13 +47,12 @@ class ML_model():
 	    return np.array([(row[k] - self.mean[k])/self.scale[k] for k in range(row.shape[0])])
 
 	def run_model(self, sample):
-		self.model_calls += 1
 		sample = self.__scaled_row(sample)
 		if (not self.model):
 			raise ModelError("Train Model First")
-
+			
 		result = self.model.predict_proba(sample.reshape(1, -1))
-
+		self.model_calls += 1
 		return result[0][1]
 
 	def run_model_data(self, data_set):
@@ -64,7 +63,7 @@ class ML_model():
 			data_set[i] = self.__scaled_row(data_set[i])
 
 		pred = self.model.predict(data_set)
-
+		self.model_calls += data_set.shape[0]
 		return pred 
 
 class SVM_model(ML_model):
