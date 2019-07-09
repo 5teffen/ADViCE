@@ -55,7 +55,20 @@ def model_overview(pre_proc_file):
 	# print("Changes",changes_count)
 
 
-def display_data (X,y,model,sample):
+def display_data (X,y,model,sample,row=0):
+	# Data point not in original dataset
+	if sample == -1:
+		good_percent = model.run_model(row)
+		predicted = 0
+		if good_percent>.5:
+			predicted = 1
+		category = "NN";
+
+		# Need to handle new case for unseen data!
+		model_correct = -1
+		return sample, good_percent, model_correct, category, predicted
+
+	# Data point in original dataset	
 	sample -= 1
 	if X[sample][0] == -9:
 		category = "NA"

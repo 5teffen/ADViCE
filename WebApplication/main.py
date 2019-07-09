@@ -159,20 +159,20 @@ def handle_request():
 		if sample != -10:
 			if sample<1 or sample>no_samples:
 				return "Please enter a sample number in the range (1, "+ str(no_samples) + ")."
-			else:			
-				
+			else:
+				row = data[sample]			
 				test_match(sample, True)
 
 				monot = (request.args.get('monot') == "True")
 				sort = (request.args.get('sort') == "True")
-				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample)
+				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
 				### Run MSC and Anchors
-				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample], sample, X_pos_array,
+				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, row, sample, X_pos_array,
 																				   bins_centred, no_bins, monotonicity_arr, col_ranges)
 
 				### Parse values into python dictionary
-				data_array = prepare_for_D3(data[sample], bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
+				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
 				dict_array = []
 				if monot:
 					dict_array = dict_array_monot
