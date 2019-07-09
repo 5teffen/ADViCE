@@ -193,7 +193,7 @@ def bin_single_sample(sample, col_ranges):
 	no_bins = len(col_ranges[0])
 
 
-	pos_array = np.empty(no_features)
+	pos_array = np.ones(no_features)*-1
 
 
 	for col_i in range(no_features):
@@ -206,15 +206,14 @@ def bin_single_sample(sample, col_ranges):
 			ceil = ranges[bin_no][1]
 			
 			# -- Dealing with edge cases -- 
-			if col_i == 0:
+			if bin_no == 0:
 				if value < ceil:
 					pos_array[col_i] = bin_no
 					break
 
 			elif bin_no == no_bins-1:
-				if value >= floor:
-					pos_array[col_i] = bin_no
-					break
+				pos_array[col_i] = bin_no
+				break
 
 			elif ranges[bin_no + 1] == "-1":
 				if value >= floor:
@@ -225,6 +224,7 @@ def bin_single_sample(sample, col_ranges):
 				if (value < ceil) and (value >= floor):
 					pos_array[col_i] = bin_no
 					break
+
 
 	return pos_array
 
