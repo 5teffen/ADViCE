@@ -198,8 +198,12 @@ def bin_single_sample(sample, col_ranges):
 					pos_array[col_i] = bin_no
 					break
 
-
 			elif bin_no == no_bins-1:
+				if value >= floor:
+					pos_array[col_i] = bin_no
+					break
+
+			elif ranges[bin_no + 1] == "-1":
 				if value >= floor:
 					pos_array[col_i] = bin_no
 					break
