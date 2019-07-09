@@ -41,12 +41,12 @@ np.random.seed(150)
 
 
 # --- Parameters --- 
-# data_path = "static/data/ADS.csv"
-data_path = "static/data/diabetes.csv"
+data_path = "static/data/ADS.csv"
+# data_path = "static/data/diabetes.csv"
 
 no_bins = 10
-# preproc_path = "static/data/ADS_preproc.csv"
-preproc_path = "static/data/diabetes_preproc.csv"
+preproc_path = "static/data/ADS_preproc.csv"
+# preproc_path = "static/data/diabetes_preproc.csv"
 
 projection_changes_path = "changes_proj.csv"
 projection_anchs_path = "anchs_proj.csv"
@@ -62,15 +62,15 @@ monotonicity_arr = []  # Local test of monotonicity
 
 
 # --- For diabetes ---
-df = pd.read_csv(data_path)
+# df = pd.read_csv(data_path)
 
 # --- For education ---
-# df = pd.read_csv(data_path)
-# df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
-# df = df.drop(columns=['Academic Score',
-#                 'School','Grade',
-#                 'Term','Student'])
-# df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
+df = pd.read_csv(data_path)
+df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
+df = df.drop(columns=['Academic Score',
+                'School','Grade',
+                'Term','Student'])
+df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
 
 
 feature_names = np.array(df.columns)[:-1]
@@ -96,12 +96,32 @@ all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_
 dict_array = all_den
 dict_array_orig = all_den
 
-
 # --- Perform Preprocessing if new data --- 
 if not path.exists(preproc_path): 
-	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
+	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
 
 # generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+
+
+
+# -- Testing to match
+test_samples = no_samples
+def test_match(idx, p):
+	idx-=1
+	test_sample = data[idx]
+	single_bin_result = bin_single_sample(test_sample, col_ranges)
+	if p:
+		print(data[idx])
+		print(svm_model.X[idx])
+		print(single_bin_result)
+		print(X_pos_array[idx])
+	t = (single_bin_result == X_pos_array[idx]).all()
+	if not t:
+		print(idx+1, "no match")
+	return t
+
+for i in range(test_samples):
+	test_match(i, False)
 
 
 # ------- Initialize WebApp ------- #
@@ -139,18 +159,20 @@ def handle_request():
 		if sample != -10:
 			if sample<1 or sample>no_samples:
 				return "Please enter a sample number in the range (1, "+ str(no_samples) + ")."
-			else:			
-				
+			else:
+				row = data[sample]			
+				test_match(sample, True)
+
 				monot = (request.args.get('monot') == "True")
 				sort = (request.args.get('sort') == "True")
-				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample)
+				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
 				### Run MSC and Anchors
-				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample], sample, X_pos_array,
-																				   bins_centred, no_bins, monotonicity_arr)
+				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, row, sample, X_pos_array,
+																				   bins_centred, no_bins, monotonicity_arr, col_ranges)
 
 				### Parse values into python dictionary
-				data_array = prepare_for_D3(data[sample], bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
+				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
 				dict_array = []
 				if monot:
 					dict_array = dict_array_monot
@@ -342,4 +364,3 @@ if __name__ == '__main__':
 
 	np.random.seed(12345)
 	app.run(port=5005, host="0.0.0.0", debug=True)
-

@@ -5,7 +5,7 @@ from individual_explanation import *
 
 
 
-def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, output_path):
+def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, output_path, col_ranges):
 	np.random.seed(0)  #Ensures Uniformity 
     
 	# --- Hardcoded Parameters --- 
@@ -33,7 +33,7 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 
 
 		### Run Explanation Algorithms
-		change_vector, change_row, anchors, percent = instance_explanation(model, X, X[my_count], my_count, X_pos_array, bins_centred, no_bins, monotonicity_arr)
+		change_vector, change_row, anchors, percent = instance_explanation(model, X, X[my_count], my_count, X_pos_array, bins_centred, no_bins, monotonicity_arr, col_ranges)
 
 		predicted = 0
 		if percent>.5:

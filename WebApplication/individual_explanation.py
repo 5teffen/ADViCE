@@ -99,7 +99,7 @@ def find_anchors(model, data_set, sample, no_val, special_cols = []):
     print("!!! No anchors found !!!")
     return None
 
-def perturb_row_feature(model, row, row_idx, feat_idx, current_bins, X_bin_pos, mean_bins, mono_arr, improve, no_bins):
+def perturb_row_feature(model, row, row_idx, feat_idx, current_bins, X_bin_pos, mean_bins, mono_arr, improve, no_bins, col_ranges):
     
     monot_arr = np.copy(mono_arr)                        
     
@@ -112,7 +112,8 @@ def perturb_row_feature(model, row, row_idx, feat_idx, current_bins, X_bin_pos, 
     if current_bin < no_bins-2:
         n_next_value = mean_bins[feat_idx][int(current_bin+2)]
     if current_bin != 0:
-        prev_value = mean_bins[feat_idx][int(X_bin_pos[row_idx][feat_idx]-1)]
+        # prev_value = mean_bins[feat_idx][int(X_bin_pos[row_idx][feat_idx]-1)]
+        prev_value = mean_bins[feat_idx][int(current_bin-1)]
     
     # Set direction for boundary cases
     if direction == -1:
@@ -181,12 +182,11 @@ def percent_cond (improve, percent):
     else:
         return False
     
-def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monotonicity_arr = []):
+def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monotonicity_arr, col_ranges):
 
     # --- Hardcoded Parameters --- 
     no_vertical_movement = 5
     no_lateral_movement = 5
-
 
 
     no_features = k_row.shape[0]
@@ -197,8 +197,12 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
     times_moved = np.zeros(no_features)
     change_vector = np.zeros(no_features)
     
-    original_bins = np.copy(X_bin_pos[row_idx])
-    current_bins = np.copy(X_bin_pos[row_idx])
+    if row_idx != -1:
+        original_bins = np.copy(X_bin_pos[row_idx])
+        current_bins = np.copy(X_bin_pos[row_idx])
+    else:
+        original_bins = bin_single_sample(row, col_ranges)
+        current_bins = bin_single_sample(row, col_ranges)
     
     # --- Decides class to attempt to change into ---
     improve = True
@@ -234,7 +238,7 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
         
         # Avoids moving ExternalScore
         for i in range(1,len(row)):
-            t_row, t_current_bins = perturb_row_feature(model, row, row_idx, i, current_bins, X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins)
+            t_row, t_current_bins = perturb_row_feature(model, row, row_idx, i, current_bins, X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins, col_ranges)
             pert_rows.append(t_row)
             new_curr_bins.append(t_current_bins)
             new_percents.append(model.run_model(t_row))
@@ -262,13 +266,19 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
         print("Decision can't be moved within thresholds:")
         return None,None
 
-def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr):
+def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges):
     
     np.random.seed(11)
+
+    # --- To measure performance ---
+    model.model_calls = 0
+
     initial_percentage = model.run_model(k_row)
 
-    change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr)
+    change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges)
     anchors = find_anchors(model, data, k_row, 100)
+
+    print("Model calls for this explanation:", model.model_calls)
 
     return change_vector, change_row, anchors, initial_percentage
 
@@ -388,5 +398,4 @@ if __name__ == '__main__':
 
     
  
-
 

@@ -11,10 +11,12 @@ class ModelError(Exception):
     pass
 
 class ML_model():
+
 	def __init__ (self, data, target, rand_state=11):
 
 		self.model = None
 		self.rand_state = rand_state
+		self.model_calls = 0
 
 		# -- Separate --
 		self.y = target
@@ -48,9 +50,9 @@ class ML_model():
 		sample = self.__scaled_row(sample)
 		if (not self.model):
 			raise ModelError("Train Model First")
-
+			
 		result = self.model.predict_proba(sample.reshape(1, -1))
-
+		self.model_calls += 1
 		return result[0][1]
 
 	def run_model_data(self, data_set):
@@ -61,7 +63,7 @@ class ML_model():
 			data_set[i] = self.__scaled_row(data_set[i])
 
 		pred = self.model.predict(data_set)
-
+		self.model_calls += data_set.shape[0]
 		return pred 
 
 class SVM_model(ML_model):

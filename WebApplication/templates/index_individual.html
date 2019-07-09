@@ -87,7 +87,9 @@
 
       var dark_shade = "rgb(177, 196, 209)";
       var light_shade = "white";
-
+      var no_samples = {{no_samples}};
+      var no_features = {{no_features}};
+      var preproc_path = "{{preproc_path}}";
     
       function addSquare(elemn, category, size) {
         var sqr = document.createElement("img");
@@ -139,7 +141,7 @@
       function fetch_csv(){
         txtFile = new XMLHttpRequest();
         txtFile.onreadystatechange = initContents;
-        txtFile.open("GET", "static/data/pred_data_x.csv");
+        txtFile.open("GET", preproc_path);
         txtFile.send()
       }
       
@@ -204,7 +206,7 @@
 
         if (httpRequest.readyState === XMLHttpRequest.OPENED) {
           var right = document.getElementById("demo");
-          console.log(right.childNodes[1]);
+          // console.log(right.childNodes[1]);
           if (right.childNodes[1].id == "ind-instruction"){
             right.removeChild(right.childNodes[1]);
           }
@@ -230,17 +232,10 @@
             }
       
                       
-            var resp_arr = httpRequest.responseText.split('~');
-            var testData = [];
-            var densityData = [];
-            for (i=0; i<8; i++){
-              testData.push(JSON.parse(resp_arr[i]));
-            }
-            for (i=0; i<8; i++){
-              densityData.push(JSON.parse(resp_arr[i+8]));
-            }
-
-            var resp = JSON.parse(resp_arr[16]);
+            var resp_arr = JSON.parse(httpRequest.responseText);
+            var testData = resp_arr[0];
+            var densityData = resp_arr[1];
+            var resp = resp_arr[2];
             
             var index = resp['sample'].toString();
             // var trans_sample = resp['trans_sample'].toString();
@@ -259,91 +254,12 @@
             draw_percent_bar(disp_percent);
             document.getElementsByClassName("cat-text")[0].innerHTML = category;
             document.getElementsByClassName("d3-space")[0].innerHTML = "";
-
-            // if (trans_sample == '-9') {
-            //   document.getElementsByClassName("d3-space")[0].innerHTML = "";
-            //   var error = document.createElement("img");
-            //   error.src = "static/images/errors.png";
-            //   error.id = "error-img";
-            //   document.getElementsByClassName("d3-space")[0].append(error);
-            //   document.getElementsByClassName("ind-text")[0].innerHTML = "";
-            //   return;
-            // }
-
-            // // Text explanation
-            // document.getElementById("txt-space-key").innerHTML = "";
-            // document.getElementById("txt-space-chg").innerHTML = "";
-            // document.getElementById("similar-samples").innerHTML = "";
-            // var p_exp = document.createElement("p");
-            // var line = "";
-            // var start = 0;
-            // var end = 0;
-            // var change_good = text_exp.indexOf("Suggested Changes");
-            // var change_bad = text_exp.indexOf("Warnings");
-            // var keys = text_exp.indexOf("Key Features");
-            // start = text_exp.indexOf("\n");
-            // var line_1 = text_exp.substring(0, start);
-
-            // document.getElementsByClassName("ind-text")[0].innerHTML = line_1;
-
-            // for (j=text_exp.indexOf("\n")+1; j<text_exp.length; j++){
-            //   if (text_exp[j] == "\n" || j==text_exp.length-1){
-            //     var p_exp = document.createElement("p");
-            //     end = j;
-            //     line = text_exp.substring(start,end+1);
-            //     p_exp.innerHTML = line;
-                
-            //     if (line.indexOf("Suggested Changes")>-1 || line.indexOf("Warnings")>-1 || line.indexOf("Key Features")>-1){
-            //       p_exp.style.fontWeight = "bold";
-            //       p_exp.style.fontSize = "13px";
-            //     }
-            //     if (line.indexOf(":")>-1){
-            //       p_exp.style.marginBottom = "5px";
-            //     }
-
-            //     if (line.length > 1 && change_good == -1 && change_bad == -1){
-            //       document.getElementById("txt-space-key").append(p_exp);
-                  
-            //     }
-            //     else if (line.length > 1 && keys == -1){
-            //       document.getElementById("txt-space-chg").append(p_exp);
-                 
-            //     }
-            //     else if (line.length > 1 && j<Math.max(change_good, change_bad)){
-            //       document.getElementById("txt-space-key").append(p_exp);
-               
-            //     }
-            //     else if (line.length > 1 && j>=Math.max(change_good, change_bad)){
-            //       document.getElementById("txt-space-chg").append(p_exp);
-                
-            //     }
-            //     start = end+1;
-            //   }
-            // }
-
-            // if (similar_ids.length > 0){
-            //   var sim_h = document.createElement("p");
-            //   sim_h.style.fontSize = "13px";
-            //   sim_h.style.fontWeight = "bold";
-            //   sim_h.innerHTML = "Instances where changes have been applied:";
-            //   document.getElementById("similar-samples").append(sim_h);
-
-            //   console.log(similar_ids);
-            //   for (j=0; j<similar_ids.length; j++){
-            //       var sim_p = document.createElement("a");
-            //       line = similar_ids[j];
-            //       sim_p.innerHTML = line;
-            //       sim_p.onclick = function () { makeRequest('similar', this); };
-            //       document.getElementById("similar-samples").append(sim_p);
-            //   }
-            // }
-
           
             if (document.getElementById("density-button").style.backgroundColor == dark_shade){
-              draw_graph(testData, densityData, result);
+              draw_graph(testData, densityData, result, ".d3-space");
             }
             else {
-              draw_graph(testData, "no", result);
+              draw_graph(testData, "no", result, ".d3-space");
             }
 
 
@@ -372,11 +288,10 @@
         document.getElementsByClassName("id-list")[0].append(load_wrap);
       }
 
-      function id_list (){
+      function id_list(){
 
-        var samples = 10459;
         var list_cont = document.createElement("ul");
-        for (i = 1; i <= samples; i++) {
+        for (i = 1; i <= no_samples; i++) {
           var para = document.createElement("li");
           para.innerHTML = "ID " + i.toString();
           para.id = "link-" + i.toString();
@@ -529,7 +444,6 @@
         var initial_sample = parseInt(url_str.substring(url_str.indexOf("sample")+7));
         console.log(initial_sample);
         if (isNaN(initial_sample)) {
-          console.log("mnotlog"); 
           document.getElementById("ind-instruction").style.display = "block";
         }
         else {

@@ -1,4 +1,4 @@
-function draw_graph(testData, densityData, result){
+function draw_graph(testData, densityData, result, place){
 
     var good_col = "#1b9e77",
         bad_col = "#d95f02";
@@ -39,7 +39,7 @@ function draw_graph(testData, densityData, result){
             .domain([0-padding_bottom, 1+padding_top])
             .rangeRound([height, 0]);
 
-    var svg = d3.select(".d3-space")
+    var svg = d3.select(place)
                 .append("svg")
                 .attr("width",width + margin.right + margin.left)
                 .attr("height",height + margin.top + margin.bottom)
