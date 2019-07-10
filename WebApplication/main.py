@@ -39,20 +39,45 @@ Last Column Target
 np.random.seed(150)
 
 
+# --- User ---
 
-# --- Parameters --- 
-data_path = "static/data/ADS.csv"
-# data_path = "static/data/diabetes.csv"
+user = "Steffen"
+# user = "Oscar"
 
-no_bins = 10
-preproc_path = "static/data/ADS_preproc.csv"
-# preproc_path = "static/data/diabetes_preproc.csv"
 
-projection_changes_path = "static/data/changes_proj.csv"
-projection_anchs_path = "static/data/anchs_proj.csv"
+
+
+if user == "Steffen":
+	# --- Parameters --- 
+	data_path = "static/data/diabetes.csv"
+	preproc_path = "static/data/diabetes_preproc.csv"
+	projection_changes_path = "static/data/changes_proj.csv"
+	projection_anchs_path = "static/data/anchs_proj.csv"
+	no_bins = 10
+
+
+	# --- Data for diabetes ---
+	df = pd.read_csv(data_path)
+
+
+
+elif user == "Oscar":
+	# --- Parameters ---
+	data_path = "static/data/ADS.csv"
+	preproc_path = "static/data/ADS_preproc.csv"
+	no_bins = 10
+
+	# --- Data for education ---
+	df = pd.read_csv(data_path)
+	df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
+	df = df.drop(columns=['Academic Score',
+	                'School','Grade',
+	                'Term','Student'])
+	df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
+
+
 
 model_path = "TBD"   # Manual? 
-
 
 
 # --- Advanced Parameters
@@ -60,17 +85,6 @@ density_fineness = 1000
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonicity
 
-
-# --- For diabetes ---
-# df = pd.read_csv(data_path)
-
-# --- For education ---
-df = pd.read_csv(data_path)
-df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
-df = df.drop(columns=['Academic Score',
-                'School','Grade',
-                'Term','Student'])
-df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
 
 
 feature_names = np.array(df.columns)[:-1]
