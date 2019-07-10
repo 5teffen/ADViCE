@@ -1,7 +1,7 @@
 function draw_graph(testData, densityData, result, place){
 
-    var fineness = densityData[0].data.length,
-        features = testData.length;
+
+    var features = testData.length;
 
     var good_col = "#1b9e77",
         bad_col = "#d95f02",
@@ -35,11 +35,13 @@ function draw_graph(testData, densityData, result, place){
 
     var outlier = 1 + padding_top/2;
 
-
+    
     // -- Density parameters --
-    var line_width = features*col_width/fineness
-        color_modifier = 0.6;
-
+    if (densityData != "no"){
+        var fineness = densityData[0].data.length,
+            line_width = features*col_width/fineness
+            color_modifier = 0.6;
+    }
         
     // -- Adding scales based on canvas -- 
     var xScale = d3.scaleBand()
@@ -104,8 +106,8 @@ function draw_graph(testData, densityData, result, place){
     
 
     // -- Drawing surrounding box -- 
-
     var overall_size = xScale(testData[features-1].name) + xScale.bandwidth() - xScale(testData[0].name)
+    
     svg.append("rect")
         .attr("class","border")
         .attr('x',xScale(testData[0].name))
@@ -119,27 +121,31 @@ function draw_graph(testData, densityData, result, place){
     
 
     // -- Drawing density --
-    for (ind=0 ; ind < features; ind++) {
-        
-        var featureData = densityData[ind].data,
-            featureName = densityData[ind].name;
 
-        svg.append("g").selectAll("line")
-            .data(featureData)
-            .enter()
-            .append("line")
-            .attr('x1',xScale(featureName))
-            .attr('x2',xScale(featureName)+xScale.bandwidth())
-            .attr('y1',function(d,i){
-                return yScaleDen(i);})
-            .attr('y2',function(d,i){
-                return yScaleDen(i);})
-            .attr("stroke-width",line_width*4)
-            .attr("stroke", den_colour)
-            .style("opacity",function(d){return d*(color_modifier/4);});
+    if (densityData != "no"){
 
-    }   
 
+        for (ind=0 ; ind < features; ind++) {
+            
+            var featureData = densityData[ind].data,
+                featureName = densityData[ind].name;
+
+            svg.append("g").selectAll("line")
+                .data(featureData)
+                .enter()
+                .append("line")
+                .attr('x1',xScale(featureName))
+                .attr('x2',xScale(featureName)+xScale.bandwidth())
+                .attr('y1',function(d,i){
+                    return yScaleDen(i);})
+                .attr('y2',function(d,i){
+                    return yScaleDen(i);})
+                .attr("stroke-width",line_width)
+                .attr("stroke", den_colour)
+                .style("opacity",function(d){return d*(color_modifier);});
+
+        }   
+    };
 
     
     
