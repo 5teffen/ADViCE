@@ -365,17 +365,15 @@ if __name__ == '__main__':
     svm_model.train_model(0.001)
     svm_model.test_model()
 
-    test_sample = data[4]
+    index = 7
+
+    test_sample = data[index]
 
     bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
     
-    print(col_ranges)
-
 
     single_bin_result = bin_single_sample(test_sample, col_ranges)
-    # -- Testing to match
-    print(single_bin_result)
-    print(X_pos_array[4])
+
 
     # density_fineness = 1000
     # all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions

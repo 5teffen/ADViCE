@@ -1,12 +1,17 @@
-function draw_graph(testData, densityData, result, place){
+function draw_graph(testData, densityData, result){
+
+    var fineness = densityData[0].data.length,
+        features = testData.length;
 
     var good_col = "#1b9e77",
-        bad_col = "#d95f02";
+        bad_col = "#d95f02",
+        den_colour = "#7570b3";
 
     var the_colour = "";
     var opp_colour = "";
     
-    var separator = 0.015;
+    var separator = 0.015,
+        col_width = 60;
     
     if (result) {
         opp_colour = good_col;
@@ -22,30 +27,41 @@ function draw_graph(testData, densityData, result, place){
             bottom: 140, 
             left: 70
         },
-        width = 1000 - margin.right - margin.left,
-        height = 360 - margin.top - margin.bottom;
+        width = features*col_width - margin.right - margin.left,
+        height = 400 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
 
     var outlier = 1 + padding_top/2;
-    
+
+
+    // -- Density parameters --
+    var line_width = features*col_width/fineness
+        color_modifier = 0.6;
+
+        
     // -- Adding scales based on canvas -- 
     var xScale = d3.scaleBand()
             .domain(testData.map(function(d){return d.name;}))
             .rangeRound([0, width])
             .paddingInner(separator),
+        
         yScale = d3.scaleLinear()
             .domain([0-padding_bottom, 1+padding_top])
+            .rangeRound([height, 0]),
+
+        yScaleDen = d3.scaleLinear()
+            .domain([0-padding_bottom, fineness+padding_top])
             .rangeRound([height, 0]);
 
-    var svg = d3.select(place)
+    var svg = d3.select(".d3-space")
                 .append("svg")
                 .attr("width",width + margin.right + margin.left)
                 .attr("height",height + margin.top + margin.bottom)
                 .attr("class", "main-svg")
                 .append("g")
-                     .attr("transform","translate(" + margin.left + ',' + margin.top +')');
+                    .attr("transform","translate(" + margin.left + ',' + margin.top +')');
 
     // -- Drawing background rectangles -- 
     svg.selectAll("rect")
@@ -86,91 +102,45 @@ function draw_graph(testData, densityData, result, place){
             else {return "#A9A9A9";}})
         .style("stroke-width",0.7);
     
+
     // -- Drawing surrounding box -- 
-        svg.append("rect")
+
+    var overall_size = xScale(testData[features-1].name) + xScale.bandwidth() - xScale(testData[0].name)
+    svg.append("rect")
         .attr("class","border")
         .attr('x',xScale(testData[0].name))
         .attr('y',0)
         .attr("height",function(d){return yScale(0-padding_bottom)})
-        .attr("width",(xScale.bandwidth()+1)*testData.length)
+        .attr("width",overall_size)
         .attr("fill","None")
         .attr("stroke","#A9A9A9")
         .attr("stroke-width",1);
 
-    function draw_density_boxed(testData,data) {
-        console.log("Getting Called");
-        var overlap = yScale(0.1)-yScale(0.2);
-
-        for (ind=0 ; ind < data.length; ind++) {
-            var cur_obj = data[ind];
-            var array_len = Object.keys(cur_obj).length;
-
-            for (n=0 ; n < array_len; ++n){
-                var key = Object.keys(cur_obj)[n];
-                var value = cur_obj[key];
-                
-                svg.append("g")
-                .append("rect")
-                .attr('x',function() {return xScale(testData[ind].name)})
-                .attr('y',function() {
-                        return yScale(+key)-overlap;})
-                .attr("height",2*overlap)
-                .attr("width",xScale.bandwidth())
-                .style("stroke","black")
-                .style("stroke-width",0.15)
-                .style("opacity",function(){return value/9800})
-                .style("fill","#7570b3");
-            }
-                
-        }
-    }
     
-    function draw_density_gradient(testData,data) {
-        var defs = svg.append("defs");
-        var linearGradient = defs.append("linearGradient")
-           .attr("id", "lin_fill")
-           .attr("x1", "0%")
-           .attr("x2", "0%")
-           .attr("y1", "0%")
-           .attr("y2", "100%");
-    
-        var colorScale = d3.scaleLinear()
-            .range(["#dfdeed","#7570b3", "#dfdeed"]);
 
-        linearGradient.selectAll("stop")
-            .data(colorScale.range() )
-            .enter().append("stop")
-            .attr("offset", function(d,i) { return i/(colorScale.range().length-1); })
-            .attr("stop-color", function(d) { return d; });
-
+    // -- Drawing density --
+    for (ind=0 ; ind < features; ind++) {
         
-        var overlap = yScale(0.1)-yScale(0.2);
+        var featureData = densityData[ind].data,
+            featureName = densityData[ind].name;
 
-        for (ind=0 ; ind < data.length; ind++) {
-            var cur_obj = data[ind];
-            var array_len = Object.keys(cur_obj).length;
+        svg.append("g").selectAll("line")
+            .data(featureData)
+            .enter()
+            .append("line")
+            .attr('x1',xScale(featureName))
+            .attr('x2',xScale(featureName)+xScale.bandwidth())
+            .attr('y1',function(d,i){
+                return yScaleDen(i);})
+            .attr('y2',function(d,i){
+                return yScaleDen(i);})
+            .attr("stroke-width",line_width*4)
+            .attr("stroke", den_colour)
+            .style("opacity",function(d){return d*(color_modifier/4);});
 
-            for (n=0 ; n < array_len; ++n){
-                var key = Object.keys(cur_obj)[n];
-                var value = cur_obj[key];
-                
-                svg.append("g")
-                .append("rect")
-                .attr('x',function() {return xScale(testData[ind].name)})
-                .attr('y',function() {
-                        return yScale(+key)-overlap;})
-                .attr("height",2*overlap)
-                .attr("width",xScale.bandwidth())
-                .style("opacity",function(){return value/7000})
-                .style("fill","url(#lin_fill)");
-            }
-                
-        }
-    }
-    
-    
-    // if (densityData != "no"){ draw_density_boxed(testData, densityData);}
-   if (densityData != "no"){ draw_density_gradient(testData, densityData);}
+    }   
+
+
     
     
     
