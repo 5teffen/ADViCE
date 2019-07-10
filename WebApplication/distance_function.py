@@ -224,4 +224,3 @@ def perform_dr(data):
 
 	return X_pca
 
-

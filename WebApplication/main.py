@@ -41,12 +41,12 @@ np.random.seed(150)
 
 
 # --- Parameters --- 
-# data_path = "static/data/ADS.csv"
-data_path = "static/data/diabetes.csv"
+data_path = "static/data/ADS.csv"
+# data_path = "static/data/diabetes.csv"
 
 no_bins = 10
-# preproc_path = "static/data/ADS_preproc.csv"
-preproc_path = "static/data/diabetes_preproc.csv"
+preproc_path = "static/data/ADS_preproc.csv"
+# preproc_path = "static/data/diabetes_preproc.csv"
 
 projection_changes_path = "static/data/changes_proj.csv"
 projection_anchs_path = "static/data/anchs_proj.csv"
@@ -62,15 +62,15 @@ monotonicity_arr = []  # Local test of monotonicity
 
 
 # --- For diabetes ---
-df = pd.read_csv(data_path)
+# df = pd.read_csv(data_path)
 
 # --- For education ---
-# df = pd.read_csv(data_path)
-# df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
-# df = df.drop(columns=['Academic Score',
-#                 'School','Grade',
-#                 'Term','Student'])
-# df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
+df = pd.read_csv(data_path)
+df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
+df = df.drop(columns=['Academic Score',
+                'School','Grade',
+                'Term','Student'])
+df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
 
 
 feature_names = np.array(df.columns)[:-1]
@@ -100,14 +100,13 @@ dict_array_orig = all_den
 if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
 
- 
 
 # if ((not path.exists(projection_changes_path)) and (not path.exists(projection_anchs_path))):
 # 	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
 
-generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
-exit()
+# generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+# exit()
 
 # ------- Initialize WebApp ------- #
 
