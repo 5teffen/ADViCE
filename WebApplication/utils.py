@@ -54,7 +54,6 @@ def model_overview(pre_proc_file):
 	# print("Key Features:",key_count)
 	# print("Changes",changes_count)
 
-
 def display_data (X,y,model,sample,row=0):
 	# Data point not in original dataset
 	if sample == -1:
@@ -91,9 +90,7 @@ def display_data (X,y,model,sample,row=0):
 			category = "FP"
 		elif (predicted, model_correct) == (1,1):
 			category = "TP"
-		return sample, good_percent, model_correct, category, predicted
-
-
+		return sample+1, good_percent, model_correct, category, predicted
 
 def separate_bins_feature(feat_column, no_bins):
 
@@ -186,7 +183,6 @@ def divide_data_bins(data,no_bins):
 
     return bins_centred, X_pos_array, in_vals, col_ranges
 
-
 def bin_single_sample(sample, col_ranges):
 	# -- Extract Basic Parameters -- 
 	no_features = len(sample)
@@ -228,9 +224,6 @@ def bin_single_sample(sample, col_ranges):
 
 	return pos_array
 
-
-
-
 def prepare_for_analysis(filename):
 	data_array = pd.read_csv(filename,header=None).values
 
@@ -252,7 +245,6 @@ def prepare_for_analysis(filename):
 
 	return data_array
 
-
 def sort_by_val(main, density):
     ordered_main = []
     ordered_density = []
@@ -265,5 +257,17 @@ def sort_by_val(main, density):
 
     return ordered_main, ordered_density
 
-
-
+def test_match(idx, p):
+	# -- Testing to match new individual binning --
+	idx-=1
+	test_sample = data[idx]
+	single_bin_result = bin_single_sample(test_sample, col_ranges)
+	if p:
+		print(data[idx])
+		print(svm_model.X[idx])
+		print(single_bin_result)
+		print(X_pos_array[idx])
+	t = (single_bin_result == X_pos_array[idx]).all()
+	if not t:
+		print(idx+1, "no match")
+	return t
