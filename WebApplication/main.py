@@ -90,7 +90,7 @@ svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
 
-density_fineness = 1000
+density_fineness = 100
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 
 dict_array = all_den
@@ -144,6 +144,7 @@ def handle_request():
 			if sample<1 or sample>no_samples:
 				return "Please enter a sample number in the range (1, "+ str(no_samples) + ")."
 			else:
+				sample-=1
 				row = data[sample]			
 
 				monot = (request.args.get('monot') == "True")

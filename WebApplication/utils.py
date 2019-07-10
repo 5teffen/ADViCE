@@ -90,7 +90,7 @@ def display_data (X,y,model,sample,row=0):
 			category = "FP"
 		elif (predicted, model_correct) == (1,1):
 			category = "TP"
-		return sample, good_percent, model_correct, category, predicted
+		return sample+1, good_percent, model_correct, category, predicted
 
 def separate_bins_feature(feat_column, no_bins):
 
