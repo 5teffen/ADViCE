@@ -68,7 +68,6 @@ def display_data (X,y,model,sample,row=0):
 		return sample, good_percent, model_correct, category, predicted
 
 	# Data point in original dataset	
-	sample -= 1
 	if X[sample][0] == -9:
 		category = "NA"
 		return sample, 0, 0, category, -1
@@ -90,7 +89,7 @@ def display_data (X,y,model,sample,row=0):
 			category = "FP"
 		elif (predicted, model_correct) == (1,1):
 			category = "TP"
-		return sample+1, good_percent, model_correct, category, predicted
+		return sample, good_percent, model_correct, category, predicted
 
 def separate_bins_feature(feat_column, no_bins):
 
