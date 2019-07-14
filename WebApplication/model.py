@@ -44,7 +44,7 @@ class ML_model():
 		print("Test Accuracy:", acc_test*100, '%')
 
 	def __scaled_row(self, row):
-	    return np.array([(row[k] - self.mean[k])/self.scale[k] for k in range(row.shape[0])])
+		return np.array([(row[k] - self.mean[k])/self.scale[k] for k in range(row.shape[0])])
 
 	def run_model(self, sample):
 		sample = self.__scaled_row(sample)
@@ -64,11 +64,22 @@ class ML_model():
 
 		pred = self.model.predict(data_set)
 		self.model_calls += data_set.shape[0]
-		return pred 
+		return pred
+
+	def run_model_data_prob(self, data_set):
+		if (not self.model):
+			raise ModelError("Train Model First")
+
+		for i in range(data_set.shape[0]):
+			data_set[i] = self.__scaled_row(data_set[i])
+
+		pred = self.model.predict_proba(data_set)
+		self.model_calls += data_set.shape[0]
+		return pred
 
 class SVM_model(ML_model):
 	def train_model(self, c_val=1):
-		self.model = svm.SVC(kernel='linear', C=c_val, probability=True)
+		self.model = svm.SVC(kernel='linear', C=c_val, probability=True, random_state=self.rand_state)
 		self.model.fit(self.X_tr,self.y_tr.reshape(self.y_tr.shape[0],))
 
 class RF_model(ML_model):
