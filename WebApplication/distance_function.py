@@ -3,6 +3,7 @@ import numpy as np
 from model import SVM_model
 from sklearn.manifold import MDS
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 
 
 def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_anchs):
@@ -23,17 +24,24 @@ def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_an
 
 	anch_vectors, change_vectors, y_a, y_c = extract_vectors(pre_data, X, y)
 
+	# print(out_path_changes[:-4]+"_PCA.csv")
+	# print(out_path_changes[:-4]+"_TSNE.csv")
+	# print(out_path_anchs[:-4]+"_PCA.csv")
+	# print(out_path_anchs[:-4]+"_TSNE.csv")
+
+
 
 	print("Calculating Changes Distance Matrix")
-	changes = change_distances(change_vectors, y_c, False)
-	# print("Calculating Anchor Distance Matrix")
-	# anchs = anch_distances(anch_vectors, y_a, False)
+	changes_PCA, changes_TSNE = change_distances(change_vectors, y_c, False)
+	
+	print("Calculating Anchor Distance Matrix")
+	anchs_PCA, anchs_TSNE = anch_distances(anch_vectors, y_a, False)
 
 
-	# np.savetxt(out_path_changes, changes, delimiter=",",fmt='%s')
-	# np.savetxt(out_path_anchs, anchs, delimiter=",",fmt='%s')
-
-
+	np.savetxt(out_path_changes[:-4]+"_PCA.csv", changes_PCA, delimiter=",",fmt='%s')
+	np.savetxt(out_path_changes[:-4]+"_TSNE.csv", changes_TSNE, delimiter=",",fmt='%s')
+	np.savetxt(out_path_anchs[:-4]+"_PCA.csv", anchs_PCA, delimiter=",",fmt='%s')
+	np.savetxt(out_path_anchs[:-4]+"_TSNE.csv", anchs_TSNE, delimiter=",",fmt='%s')
 
 
 
@@ -116,7 +124,6 @@ def anch_distances(anch_vectors , y, directionality):
 
 
 	ids = anch_vectors[:,:3]
-	print(ids)
 	anch_vectors = anch_vectors[:,3:]
 
 	for ts in range(anch_vectors.shape[0]):
@@ -153,10 +160,24 @@ def anch_distances(anch_vectors , y, directionality):
 			anch_dist[ts][cs] = i_over_u
 
 
-	anchs_red = perform_dr(anch_dist)  # Reduced to two dimensions
-	result = np.append(ids, anchs_red, axis=1)
+	# --- Extract and reshape necessary sample information --- 
+	indexes = np.reshape(ids[:,0],(ids[:,0].shape[0],1))
+	target = np.reshape(y, (y.shape[0],1))
+	classification = np.reshape(ids[:,2],(ids[:,2].shape[0],1))
 
-	return result
+	info = np.append(indexes, target, axis=1)
+	info = np.append(info, classification , axis=1)
+
+	# --- Output full info
+	anchs_red_PCA = perform_dr(anch_dist)  # Reduced to two dimensions
+	anchs_red_TSNE = perform_tsne(anch_dist)
+	
+	result_pca = np.append(info, anchs_red_PCA, axis=1)
+	result_tsne = np.append(info, anchs_red_TSNE, axis=1)
+	
+	return result_pca, result_tsne
+
+
 
 
 def change_distances(change_vectors , y, directionality):
@@ -165,7 +186,6 @@ def change_distances(change_vectors , y, directionality):
 	change_dist = np.zeros((no_samp,no_samp))
 
 	ids = change_vectors[:,:3]
-	print(ids)
 	change_vectors = change_vectors[:,3:]
 
 	for ts in range(change_vectors.shape[0]):
@@ -210,11 +230,22 @@ def change_distances(change_vectors , y, directionality):
 			change_dist[ts][cs] = i_over_u
 
 
+	# --- Extract and reshape necessary sample information --- 
+	indexes = np.reshape(ids[:,0],(ids[:,0].shape[0],1))
+	target = np.reshape(y, (y.shape[0],1))
+	classification = np.reshape(ids[:,2],(ids[:,2].shape[0],1))
 
-	changes_red = perform_dr(change_dist)  # Reduced to two dimensions
-	result = np.append(ids, changes_red, axis=1)
+	info = np.append(indexes, target, axis=1)
+	info = np.append(info, classification , axis=1)
 
-	return result
+	# --- Output full info
+	changes_red_PCA = perform_dr(change_dist)  # Reduced to two dimensions
+	changes_red_TSNE = perform_tsne(change_dist)
+
+	result_pca = np.append(info, changes_red_PCA, axis=1)
+	result_tsne = np.append(info, changes_red_TSNE, axis=1)
+	
+	return result_pca, result_tsne
 
 
 def perform_dr(data):
@@ -223,4 +254,13 @@ def perform_dr(data):
 	X_pca = PCA_model.fit_transform(data)
 
 	return X_pca
+
+
+def perform_tsne(data):
+
+	tsne_model = TSNE(n_components=2, perplexity=100, random_state=11)
+	X_tsne = tsne_model.fit_transform(data)
+
+	return X_tsne
+
 

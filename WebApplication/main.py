@@ -60,7 +60,7 @@ if user == "Steffen":
 	df = pd.read_csv(data_path)
 
 
-
+ 
 elif user == "Oscar":
 	# --- Parameters ---
 	data_path = "static/data/ADS.csv"
@@ -104,7 +104,6 @@ svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
 
-density_fineness = 100
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 
 dict_array = all_den
@@ -115,12 +114,9 @@ if not path.exists(preproc_path):
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
 
 
-# if ((not path.exists(projection_changes_path)) and (not path.exists(projection_anchs_path))):
-# 	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+if ((not path.exists(projection_changes_path[:-4]+"_PCA.csv")) and (not path.exists(projection_anchs_path[:-4]+"_PCA.csv"))):
+	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
-
-# generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
-# exit()
 
 # ------- Initialize WebApp ------- #
 
