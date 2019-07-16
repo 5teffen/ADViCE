@@ -3,6 +3,10 @@
 function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,leftMean,rightMean,place, button1, button2, button3) {
 // function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,place) {
 
+    var features = allData[0].length;
+
+    console.log(features)
+
 	var add_density = true;
 
     testData = allData[0]
@@ -13,7 +17,8 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
     var the_colour = "";
     var opp_colour = "";
     
-    var separator = 0.015;
+    var separator = 0.015,
+        col_width = 40;;
     
     if (testData[0].dec == 0) {
         opp_colour = good_col;
@@ -29,7 +34,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
             bottom: 170, 
             left: 20
         },
-        width = 809 - margin.right - margin.left,
+        width = col_width*features - margin.right - margin.left,
         // width = 800 - margin.right - margin.left,
         height = 400 - margin.top - margin.bottom;
 
