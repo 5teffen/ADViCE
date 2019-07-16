@@ -1,5 +1,4 @@
-function draw_graph(testData, densityData, result, place){
-
+function draw_graph(testData, densityData, result, place, max_width){
 
     var features = testData.length;
 
@@ -11,24 +10,24 @@ function draw_graph(testData, densityData, result, place){
     var opp_colour = "";
     
     var separator = 0.015,
-        col_width = 60;
+        col_width = 42;
     
     if (result) {
         opp_colour = good_col;
         the_colour = bad_col;}
     else {
-        opp_colour = bad_col
+        opp_colour = bad_col;
         the_colour = good_col;}
     
     // -- Establishing margins and canvas bounds -- 
     var margin = {
             top: 10, 
-            right: 60, 
+            right: 10, 
             bottom: 140, 
-            left: 70
+            left: 30
         },
-        width = features*col_width - margin.right - margin.left,
-        height = 400 - margin.top - margin.bottom;
+        width = Math.min(features*col_width - margin.right - margin.left, max_width),
+        height = 365 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
@@ -40,7 +39,7 @@ function draw_graph(testData, densityData, result, place){
     if (densityData != "no"){
         var fineness = densityData[0].data.length,
             line_width = features*col_width/fineness
-            color_modifier = 0.6;
+            color_modifier = 0.35;
     }
         
     // -- Adding scales based on canvas -- 
@@ -59,9 +58,10 @@ function draw_graph(testData, densityData, result, place){
 
     var svg = d3.select(place)
                 .append("svg")
-                .attr("width",width + margin.right + margin.left)
-                .attr("height",height + margin.top + margin.bottom)
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
                 .attr("class", "main-svg")
+                .attr("viewBox", "0 0 " + (width + margin.right + margin.left).toString() + " " + (height + margin.top + margin.bottom).toString())
                 .append("g")
                     .attr("transform","translate(" + margin.left + ',' + margin.top +')');
 
