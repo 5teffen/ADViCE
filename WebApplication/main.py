@@ -11,6 +11,7 @@ from global_explanations import *
 from d3_functions import *
 from preprocessing import create_summary_file
 from distance_function import generate_projection_files
+from projection import show_projection
 
 from os import path
 
@@ -51,20 +52,20 @@ if user == "Steffen":
 	# --- Parameters --- 
 	data_path = "static/data/diabetes.csv"
 	preproc_path = "static/data/diabetes_preproc.csv"
-	projection_changes_path = "static/data/changes_proj.csv"
-	projection_anchs_path = "static/data/anchs_proj.csv"
+	projection_changes_path = "static/data/diabetes_changes_proj.csv"
+	projection_anchs_path = "static/data/diabetes_anchs_proj.csv"
 	no_bins = 10
 
 
 	# --- Data for diabetes ---
 	df = pd.read_csv(data_path)
 
-
- 
 elif user == "Oscar":
 	# --- Parameters ---
 	data_path = "static/data/ADS.csv"
 	preproc_path = "static/data/ADS_preproc.csv"
+	projection_changes_path = "static/data/ADS_changes_proj.csv"
+	projection_anchs_path = "static/data/ADS_anchs_proj.csv"
 	no_bins = 10
 
 	# --- Data for education ---
@@ -277,7 +278,7 @@ def handle_request_ft():
 
 @app.route('/projection')
 def projection_site():
-	show_projection(False, list(range(X.shape[0])), "PCA", True)
+	show_projection(projection_anchs_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html")
 
 @app.route('/bokeh_req', methods=['GET'])

@@ -282,8 +282,6 @@ def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_b
 
     return change_vector, change_row, anchors, initial_percentage
 
-    return trans_dict
-
 def detect_similarities(pre_data_file, all_data_file, sample_vec, changed_row, bins, percent):
     # --- Runs only if changes occur --- 
 
