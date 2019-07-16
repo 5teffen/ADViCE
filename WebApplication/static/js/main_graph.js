@@ -26,7 +26,7 @@ function draw_graph(testData, densityData, result, place, max_width){
             bottom: 140, 
             left: 30
         },
-        width = Math.min(features*col_width - margin.right - margin.left, max_width),
+        width = features*col_width - margin.right - margin.left,
         height = 365 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
@@ -63,7 +63,7 @@ function draw_graph(testData, densityData, result, place, max_width){
                 .attr("class", "main-svg")
                 .attr("viewBox", "0 0 " + (width + margin.right + margin.left).toString() + " " + (height + margin.top + margin.bottom).toString())
                 .append("g")
-                    .attr("transform","translate(" + margin.left + ',' + margin.top +')');
+                    .attr("transform","translate(" + margin.left + ',' + margin.top +')' );
 
     // -- Drawing background rectangles -- 
     svg.selectAll("rect")
