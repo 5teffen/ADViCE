@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from bokeh.layouts import gridplot, column
 from bokeh.models import CustomJS, ColumnDataSource, HoverTool, TapTool, WheelZoomTool, LassoSelectTool, BoxSelectTool, PanTool, HelpTool, CustomJSFilter, CDSView
 from bokeh.plotting import figure, output_file, show
@@ -7,71 +8,54 @@ from bokeh.resources import CDN
 from bokeh.embed import file_html
 
 
-def show_projection(alg, selected_ids, dim_red, directionality):
+def show_projection(filename, total_samples, algorithm=False, selected_ids=None, dim_red="PCA", directionality=True):
 
-    filename = "static/data/anchs_"
     title = "2D Projection - Key Features"
-    samples = 7468
-    if (not alg):
-        samples = 3114
-        filename = "static/data/changes_"
+    if (not algorithm):
         title = "2D Projection - Changes"
 
-    filename += dim_red
+    # filename += dim_red
 
-    if (not directionality):
-        filename += "_dir_False"
+    # if (not directionality):
+    #     filename += "_dir_False"
 
-    filename += ".csv"
+    # filename += ".csv"
 
-    fp = open(filename, 'r', encoding='utf-8')
+    df = pd.read_csv(filename, header=None)
+    df = df.values
+    samples = df.shape[0]
+    
+    if selected_ids == None:
+        selected_ids = list(range(1,total_samples+1))
 
     X = np.zeros((samples,2))
-    ids = []
+    X[:,0] = df[:,3]
+    X[:,1] = df[:,4]
+    ids = df[:,0]
+    ft_selected_ids = np.array([1 if int(ids[i]) in selected_ids else 0 for i in range(samples)])
     category = []
-    ft_selected_ids = []
-
     for i in range(samples):
-
-        roww = fp.readline().split(',')
-
-        # print(roww)
-
-        ids.append(int(roww[0]))
-        X[i][0] = float(roww[3])
-        X[i][1] = float(roww[4])
-
-        if int(roww[0]) in selected_ids:
-            ft_selected_ids.append(1)
-        else:
-            ft_selected_ids.append(0)
-
-        if roww[2] == "TP":
+        if df[i][2] == "TP":
             category.append(0)
-        elif roww[2] == "TN":
+        elif df[i][2] == "TN":
             category.append(1)
-        elif roww[2] == "FP":
+        elif df[i][2] == "FP":
             category.append(2)
-        elif roww[2] == "FN":
+        elif df[i][2] == "FN":
             category.append(3)
-        # percentage.append(float(roww[4]))
-    fp.close()
+    category = np.array(category)
 
+    # print(X)
+    # print(ids)
+    # print(ft_selected_ids)
+    # print(category)
 
     for p in range(1,2):
 
-        x = []
-        y = []
-        for i in range (samples):
-            x.append(X[i][0])
-            y.append(X[i][1])
+        x = X[:,0]
+        y = X[:,1]
 
-
-        #################
-        #################
-        ##### bokeh #####
-        #################
-        #################
+        # --- Bokeh ---
 
         color_opt = ["rgb(27, 158, 119)", "rgb(217, 95, 2)", "rgb(27, 158, 119)", "rgb(217, 95, 2)", "gray"]
         alpha_opt = [0.6, 0.05]
@@ -96,8 +80,6 @@ def show_projection(alg, selected_ids, dim_red, directionality):
                 line_alpha.append(alpha_opt[-1])
 
 
-        output_file('2d_changes_map.html')
-
         s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, category=category, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
         
         hover = HoverTool(tooltips=""" """)
@@ -107,13 +89,7 @@ def show_projection(alg, selected_ids, dim_red, directionality):
 
         p1 = figure(tools=[hover, lasso_select, "reset", "tap", wheel_zoom, "pan"],
                     toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 390)
-        # p1.circle('x', 'y', source=s1, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
-        #            nonselection_fill_alpha=alpha_opt[-1],
-        #            nonselection_fill_color=color_opt[-1],
-        #            nonselection_line_color=color_opt[-1],
-        #            nonselection_line_alpha=alpha_opt[-1] 
-        #           )
-
+        
         p1.title.text_font_size = '10pt'
         p1.title.align = 'center'
         p1.toolbar.active_scroll = wheel_zoom
@@ -179,12 +155,6 @@ def show_projection(alg, selected_ids, dim_red, directionality):
 
         layout = column(p1, category_selection)
 
-        # show(layout)
-
-        # grid = gridplot([[p1, None]], merge_tools=False)
-
-        # # show(grid)
-
         html = file_html(layout, CDN, "my_plot")
         html = html.replace("auto;", "0px;")
 
@@ -192,4 +162,6 @@ def show_projection(alg, selected_ids, dim_red, directionality):
         fp.write(html)
         fp.close()
 
-# show_projection(False, list(range(7468)), "pca", True )
+if __name__ == '__main__':
+
+    show_projection('static/data/diabetes_changes_proj_PCA.csv', 768)
