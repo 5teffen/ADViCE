@@ -35,15 +35,15 @@ Last Column Target
 
 
 # ============= Initialize model =========== #
-# 
+
 # --- Setting random seed -- 
 np.random.seed(150)
 
 
 # --- User ---
 
-# user = "Steffen"
-user = "Oscar"
+user = "Steffen"
+# user = "Oscar"
 
 
 
@@ -104,7 +104,7 @@ svm_model.train_model()
 svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
-# 
+
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 
 dict_array = all_den
@@ -279,7 +279,7 @@ def handle_request_ft():
 @app.route('/projection')
 def projection_site():
 	show_projection(projection_anchs_path[:-4]+"_PCA.csv", no_samples)
-	return render_template("index_projection.html")
+	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path)
 
 @app.route('/bokeh_req', methods=['GET'])
 def bokeh_request_ft():
@@ -295,12 +295,12 @@ def bokeh_request_ft():
 		directionality = (request.args.get('directionality') == "True")
 
 		if ft_list[0] == '-1' or ft_list == ['']:
-			ret_arr = list(range(X.shape[0]))
+			ret_arr = list(range(data.shape[0]))
 
 		else:
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
-			ret_arr = ids_with_combination("static/data/pred_data_x.csv",ft_list,algorithm)
+			ret_arr = ids_with_combination(preproc_path,ft_list,algorithm)
 
 		# print(ret_arr)
 		show_projection(algorithm, ret_arr, dim_red, directionality)
@@ -309,22 +309,6 @@ def bokeh_request_ft():
 		ret_string = json.dumps(ret_arr)
 		return ret_string
 
-# @app.route('/aggregation_req')
-# def projection_site_req():
-
-# 	if request.method == 'GET':
-
-# 		proj_samples = request.args.get('id_list').split(',')
-
-# 		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
-# 			return "-1"
-			
-# 		else:	
-# 			# sample_cap = min(len(proj_samples), 30)
-# 			proj_samples = [int(x) for x in proj_samples]#[:sample_cap]
-# 			proj_arr = prep_for_D3_aggregation("static/data/pred_data_x.csv","static/data/final_data_file.csv", proj_samples, bins_centred, X_pos_array, trans_dict)
-# 			ret_string = json.dumps(proj_arr)
-# 			return ret_string
 
 @app.route('/violin_req')
 def violin_site_req():
@@ -346,7 +330,7 @@ def violin_site_req():
 			select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
 			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
 			# ret_string = json.dumps([np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
-			aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
+			aggr_data = prep_for_D3_aggregation(preproc_path,data_path,proj_samples,bins_centred,X_pos_array,feature_names, sort_toggle)
 			ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
