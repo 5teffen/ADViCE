@@ -52,7 +52,7 @@ def extract_vectors(pre_data,X,y):
 	# --- Hardcoded Parameters --- 
 	no_anchs = 4
 	no_changes = 5
-	start_col = 6
+	start_col = 5
 
 	empty_row_test = np.zeros((1,no_feat))
 

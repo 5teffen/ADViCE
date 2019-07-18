@@ -5,7 +5,7 @@ from sklearn import preprocessing
 from operator import itemgetter
 import copy
 
-def all_kernel_densities(X,names,fineness):
+def all_kernel_densities(X,names,fineness = 1000):
 
 	all_kernels = []
 
@@ -57,7 +57,7 @@ def all_kernel_densities(X,names,fineness):
 
 
 
-def specific_kernel_densities(X,samples,names,fineness):
+def specific_kernel_densities(X,samples,names,fineness=1000):
 	partial_kernels = []
 
 	# --- Identifying sample densities --- 
@@ -77,7 +77,6 @@ def specific_kernel_densities(X,samples,names,fineness):
 		min_val = min(0,np.amin(col))
 		scale = max_val+1 - min_val
 
-		fineness = 1000
 
 		# --- Reshaping --- 
 		sam = np.reshape(sam, (sam.shape[0],1))

@@ -337,9 +337,9 @@ if __name__ == '__main__':
     np.random.seed(150)
 
     # --- Parameters --- 
-    data_path = "diabetes.csv"
+    data_path = "static/data/diabetes.csv"
+    preproc_path = "static/data/diabetes_preproc.csv"
     no_bins = 10
-    preproc_path = "test.csv"
     model_path = "TBD"   # Manual? 
 
 
@@ -371,6 +371,9 @@ if __name__ == '__main__':
     
 
     single_bin_result = bin_single_sample(test_sample, col_ranges)
+
+    aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, [0,1,2,3,4,10], bins_centred, X_pos_array, False)
+
 
 
     # density_fineness = 1000
