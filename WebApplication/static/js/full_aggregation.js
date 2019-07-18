@@ -7,7 +7,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
 
     console.log(features)
 
-	var add_density = true;
+    var add_density = true;
 
     testData = allData[0]
 
@@ -166,16 +166,16 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
 
     for (ind=0 ; ind < rightList.length; ind++) {
 
-    	var den_svg = svg.append("g"),
-        	
-        	right = rightList[ind].data,
-        	left = leftList[ind].data,
+        var den_svg = svg.append("g"),
+            
+            right = rightList[ind].data,
+            left = leftList[ind].data,
 
-	        right_name = rightList[ind].name,
-	        left_name = leftList[ind].name;
-	   
+            right_name = rightList[ind].name,
+            left_name = leftList[ind].name;
+       
 
-	    // -- Allign SVG canvas -- 
+        // -- Allign SVG canvas -- 
         den_svg = den_svg.append("g")
                 .attr("transform","translate(" + (xScale(right_name)) + ',0)'); 
 
