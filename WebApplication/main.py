@@ -42,8 +42,8 @@ np.random.seed(150)
 
 # --- User ---
 
-user = "Steffen"
-# user = "Oscar"
+# user = "Steffen"
+user = "Oscar"
 
 
 
@@ -330,7 +330,7 @@ def violin_site_req():
 			select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
 			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
 			# ret_string = json.dumps([np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
-			aggr_data = prep_for_D3_aggregation(preproc_path,data_path,proj_samples,bins_centred,X_pos_array,feature_names, sort_toggle)
+			aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
 			ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
