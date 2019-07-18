@@ -47,6 +47,11 @@
 
         <div id="middle-panel-proj">
           <div class="btn-group">
+            <button id="key-button" class="algo-button"> Key Features </button>
+            <button id="chg-button" class="algo-button"> Changes </button>
+            <button id="pca-button" class="dimred-button"> PCA </button>
+            <button id="tsne-button" class="dimred-button"> tSNE </button>
+            <button id="direction-button" class="dimred-button"> Direct. </button>
           </div>
 
           <div id="bokeh-div">
@@ -64,6 +69,11 @@
         </div>
 
         <div id="right-panel-proj">
+          <div class="btn-group-proj">
+            <button id="median-button" class="proj-button"> Median </button>
+            <button id="mean-button" class="proj-button"> Mean </button>
+            <button id="density-button" class="proj-button"> Density </button>
+          </div>
           <div id="distribution-div">
             Distribution
           </div>
@@ -86,6 +96,7 @@
       var httpRequest;
       var httpRequest2;
       var cold_start = true;
+      var curr_aggr_ids = [];
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -250,7 +261,9 @@
           alert('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
+        curr_aggr_ids = id_list;
         httpRequest2.onreadystatechange = alertBokehContentsViolin;
+        httpRequest2.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
         httpRequest2.open('GET', 'violin_req?id_list='+id_list);  
         httpRequest2.send();
         return false;
@@ -268,17 +281,17 @@
 
 
               // --- Toggle Median Marker ---
-              var median_toggle = true;
+              var median_toggle = (document.getElementById("median-button").style.backgroundColor == dark_shade);
 
               // --- Toggle Mean Marker ---
-              var mean_toggle = false;
+              var mean_toggle = (document.getElementById("mean-button").style.backgroundColor == dark_shade);
 
               // --- Toggle Density --- 
-              var density_toggle = true;
+              var density_toggle = (document.getElementById("density-button").style.backgroundColor == dark_shade);
 
               // --- Sort Features --- 
 
-              // --- Monotonisity ---  
+              // --- Monotonicity ---  
 
 
               // console.log("right panel violin");
@@ -286,6 +299,9 @@
               // play_violin(allData,"#distribution-div");
               draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
                 median_toggle, mean_toggle, density_toggle);
+              ft_list();
+              highlight_features();
+              cold_start = false;
             }
 
           }
@@ -293,6 +309,17 @@
               alert('HttpRequest Error');
           }
         }
+      }
+
+      // Proj buttons
+      function proj_button_request(elem){
+        if (elem.style.backgroundColor == dark_shade) {
+          elem.style.backgroundColor = light_shade;
+        }
+        else{
+          elem.style.backgroundColor = dark_shade;
+        }
+        makeBokehRequest2(curr_aggr_ids);
       }
 
       // Hovering over left panel elements
@@ -433,41 +460,37 @@
         var tsne_btn = document.createElement("button");
         var dir_btn = document.createElement("button");
 
-        k_btn.className = "algo-button";
-        k_btn.id = "key-button";
+        k_btn = document.getElementById("key-button");
         k_btn.onclick = function(){buttonRequest(this);};
-        k_btn.innerHTML = "Key Features";
         k_btn.style.backgroundColor = light_shade;
 
-        c_btn.className = "algo-button";
-        c_btn.id = "chg-button";
+        c_btn = document.getElementById("chg-button");
         c_btn.onclick = function(){buttonRequest(this);};
-        c_btn.innerHTML = "Changes";
         c_btn.style.backgroundColor = dark_shade;
 
-        pca_btn.className = "dimred-button";
-        pca_btn.id = "pca-button";
+        pca_btn = document.getElementById("pca-button");
         pca_btn.onclick = function(){buttonRequest(this);};
-        pca_btn.innerHTML = "PCA";
         pca_btn.style.backgroundColor = dark_shade;
 
-        tsne_btn.className = "dimred-button";
-        tsne_btn.id = "tsne-button";
+        tsne_btn = document.getElementById("tsne-button");
         tsne_btn.onclick = function(){buttonRequest(this);};
-        tsne_btn.innerHTML = "tSNE";
         tsne_btn.style.backgroundColor = light_shade;
 
-        dir_btn.className = "dimred-button";
-        dir_btn.id = "direction-button";
+        dir_btn = document.getElementById("direction-button");
         dir_btn.onclick = function(){buttonRequest(this);};
-        dir_btn.innerHTML = "Direct.";
         dir_btn.style.backgroundColor = dark_shade;
 
-        document.getElementsByClassName("btn-group")[0].append(k_btn);
-        document.getElementsByClassName("btn-group")[0].append(c_btn);
-        document.getElementsByClassName("btn-group")[0].append(pca_btn);
-        document.getElementsByClassName("btn-group")[0].append(tsne_btn);
-        document.getElementsByClassName("btn-group")[0].append(dir_btn);
+        median_btn = document.getElementById("median-button");
+        median_btn.onclick = function(){proj_button_request(this);};
+        median_btn.style.backgroundColor = dark_shade;
+
+        mean_btn = document.getElementById("mean-button");
+        mean_btn.onclick = function(){proj_button_request(this);};
+        mean_btn.style.backgroundColor = dark_shade;
+
+        density_btn = document.getElementById("density-button");
+        density_btn.onclick = function(){proj_button_request(this);};
+        density_btn.style.backgroundColor = dark_shade;
 
         // var reset = document.createElement("button");
         // reset.innerHTML = "Reset";
