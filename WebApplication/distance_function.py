@@ -262,4 +262,3 @@ def perform_tsne(data):
 	X_tsne = tsne_model.fit_transform(data)
 
 	return X_tsne
-
