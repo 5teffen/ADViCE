@@ -111,7 +111,6 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
 
 
   for s in samples:
-    s -= 1
     single_dict_list = []
     for i in range(no_feat):
       result = {}
@@ -196,4 +195,3 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
 
   else:
     return final_data.tolist()
-

@@ -8,7 +8,7 @@ from bokeh.resources import CDN
 from bokeh.embed import file_html
 
 
-def show_projection(filename, total_samples, algorithm=False, selected_ids=None, dim_red="PCA", directionality=True):
+def show_projection(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
 
     title = "2D Projection - Key Features"
     if (not algorithm):

@@ -41,8 +41,8 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 	p = {
 		"width": 300,
 		"height": 500,
-		"good_color": 'rgb(56, 232, 235)',
-		"bad_color": 'rgb(6, 152, 209)',
+		"good_color": '#1b9e77', #'rgb(56, 232, 235)',
+		"bad_color": '#d95f02', #'rgb(6, 152, 209)',
 		"line_y": 30,
 		"bar_width": 6,
 		"bar_spacing": 12,
@@ -123,8 +123,6 @@ if __name__ == '__main__':
 	from preprocessing import create_summary_file
 	from os import path
 
-	np.random.seed(1)
-
 	# ============= Initialize model =========== #
 
 	# --- Setting random seed --- 
@@ -179,7 +177,7 @@ if __name__ == '__main__':
 	svm_model.test_model()
 
 	# --- Run SHAP --
-	i=645
+	i=0
 	shap_explainer = build_shap_explainer(svm_model, data)
 	shap_values = shap_explanation(data[i], feature_names, shap_explainer)
 	svg = plot_local_imp(shap_values, feature_names, data[i])

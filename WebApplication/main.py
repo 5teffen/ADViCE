@@ -278,7 +278,7 @@ def handle_request_ft():
 
 @app.route('/projection')
 def projection_site():
-	show_projection(projection_anchs_path[:-4]+"_PCA.csv", no_samples)
+	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path)
 
 @app.route('/bokeh_req', methods=['GET'])
@@ -325,7 +325,9 @@ def violin_site_req():
 			sort_toggle = False
 
 			# sample_cap = min(len(proj_samples), 30)
-			proj_samples = np.array([int(x) for x in proj_samples])#[:sample_cap])
+			proj_samples = np.array([int(x)-1 for x in proj_samples])#[:sample_cap])
+			print(proj_samples)
+			print(data[proj_samples])
 			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
 			select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
 			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
