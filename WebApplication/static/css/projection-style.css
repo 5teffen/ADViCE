@@ -1192,7 +1192,7 @@ table #model-display {
   margin-left: 30px;
   /*width: calc(100% - 300px);*/
   width: 400px;
-  height: calc(100% - 100px);;
+  height: calc(100% - 100px);
   margin-top: 15px;
   /*background-color: darkgrey;*/
   display: inline-block;
@@ -1310,12 +1310,43 @@ table #model-display {
 /* Right panel */
 /*-------------*/
 
+.btn-group-proj{
+    float: left; 
+}
+.btn-group-proj .proj-button {
+    background-color: #BEBEBE; /* Green */
+    border: 1px solid black;
+    color: black;
+    padding: 8px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    cursor: pointer;
+    float: left;
+    font-weight: 500;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+#median-button {
+    border-right: none; /* Prevent double borders */
+}
+#mean-button {
+  border-right: none; /* Prevent double borders */
+}
+#density-button {
+
+}
+.btn-group-proj .proj-button:focus {
+    outline: none;
+}
+
 #right-panel-proj {
   margin-left: 20px;
   /*width: calc(100% - 300px);*/
   width: 850px;
   height: 700px;
-  padding-top: 20px;
+  margin-top: 15px;
   /*background-color: darkgrey;*/
   display: inline-block;
   /*display: none;*/
@@ -1337,10 +1368,10 @@ table #model-display {
 }
 
 #distribution-div {
-  margin-left: 0px;
+  margin-top: 20px;
   /*width: calc(100% - 300px);*/
   width: 820px;
-  height: 250px;
+  height: 450px;
   padding-top: 0px;
   /*background-color: darkgrey;*/
   display: inline-block;
@@ -1350,7 +1381,7 @@ table #model-display {
   margin-left: 100px;*/
   -webkit-transition: all 2s;
   border: 1px solid lightgray;
-  border-bottom: none;
+  /*border-bottom: none;*/
   /*position: absolute;*/
 }
 

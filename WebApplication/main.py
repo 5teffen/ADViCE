@@ -16,10 +16,6 @@ from projection import show_projection
 from os import path
 
 
-
-np.random.seed(12345)
-
-
 """ 
 ---- Tool Requirements ----
 
@@ -44,9 +40,6 @@ np.random.seed(150)
 
 # user = "Steffen"
 user = "Oscar"
-
-
-
 
 if user == "Steffen":
 	# --- Parameters --- 
@@ -76,27 +69,21 @@ elif user == "Oscar":
 	                'Term','Student'])
 	df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
 
-
-
 model_path = "TBD"   # Manual? 
-
 
 # --- Advanced Parameters
 density_fineness = 1000
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonicity
 
-
-
 feature_names = np.array(df.columns)[:-1]
 all_data = np.array(df.values)
 
-# -- Split data and target values --
+# --- Split data and target values ---
 data = all_data[:,:-1]
 target = all_data[:,-1]
 
 no_samples, no_features = data.shape
-
 
 # --- Initialize and train model ---
 svm_model = SVM_model(data,target)
@@ -104,7 +91,6 @@ svm_model.train_model()
 svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
-
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 
 dict_array = all_den
@@ -113,7 +99,6 @@ dict_array_orig = all_den
 # --- Perform Preprocessing if new data --- 
 if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
-
 
 if ((not path.exists(projection_changes_path[:-4]+"_PCA.csv")) and (not path.exists(projection_anchs_path[:-4]+"_PCA.csv"))):
 	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
@@ -130,7 +115,6 @@ def hello():
 @app.route('/intro')
 def intro_site():
 	return render_template("index_intro.html")
-
 
 
 # ------- Individual Explanations ------- #
@@ -185,7 +169,6 @@ def handle_request():
 							   'category': category, 'predicted': predicted})
 				
 				return json.dumps(ret_arr)
-
 
 
 # ------- Global Explanations ------- #
@@ -273,12 +256,11 @@ def handle_request_ft():
 		return ret_string
 
 
-
 # ------- New Projection ------- #
 
 @app.route('/projection')
 def projection_site():
-	show_projection(projection_anchs_path[:-4]+"_PCA.csv", no_samples)
+	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path)
 
 @app.route('/bokeh_req', methods=['GET'])
@@ -325,7 +307,9 @@ def violin_site_req():
 			sort_toggle = False
 
 			# sample_cap = min(len(proj_samples), 30)
-			proj_samples = np.array([int(x) for x in proj_samples])#[:sample_cap])
+			proj_samples = np.array([int(x)-1 for x in proj_samples])#[:sample_cap])
+			print(proj_samples)
+			print(data[proj_samples])
 			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
 			select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
 			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
@@ -334,7 +318,6 @@ def violin_site_req():
 			ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
-
 
 
 # ------- Run WebApp ------- #
