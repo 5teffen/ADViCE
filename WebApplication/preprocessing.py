@@ -5,13 +5,16 @@ from individual_explanation import *
 
 
 
-def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, output_path, col_ranges):
+def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, output_path, col_ranges, perc_bar = True):
 	np.random.seed(0)  #Ensures Uniformity 
     
 	# --- Hardcoded Parameters --- 
-
 	no_anchs = 4
 	no_changes = 5
+
+
+	if perc_bar:
+		print("Preprocessing Data:")
 
 	no_samples, no_features = X.shape
 
@@ -20,6 +23,7 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 
 	# --- ID NUMBERS AND ANCHORS AND CHANGES ARE INDEXED WITH 1 ---
 	my_count = 0
+	prev_val = 0
 	for sample in range(no_samples):
 
 		# print(np.random.normal())
@@ -27,10 +31,6 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 
 		fp.write(str(sample+1))
 		fp.write(',')
-
-		if sample%100 == 0:
-			print(sample)
-
 
 		### Run Explanation Algorithms
 		change_vector, change_row, anchors, percent = instance_explanation(model, X, X[my_count], my_count, X_pos_array, bins_centred, no_bins, monotonicity_arr, col_ranges)
@@ -115,7 +115,19 @@ def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bi
 
 		my_count += 1
 
+		# --- Percentage Bar Indicating Progress --- 
+		if perc_bar:
+			percentage_done = int(np.round(((sample/no_samples)*100),0))
+			# print("| ",end="")
+			if prev_val != percentage_done:
+				squares = percentage_done//5
+				print('\r',"|",'#'*squares,end="")
+				print(" "*(20-squares), "|", percentage_done, "%", end = "")
+			prev_val = percentage_done
+
+
 
 		fp.write('\n')
 
+	print(" ")
 	fp.close()
