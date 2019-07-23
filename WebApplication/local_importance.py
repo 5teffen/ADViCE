@@ -56,7 +56,29 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 		"ft_magnitude_offset": 3
 	}
 
-	svg_str = '<svg width="{width:d}px" height="{height:d}px" viewBox="0 0 {width:d} {height:d}">'.format(
+	# --- Hover Styling ---
+	svg_str = """
+				<style>
+				.feature-group {
+				  position: relative;
+				  display: inline-block;
+				  border-bottom: 1px dotted black;
+				}
+
+				.feature-group .tooltiptext {
+				  visibility: hidden;
+				  opacity: 0;
+				  transition: opacity 0.1s;
+				}
+
+				.feature-group:hover .tooltiptext {
+				  visibility: visible;
+				  opacity: 1;
+				}
+				</style>
+			"""
+
+	svg_str += '<svg width="{width:d}px" height="{height:d}px" viewBox="0 0 {width:d} {height:d}">'.format(
 				**p)
 	svg_str += '<line x1="{:d}" x2="{:d}" y1="{:d}" y2="{:d}" style="stroke-width: 1; stroke:  lightgray;"></line>'.format(
 				int(p["width"]/2), int(p["width"]/2), int(p["line_y"]), int((2*p["bar_width"] + p["bar_spacing"])*no_ft_plot + 3*(p["first_bar_y"]-p["line_y"])))
@@ -73,6 +95,8 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 		# Don't draw importances if too small
 		if np.abs(plot_imps[i])*p["max_bar_size"] < p["point_offset"]:
 			break
+
+		svg_str += '<g class="feature-group">'
 
 		# --- Drawing polygons ---
 		svg_str += '<polygon fill="{0}" points="{1},{2}  {5},{2}  {6},{3}  {5},{4}  {1},{4}" />'.format(
@@ -96,13 +120,15 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 			)
 
 		# --- Writing importance magnitudes ---
-		svg_str += '<text x="{1}" y="{2}" text-anchor="{0}" font-size="{ft_magnitude_size}" font-family="{font_family}">{3:.3f}</text>'.format(
+		svg_str += '<text class="tooltiptext" x="{1}" y="{2}" text-anchor="{0}" font-size="{ft_magnitude_size}" font-family="{font_family}">{3:.3f}</text>'.format(
 			'begin' if ft_signs[i]==1 else 'end',
 			int(p["width"]/2 + plot_imps[i]*p["max_bar_size"] + ft_signs[i]*1),
 			int(p["first_bar_y"] + cnt*p["bar_spacing"] + 2*cnt*p["bar_width"] + p["bar_width"] + p["ft_magnitude_offset"]),
 			abs_ft_imp[i],
 			**p
 			)
+
+		svg_str += '</g>'
 
 		cnt+=1
 
@@ -177,7 +203,7 @@ if __name__ == '__main__':
 	svm_model.test_model()
 
 	# --- Run SHAP --
-	i=0
+	i=9
 	shap_explainer = build_shap_explainer(svm_model, data)
 	shap_values = shap_explanation(data[i], feature_names, shap_explainer)
 	svg = plot_local_imp(shap_values, feature_names, data[i])
