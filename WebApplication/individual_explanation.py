@@ -96,7 +96,7 @@ def find_anchors(model, data_set, sample, no_val, special_cols = []):
             return mask
         iterations -= 1
         
-    print("!!! No anchors found !!!")
+    # print("!!! No anchors found !!!")
     return None
 
 def perturb_row_feature(model, row, row_idx, feat_idx, current_bins, X_bin_pos, mean_bins, mono_arr, improve, no_bins, col_ranges):
@@ -381,7 +381,7 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
     if not percent_cond(improve, top_percents[0]):
         return top_change_vectors[:keep_top], top_rows[:keep_top]
     else:
-        print("Decision can't be moved within thresholds:")
+        # print("Decision can't be moved within thresholds:")
         if not threshold:
             return top_change_vectors[:keep_top], top_rows[:keep_top]
         else:
@@ -389,6 +389,10 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
 
 def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top=1, threshold=True, locked_fts=[]):
     
+    # -- Toggle this for Print statements -- 
+    printing = False
+
+
     np.random.seed(11)
 
     # --- To measure performance ---
@@ -397,16 +401,23 @@ def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_b
     initial_percentage = model.run_model(k_row)
 
     change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top, threshold, locked_fts)
-    print("Model calls for this explanation:", model.model_calls)
+    
     anchors = find_anchors(model, data, k_row, 100)
-    print(change_vector)
-    print(change_row)
-    print(anchors)
+
+
+    if printing:
+        print("Model calls for this explanation:", model.model_calls)
+        print(change_vector)
+        print(change_row)
+        print(anchors)
+    
+
     # Find MSC can return a list of change vectors and a list of change rows
     # They can be kept in memory and then passed to D3 functions as necessary.
 
     if keep_top>1:
         return change_vector, change_row, anchors, initial_percentage
+    
     else:
         return change_vector[0], change_row[0], anchors, initial_percentage
 
