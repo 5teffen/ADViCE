@@ -260,7 +260,7 @@ function draw_graph(testData, densityData, result, place, max_width){
         .attr("font-size", '12px')
         .attr("font-weight", 'bold')
         .attr("fill", function(d) {
-            if ((d.change != d.val)) {return the_colour;}
+            if ((d.change != d.val)) {return "black";}
             else {return "None"}})
         .attr("text-anchor",'middle');
 
