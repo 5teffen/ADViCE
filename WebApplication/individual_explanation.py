@@ -251,105 +251,24 @@ def percent_cond (improve, percent):
         return True
     else:
         return False
-    
-def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monotonicity_arr, col_ranges):
+
+def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monotonicity_arr, col_ranges, keep_top, threshold, locked_fts):
 
     # --- Hardcoded Parameters --- 
     no_vertical_movement = 5
     no_lateral_movement = 5
 
     no_features = k_row.shape[0]
-
-    row = np.copy(k_row)
-    percent = model.run_model(row)
-    features_moved = np.zeros(no_features)
-    times_moved = np.zeros(no_features)
-    change_vector = np.zeros(no_features)
-
-    if row_idx != -1:
-        original_bins = np.copy(X_bin_pos[row_idx])
-        current_bins = np.copy(X_bin_pos[row_idx])
-    else:
-        original_bins = bin_single_sample(row, col_ranges)
-        current_bins = bin_single_sample(row, col_ranges)
-    
-    # --- Decides class to attempt to change into ---
-    improve = True
-    if percent >= .5:
-        improve = False
-        
-
-    """
-    --- Monotonicity needs to be manually imputed ---
-    1: Move up to to improve
-    0: Move down to improve
-    -1: Needs check
-
-    """
-    if monotonicity_arr == []:
-        monotonicity_arr = np.ones(no_features)*-1
-
-    monotonicity_arr_c = np.copy(monotonicity_arr)
-    if not improve:
-        for i in range(len(monotonicity_arr)):
-            if monotonicity_arr[i] == 1:
-                monotonicity_arr_c[i] = 0
-            elif monotonicity_arr[i] == 0:
-                monotonicity_arr_c[i] = 1
-    monotonicity_arr = np.copy(monotonicity_arr_c)
-    
-    while percent_cond(improve, percent) and (features_moved == 1).sum() < no_lateral_movement and max(times_moved) < no_vertical_movement:
-        new_percents = []
-        pert_rows = []
-        new_curr_bins = []
-        
-        # Avoids moving locked features
-        for i in range(1, len(row)):
-            t_row, t_current_bins = perturb_row_feature(model, row, row_idx, i, current_bins, X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins, col_ranges)
-            pert_rows.append(t_row)
-            new_curr_bins.append(t_current_bins)
-            new_percents.append(model.run_model(t_row))
-
-        new_percents = np.array(new_percents)
-        
-        if improve:
-            idx = np.argmax(new_percents)
-        else:
-            idx = np.argmin(new_percents)
-        
-        row = pert_rows[idx]
-        percent = new_percents[idx]
-        current_bins = new_curr_bins[idx]
-
-        features_moved[idx] = 1
-        times_moved[idx] += 1
-    
-    for l in range(no_features):
-        change_vector[l] = current_bins[l] - original_bins[l]
-        
-    if not percent_cond(improve, percent):
-        return change_vector, row
-    else:
-        print("Decision can't be moved within thresholds:")
-        return None,None
-
-def find_MSC2 (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monotonicity_arr, col_ranges, keep_top=1, threshold=True, locked_fts=[]):
-
-    # --- Hardcoded Parameters --- 
-    no_vertical_movement = 5
-    no_lateral_movement = 5
-
-    no_features = k_row.shape[0]
-    row = np.copy(k_row)
-    percent = model.run_model(row)
+    orig_row = np.copy(k_row)
+    orig_percent = model.run_model(orig_row)
     orig_moving_fts = np.nonzero(np.array( [1 if not (i in locked_fts) else 0 for i in range(no_features)] ))[0].tolist()
 
-    original_bins = bin_single_sample(row, col_ranges)
-    current_bins = bin_single_sample(row, col_ranges)
+    original_bins = bin_single_sample(orig_row, col_ranges)
+    current_bins = bin_single_sample(orig_row, col_ranges)
     
     # --- Decides class to attempt to change into ---
     improve = True
-    if percent >= .5:
+    if orig_percent >= .5:
         improve = False
         
     """
@@ -361,20 +280,14 @@ def find_MSC2 (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monot
     """
     if monotonicity_arr == []:
         monotonicity_arr = np.zeros(no_features)
-    if not improve:
+    elif not improve:
         monotonicity_arr *= -1
 
-    top_percents = np.full(keep_top, percent)
-    top_rows = np.tile(row, (keep_top,1))
+    top_percents = np.full(keep_top, orig_percent)
+    top_rows = np.tile(orig_row, (keep_top,1))
     top_current_bins = np.tile(current_bins, (keep_top,1))
     top_change_vectors = np.tile(np.zeros(no_features), (keep_top,1))
     top_moving_fts = [orig_moving_fts for i in range(keep_top)]
-
-    # print(top_percents)
-    # print(top_rows)
-    # print(top_moving_fts)
-    # print(top_current_bins)
-    # print(top_change_vectors)
 
     # Loop while best changed row not above threshold
     while percent_cond(improve, top_percents[0]):
@@ -389,26 +302,20 @@ def find_MSC2 (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monot
             new_rows = []
             new_percents = []
             new_curr_bins = []
-
-            # print(top_change_vectors[j])
-            # print(top_moving_fts[j])
-
-            top_moving_fts[j] = orig_moving_fts
-            print(top_moving_fts[j])
+            top_moving_fts[j] = orig_moving_fts.copy()
 
             # Once lateral threshold reached, only move features already moved
             if np.count_nonzero(top_change_vectors[j]) == no_lateral_movement:
-                print("LATERAL REACHED")
                 top_moving_fts[j] = top_change_vectors[j].nonzero()[0].tolist()
-                print(top_moving_fts[j])
 
             # Once vertical threshold reached, stop moving that feature
+            to_remove = []
             for idx in top_moving_fts[j]:
                 if abs(top_change_vectors[j][idx]) == no_vertical_movement:
-                    print("VERTICAL REACHED")
-                    top_moving_fts[j].remove(idx)
-                    print(top_moving_fts[j])
-            
+                    to_remove.append(idx)
+            top_moving_fts[j] = [e for e in top_moving_fts[j] if e not in to_remove]
+            top_moving_fts[j].extend([top_moving_fts[j][-1] for e in range(keep_top-len(top_moving_fts[j]))]) # Add extra rows in case no. of moving fts < keep_top
+
             # Avoids moving locked features
             for i in top_moving_fts[j]:
                 t_row, t_current_bins = perturb_row_feature2(model, top_rows[j], row_idx, i, top_current_bins[j], X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins, col_ranges)
@@ -460,21 +367,17 @@ def find_MSC2 (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monot
             cnt += 1
 
         final_idx = np.array(final_idx)
-        # print(final_idx)
-        top_rows = poss_top_rows[final_idx]
-        top_percents = poss_top_percents[final_idx]
-        top_current_bins = poss_top_curr_bins[final_idx]
-
-        for j in range(keep_top):
-            top_change_vectors[j] = top_current_bins[j] - original_bins
-
-        # print(top_rows)
-        # print(top_percents)
-        # print(top_current_bins)
-        print(top_change_vectors)
-        print(percent_cond(improve, top_percents[0]))
-
         
+        if (improve and poss_top_percents[0] > top_percents[0]) or ((not improve) and poss_top_percents[0] < top_percents[0]):
+            top_rows = poss_top_rows[final_idx]
+            top_percents = poss_top_percents[final_idx]
+            top_current_bins = poss_top_curr_bins[final_idx]
+            for j in range(keep_top):
+                top_change_vectors[j] = top_current_bins[j] - original_bins
+        else:
+            break
+    
+    # print(top_percents)
     if not percent_cond(improve, top_percents[0]):
         return top_change_vectors[:keep_top], top_rows[:keep_top]
     else:
@@ -482,9 +385,9 @@ def find_MSC2 (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monot
         if not threshold:
             return top_change_vectors[:keep_top], top_rows[:keep_top]
         else:
-            return None,None
+            return np.tile(np.zeros(no_features), (keep_top,1)),np.tile(orig_row, (keep_top,1))
 
-def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges):
+def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top=1, threshold=True, locked_fts=[]):
     
     np.random.seed(11)
 
@@ -493,8 +396,7 @@ def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_b
 
     initial_percentage = model.run_model(k_row)
 
-    change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges)
-    # change_vector, change_row = find_MSC2(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top=3, locked_fts=[1,3,10])
+    change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top, threshold, locked_fts)
     print("Model calls for this explanation:", model.model_calls)
     anchors = find_anchors(model, data, k_row, 100)
     print(change_vector)
@@ -503,10 +405,10 @@ def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_b
     # Find MSC can return a list of change vectors and a list of change rows
     # They can be kept in memory and then passed to D3 functions as necessary.
 
-
-    
-
-    return change_vector[0], change_row[0], anchors, initial_percentage
+    if keep_top>1:
+        return change_vector, change_row, anchors, initial_percentage
+    else:
+        return change_vector[0], change_row[0], anchors, initial_percentage
 
 def detect_similarities(pre_data_file, all_data_file, sample_vec, changed_row, bins, percent):
     # --- Runs only if changes occur --- 
