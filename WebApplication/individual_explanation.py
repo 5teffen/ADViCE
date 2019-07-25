@@ -356,11 +356,12 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
         cnt, j = 1, 1
         curr_idx = 0
         final_idx = [0]
-        while (cnt < keep_top):
-            while np.array_equal(poss_top_rows[curr_idx], poss_top_rows[j]):
+        while (cnt < keep_top):                
+            while j < len(poss_top_rows) and np.array_equal(poss_top_rows[curr_idx], poss_top_rows[j]):
                 j += 1
-                if j == len(poss_top_rows):
-                    break
+            if j >= len(poss_top_rows):
+                final_idx.extend([final_idx[-1] for i in range(keep_top-cnt)])
+                break
             final_idx.append(j)
             curr_idx = j
             j += 1

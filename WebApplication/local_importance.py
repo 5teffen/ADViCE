@@ -40,7 +40,8 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 	# --- Plot parameters ---
 	p = {
 		"width": 300,
-		"height": 500,
+		"height": 325,
+		"starting_y": 15,
 		"good_color": '#1b9e77', #'rgb(56, 232, 235)',
 		"bad_color": '#d95f02', #'rgb(6, 152, 209)',
 		"line_y": 30,
@@ -78,7 +79,7 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 				</style>
 			"""
 
-	svg_str += '<svg width="{width:d}px" height="{height:d}px" viewBox="0 0 {width:d} {height:d}">'.format(
+	svg_str += '<svg width="{width:d}px" height="{height:d}px" viewBox="0 -{starting_y:d} {width:d} {height:d}">'.format(
 				**p)
 	svg_str += '<line x1="{:d}" x2="{:d}" y1="{:d}" y2="{:d}" style="stroke-width: 1; stroke:  lightgray;"></line>'.format(
 				int(p["width"]/2), int(p["width"]/2), int(p["line_y"]), int((2*p["bar_width"] + p["bar_spacing"])*no_ft_plot + 3*(p["first_bar_y"]-p["line_y"])))
