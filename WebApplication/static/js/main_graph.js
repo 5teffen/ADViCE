@@ -1,16 +1,16 @@
-function draw_graph(testData, densityData, result, place, max_width){
+function draw_graph(testData, densityData, result, place, max_width=800){
 
     var features = testData.length;
 
-    var good_col = "#1b9e77",
-        bad_col = "#d95f02",
-        den_colour = "#7570b3";
+    var good_col = "#1b9e77", //'#38e8eb', //"#1b9e77",
+        bad_col = "#d95f02", //'#0698d1', //"#d95f02",
+        den_colour = "#7570b3"; //'#86ab7b'; //"#7570b3";
 
     var the_colour = "";
     var opp_colour = "";
     
     var separator = 0.015,
-        col_width = 42;
+        col_width = 40;
     
     if (result) {
         opp_colour = good_col;
@@ -21,13 +21,13 @@ function draw_graph(testData, densityData, result, place, max_width){
     
     // -- Establishing margins and canvas bounds -- 
     var margin = {
-            top: 10, 
+            top: 0, 
             right: 10, 
-            bottom: 140, 
+            bottom: 110, 
             left: 30
         },
-        width = features*col_width - margin.right - margin.left,
-        height = 365 - margin.top - margin.bottom;
+        width = Math.min(features*col_width - margin.right - margin.left, max_width),
+        height = 325 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
@@ -39,7 +39,7 @@ function draw_graph(testData, densityData, result, place, max_width){
     if (densityData != "no"){
         var fineness = densityData[0].data.length,
             line_width = features*col_width/fineness
-            color_modifier = 0.35;
+            color_modifier = 0.7;
     }
         
     // -- Adding scales based on canvas -- 
@@ -65,6 +65,56 @@ function draw_graph(testData, densityData, result, place, max_width){
                 .append("g")
                     .attr("transform","translate(" + margin.left + ',' + margin.top +')' );
 
+
+    // -- Drawing density --
+
+    if (densityData != "no"){
+
+        svg.append("defs")
+
+        for (ind=0 ; ind < features; ind++) {
+            
+            var featureData = densityData[ind].data,
+                featureName = densityData[ind].name;
+            var tot_len = featureData.length;
+
+            svg.selectAll("defs")
+                .append("linearGradient")
+                .attr("id", "grad-" + ind.toString())
+                .attr("x1", "0%")
+                .attr("y1", "100%")
+                .attr("x2", "0%")
+                .attr("y2", "0%")
+                .selectAll("stop")
+                .data(featureData)
+                .enter()
+                .append("stop")
+                .attr("offset", function(d,i){
+                        return (Math.round((i/(tot_len)*100)).toString() + "%"); })
+                .attr("style", function(d){
+                        return ("stop-color: "+ den_colour + "; " + "stop-opacity: " + d*(color_modifier).toString());})
+                    
+
+
+
+            // svg.append("g").selectAll("line")
+            //     .data(featureData)
+            //     .enter()
+            //     .append("line")
+            //     .attr('x1',xScale(featureName))
+            //     .attr('x2',xScale(featureName)+xScale.bandwidth())
+            //     .attr('y1',function(d,i){
+            //         return yScaleDen(i);})
+            //     .attr('y2',function(d,i){
+            //         return yScaleDen(i);})
+            //     .attr("stroke-width",line_width)
+            //     .attr("stroke", den_colour)
+            //     .style("opacity",function(d){return d*(color_modifier);});
+
+        }   
+    };
+
+
     // -- Drawing background rectangles -- 
     svg.selectAll("rect")
         .data(testData)
@@ -75,17 +125,9 @@ function draw_graph(testData, densityData, result, place, max_width){
         .attr('y',0)
         .attr("height",function(d){return yScale(0-padding_bottom)})
         .attr("width",xScale.bandwidth())
-        .style("opacity",function(d){
-            if(d.anch == 1){
-                return 0.2;
-            }
-            else {return 1;}
-        })
-        .style("fill",function(d){
-            if(d.anch == 1){
-                return opp_colour;
-            }
-            else {return "white";}
+        .style("opacity",1)
+        .style("fill",function(d,i){
+            return "url(#grad-" + i.toString() + ")"
         });
     
     
@@ -118,34 +160,7 @@ function draw_graph(testData, densityData, result, place, max_width){
         .attr("stroke","#A9A9A9")
         .attr("stroke-width",1);
 
-    
 
-    // -- Drawing density --
-
-    if (densityData != "no"){
-
-
-        for (ind=0 ; ind < features; ind++) {
-            
-            var featureData = densityData[ind].data,
-                featureName = densityData[ind].name;
-
-            svg.append("g").selectAll("line")
-                .data(featureData)
-                .enter()
-                .append("line")
-                .attr('x1',xScale(featureName))
-                .attr('x2',xScale(featureName)+xScale.bandwidth())
-                .attr('y1',function(d,i){
-                    return yScaleDen(i);})
-                .attr('y2',function(d,i){
-                    return yScaleDen(i);})
-                .attr("stroke-width",line_width)
-                .attr("stroke", den_colour)
-                .style("opacity",function(d){return d*(color_modifier);});
-
-        }   
-    };
 
     
     
@@ -260,7 +275,7 @@ function draw_graph(testData, densityData, result, place, max_width){
         .attr("font-size", '12px')
         .attr("font-weight", 'bold')
         .attr("fill", function(d) {
-            if ((d.change != d.val)) {return the_colour;}
+            if ((d.change != d.val)) {return "black";}
             else {return "None"}})
         .attr("text-anchor",'middle');
 
