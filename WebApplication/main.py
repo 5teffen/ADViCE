@@ -72,7 +72,7 @@ elif user == "Oscar":
 model_path = "TBD"   # Manual? 
 
 # --- Advanced Parameters
-density_fineness = 1000
+density_fineness = 300
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonicity
 
