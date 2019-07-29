@@ -55,8 +55,6 @@ def all_kernel_densities(X,names,fineness = 1000):
 
 	return all_kernels, col_median, col_mean
 
-
-
 def specific_kernel_densities(X,samples,names,fineness=1000):
 	partial_kernels = []
 

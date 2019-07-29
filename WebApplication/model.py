@@ -7,6 +7,10 @@ from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
+# Imports parent module to modify the global variable used to communicate with R
+# https://stackoverflow.com/questions/1054271/how-to-import-a-python-class-that-is-in-a-directory-above
+#from .. import py_expl as parent
+
 class ModelError(Exception):
     pass
 
@@ -87,8 +91,36 @@ class RF_model(ML_model):
 		self.model = RandomForestClassifier(n_estimators=n_estimators, random_state=self.rand_state)
 		self.model.fit(self.X_tr,self.y_tr.reshape(self.y_tr.shape[0],))
 
-class LR_model(ML_model):
+class LogR_model(ML_model):
 	def train_model(self):
 		self.model = LogisticRegression(random_state=self.rand_state)
 		self.model.fit(self.X_tr,self.y_tr.reshape(self.y_tr.shape[0],))
+
+# Wrapper for the R model for calling just as Python model
+class R_model():
+	def __init__ (self, single_p, multiple_p, multiple_c):
+		self.single_p = single_p
+		self.multiple_p = multiple_p
+		self.multiple_c = multiple_c
+		self.model_calls = 0
+		print("success building R model")
+
+	# Modifies the global variable curr_rows and calls R function
+	# https://stackoverflow.com/a/142601
+	def run_model(self, sample):
+		parent.curr_rows = sample
+		self.model_calls += 1
+		return self.single_p()
+  	
+	def run_model_data(self, data_set):
+		parent.curr_rows = data_set
+		self.model_calls += data_set.shape[0]
+		return np.array(self.multiple_c()).astype(int)
+
+	def run_model_data_prob(self, data_set):
+		parent.curr_rows = data_set
+		self.model_calls += data_set.shape[0]
+		return self.multiple_p()
+		
+	
 
