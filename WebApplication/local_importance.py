@@ -40,20 +40,21 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 	# --- Plot parameters ---
 	p = {
 		"width": 300,
-		"height": 325,
+		"height": 375,
 		"starting_y": 15,
-		"good_color": '#1b9e77', #'rgb(56, 232, 235)',
-		"bad_color": '#d95f02', #'rgb(6, 152, 209)',
+		"good_color": '#38e8eb',     # '#1b9e77' green    #'rgb(56, 232, 235)' light blue
+		"bad_color": '#0698d1',      # '#d95f02' orange    #'rgb(6, 152, 209)' dark blue
 		"line_y": 30,
 		"bar_width": 6,
-		"bar_spacing": 12,
+		"bar_spacing": 18,
 		"first_bar_y": 46,
 		"max_bar_size": 100,
 		"point_offset": 5,
 		"font_family": 'Source Sans Pro, sans-serif',
-		"ft_name_size": 10,
+		"title_font_size": 18,
+		"ft_name_size": 12,
 		"text_offset": 3,
-		"ft_magnitude_size": 9,
+		"ft_magnitude_size": 12,
 		"ft_magnitude_offset": 3
 	}
 
@@ -63,7 +64,6 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 				.feature-group {
 				  position: relative;
 				  display: inline-block;
-				  border-bottom: 1px dotted black;
 				}
 
 				.feature-group .tooltiptext {
@@ -72,8 +72,13 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 				  transition: opacity 0.1s;
 				}
 
+				.feature-group:hover {
+				  font-weight: bold;
+				}
+
 				.feature-group:hover .tooltiptext {
 				  visibility: visible;
+				  font-weight: bold;
 				  opacity: 1;
 				}
 				</style>
@@ -83,9 +88,9 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 				**p)
 	svg_str += '<line x1="{:d}" x2="{:d}" y1="{:d}" y2="{:d}" style="stroke-width: 1; stroke:  lightgray;"></line>'.format(
 				int(p["width"]/2), int(p["width"]/2), int(p["line_y"]), int((2*p["bar_width"] + p["bar_spacing"])*no_ft_plot + 3*(p["first_bar_y"]-p["line_y"])))
-	svg_str += '<text x="{:d}" y="15" font-size="16" font-family="{font_family}" text-anchor="middle" style="fill: {bad_color};">Below</text>'.format(
+	svg_str += '<text x="{:d}" y="15" font-size="{title_font_size}" font-family="{font_family}" text-anchor="middle" style="fill: {bad_color};">Below</text>'.format(
 				int(p["width"]/4), **p)
-	svg_str += '<text x="{:d}" y="15" font-size="16" font-family="{font_family}" text-anchor="middle" style="fill: {good_color};">Above</text>'.format(
+	svg_str += '<text x="{:d}" y="15" font-size="{title_font_size}" font-family="{font_family}" text-anchor="middle" style="fill: {good_color};">Above</text>'.format(
 				int(3*p["width"]/4), **p)
 
 	cnt=0
@@ -140,86 +145,86 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 
 if __name__ == '__main__':
 
-	import pandas as pd
-	import sklearn
-	from model import *
-	from utils import *
-	from individual_explanation import *
-	from global_explanations import *
-	from d3_functions import *
-	from preprocessing import create_summary_file
-	from os import path
+	# import pandas as pd
+	# import sklearn
+	# from model import *
+	# from utils import *
+	# from individual_explanation import *
+	# from global_explanations import *
+	# from d3_functions import *
+	# from preprocessing import create_summary_file
+	# from os import path
 
-	# ============= Initialize model =========== #
+	# # ============= Initialize model =========== #
 
-	# --- Setting random seed --- 
-	np.random.seed(150)
-
-
-	# --- User ---
-
-	# user = "Steffen"
-	user = "Oscar"
-
-	if user == "Steffen":
-		# --- Parameters --- 
-		data_path = "static/data/diabetes.csv"
-		preproc_path = "static/data/diabetes_preproc.csv"
-		projection_changes_path = "static/data/changes_proj.csv"
-		projection_anchs_path = "static/data/anchs_proj.csv"
-		no_bins = 10
+	# # --- Setting random seed --- 
+	# np.random.seed(150)
 
 
-		# --- Data for diabetes ---
-		df = pd.read_csv(data_path)
+	# # --- User ---
 
-	elif user == "Oscar":
-		# --- Parameters ---
-		data_path = "static/data/ADS.csv"
-		preproc_path = "static/data/ADS_preproc.csv"
-		no_bins = 10
+	# # user = "Steffen"
+	# user = "Oscar"
 
-		# --- Data for education ---
-		df = pd.read_csv(data_path)
-		df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
-		df = df.drop(columns=['Academic Score',
-		                'School','Grade',
-		                'Term','Student'])
-		df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
-
-	model_path = "TBD"   # Manual? 
-
-	feature_names = np.array(df.columns)[:-1]
-	all_data = np.array(df.values)
-
-	# -- Split data and target values --
-	data = all_data[:,:-1]
-	target = all_data[:,-1]
-	no_samples, no_features = data.shape
+	# if user == "Steffen":
+	# 	# --- Parameters --- 
+	# 	data_path = "static/data/diabetes.csv"
+	# 	preproc_path = "static/data/diabetes_preproc.csv"
+	# 	projection_changes_path = "static/data/changes_proj.csv"
+	# 	projection_anchs_path = "static/data/anchs_proj.csv"
+	# 	no_bins = 10
 
 
-	# --- Initialize and train model ---
-	svm_model = SVM_model(data,target)
-	svm_model.train_model()
-	svm_model.test_model()
+	# 	# --- Data for diabetes ---
+	# 	df = pd.read_csv(data_path)
 
-	# --- Run SHAP --
-	i=9
-	shap_explainer = build_shap_explainer(svm_model, data)
-	shap_values = shap_explanation(data[i], feature_names, shap_explainer)
-	svg = plot_local_imp(shap_values, feature_names, data[i])
-	fp = open("local_importance_shap.html", 'w', encoding="utf-8")
-	fp.write(svg)
-	fp.close()
+	# elif user == "Oscar":
+	# 	# --- Parameters ---
+	# 	data_path = "static/data/ADS.csv"
+	# 	preproc_path = "static/data/ADS_preproc.csv"
+	# 	no_bins = 10
 
-	# --- Run LIME ---
-	categorical_features = [0,1,2,3,4,7,8,9,17]
-	lime_explainer = build_lime_explainer(data, feature_names, categorical_features)
-	lime_values = lime_explanation(svm_model, data[i], lime_explainer)
-	svg = plot_local_imp(lime_values, feature_names, data[i])
-	fp = open("local_importance_lime.html", 'w', encoding="utf-8")
-	fp.write(svg)
-	fp.close()
+	# 	# --- Data for education ---
+	# 	df = pd.read_csv(data_path)
+	# 	df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
+	# 	df = df.drop(columns=['Academic Score',
+	# 	                'School','Grade',
+	# 	                'Term','Student'])
+	# 	df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
+
+	# model_path = "TBD"   # Manual? 
+
+	# feature_names = np.array(df.columns)[:-1]
+	# all_data = np.array(df.values)
+
+	# # -- Split data and target values --
+	# data = all_data[:,:-1]
+	# target = all_data[:,-1]
+	# no_samples, no_features = data.shape
+
+
+	# # --- Initialize and train model ---
+	# svm_model = SVM_model(data,target)
+	# svm_model.train_model()
+	# svm_model.test_model()
+
+	# # --- Run SHAP --
+	# i=9
+	# shap_explainer = build_shap_explainer(svm_model, data)
+	# shap_values = shap_explanation(data[i], feature_names, shap_explainer)
+	# svg = plot_local_imp(shap_values, feature_names, data[i])
+	# fp = open("local_importance_shap.html", 'w', encoding="utf-8")
+	# fp.write(svg)
+	# fp.close()
+
+	# # --- Run LIME ---
+	# categorical_features = [0,1,2,3,4,7,8,9,17]
+	# lime_explainer = build_lime_explainer(data, feature_names, categorical_features)
+	# lime_values = lime_explanation(svm_model, data[i], lime_explainer)
+	# svg = plot_local_imp(lime_values, feature_names, data[i])
+	# fp = open("local_importance_lime.html", 'w', encoding="utf-8")
+	# fp.write(svg)
+	# fp.close()
 
 	# --- Test plot ---
 	test_imp = [2.266, -15.266, 3.266, -11.266, -0.8]
