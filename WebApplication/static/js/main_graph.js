@@ -39,7 +39,7 @@ function draw_graph(testData, densityData, result, place, max_width=800){
     if (densityData != "no"){
         var fineness = densityData[0].data.length,
             line_width = features*col_width/fineness
-            color_modifier = 1;
+            color_modifier = 0.7;
     }
         
     // -- Adding scales based on canvas -- 
@@ -129,8 +129,7 @@ function draw_graph(testData, densityData, result, place, max_width=800){
         .style("fill",function(d,i){
             return "url(#grad-" + i.toString() + ")"
         });
-
-
+    
     // // -- Drawing feature locks
     // svg.selectAll("g")
     //     .data(testData)
@@ -149,8 +148,8 @@ function draw_graph(testData, densityData, result, place, max_width=800){
     //     .attr('font-size', '14px')
     //     .attr('text-anchor', 'middle')
     //     .text(function(d) { return (d.locked==1 ? '\uf023' : '\uf13e') })
-    
-    
+            
+
     // -- Drawing dividing lines -- 
     svg.selectAll("line")
         .data(testData)
@@ -327,7 +326,6 @@ function draw_graph(testData, densityData, result, place, max_width=800){
         .attr("x2",function(d){return xScale(d.name) + xScale.bandwidth()*0.80})
         .attr("y1",function(d){
             if (d.scl_val > 1){
-                console.log("outlier")
                 return yScale(outlier)-1}
             else{
                 return yScale(d.scl_val)
