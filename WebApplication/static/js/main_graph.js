@@ -39,7 +39,7 @@ function draw_graph(testData, densityData, result, place, max_width=800){
     if (densityData != "no"){
         var fineness = densityData[0].data.length,
             line_width = features*col_width/fineness
-            color_modifier = 0.7;
+            color_modifier = 1;
     }
         
     // -- Adding scales based on canvas -- 
@@ -107,9 +107,9 @@ function draw_graph(testData, densityData, result, place, max_width=800){
             //         return yScaleDen(i);})
             //     .attr('y2',function(d,i){
             //         return yScaleDen(i);})
-            //     .attr("stroke-width",line_width)
-            //     .attr("stroke", den_colour)
-            //     .style("opacity",function(d){return d*(color_modifier);});
+            //     .attr("stroke-width",1) //line_width)
+            //     .attr("stroke", "black")
+            //     .style("opacity",function(d){return 0.4;});
 
         }   
     };
@@ -129,6 +129,26 @@ function draw_graph(testData, densityData, result, place, max_width=800){
         .style("fill",function(d,i){
             return "url(#grad-" + i.toString() + ")"
         });
+
+
+    // // -- Drawing feature locks
+    // svg.selectAll("g")
+    //     .data(testData)
+    //     .enter()
+    //     .append("g")
+    //     .attr("class", "lock-wrap")
+    //     .attr("onclick", function(d) {return 'flip_lock(' + d.orig_ft_pos.toString() + ')'; })
+    //     .append("text")
+    //     .attr("id", function(d) {return 'ft-lock-' + d.orig_ft_pos.toString(); })
+    //     .attr("data-orig-ft-pos", function(d) {return d.orig_ft_pos; })
+    //     .attr("data-locked",  function(d) {return d.locked; })
+    //     .attr('class', 'fas')
+    //     .attr('x',function(d) {return xScale(d.name) + width/(2*features);})
+    //     .attr('y',18)
+    //     .attr("font-family","FontAwesome")
+    //     .attr('font-size', '14px')
+    //     .attr('text-anchor', 'middle')
+    //     .text(function(d) { return (d.locked==1 ? '\uf023' : '\uf13e') })
     
     
     // -- Drawing dividing lines -- 
@@ -307,6 +327,7 @@ function draw_graph(testData, densityData, result, place, max_width=800){
         .attr("x2",function(d){return xScale(d.name) + xScale.bandwidth()*0.80})
         .attr("y1",function(d){
             if (d.scl_val > 1){
+                console.log("outlier")
                 return yScale(outlier)-1}
             else{
                 return yScale(d.scl_val)
