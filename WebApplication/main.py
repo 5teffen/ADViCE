@@ -72,7 +72,7 @@ elif user == "Oscar":
 model_path = "TBD"   # Manual? 
 
 # --- Advanced Parameters
-density_fineness = 300
+density_fineness = 10
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonicity
 
@@ -92,6 +92,11 @@ svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
+
+
+
+print(high_df.values.shape)
+print(low_df.values.shape)
 
 dict_array = all_den
 dict_array_orig = all_den

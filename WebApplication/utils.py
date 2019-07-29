@@ -256,6 +256,18 @@ def sort_by_val(main, density):
 
     return ordered_main, ordered_density
 
+def sort_by_imp(main, density, ft_imps):
+	ordered_main = []
+	ordered_density = []
+	abs_ft_imp = np.abs(ft_imps)
+
+	keySort = np.flip(np.argsort(abs_ft_imp))
+	for key in keySort:
+		ordered_density.append(density[key])
+		ordered_main.append(main[key])
+
+	return ordered_main, ordered_density
+
 def test_match(idx, p):
 	# -- Testing to match new individual binning --
 	idx-=1

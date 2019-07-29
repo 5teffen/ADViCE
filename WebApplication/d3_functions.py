@@ -8,7 +8,7 @@ from global_explanations import *
 
 
 
-def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, percent, names, apply_monot, monot_array):
+def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, percent, names, apply_monot, monot_array, locked_fts=[]):
     data = []
     
     no_features = sample.shape[0]
@@ -87,6 +87,8 @@ def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, per
             result["scl_val"] = float(scl_val)
             result["change"] = int(change)
             result["scl_change"] = float(scl_change)
+            result["locked"] = 1 if i in locked_fts else 0
+            result["orig_ft_pos"] = i
 
         data.append(result)
         
