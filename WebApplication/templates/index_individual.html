@@ -8,6 +8,7 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <link href="static/css/scratchstyle-light.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css">
     <!-- D3.js and jQuery source -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
@@ -451,6 +452,17 @@
         }
       }
 
+      function flip_lock(idx){
+        elem = document.getElementById('ft-lock-'+idx.toString());
+        if (elem.getAttribute("data-locked") == 1){
+            elem.setAttribute("data-locked", 0);
+            elem.innerHTML = elem.innerHTML.replace('\uf023', '\uf13e');            
+        }
+        else if (elem.getAttribute("data-locked") == 0){
+            elem.setAttribute("data-locked", 1);
+            elem.innerHTML = elem.innerHTML.replace('\uf13e', '\uf023');
+        }
+      }
 
       add_loader();
       fetch_csv();
