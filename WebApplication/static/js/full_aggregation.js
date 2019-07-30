@@ -283,7 +283,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
             var d = data[n];
 
             // if ((d.scl_val != d.scl_change) || (!button3 && !button2)){
-            if ((d.scl_val != d.scl_change) {
+            if (d.scl_val != d.scl_change) {
                 x1 = xScale(d.name) + xScale.bandwidth()*0.30
                 x2 = xScale(d.name) + xScale.bandwidth()*0.70
                 x3 = xScale(d.name) + xScale.bandwidth()*0.5
