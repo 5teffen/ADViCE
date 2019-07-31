@@ -29,7 +29,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
     
     // -- Establishing margins and canvas bounds -- 
     var margin = {
-            top: 10, 
+            top: 20, 
             right: 20, 
             bottom: 170, 
             left: 20
@@ -39,18 +39,22 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         height = 400 - margin.top - margin.bottom;
 
     var padding_top = 0.1,
-        padding_bottom = 0.1;
-
-    var outlier = 1 + padding_top/2;
+        padding_bottom = 0.1,
+        padding = 10;
     
     // -- Adding scales based on canvas -- 
     var xScale = d3.scaleBand()
             .domain(testData.map(function(d){return d.name;}))
             .rangeRound([0, width])
             .paddingInner(separator),
+        yScaleFull = d3.scaleLinear()
+            .domain([0, 1])
+            .rangeRound([height, 0]),
         yScale = d3.scaleLinear()
-            .domain([0-padding_bottom, 1+padding_top])
+            .domain([0, 1])
             .rangeRound([height, 0]);
+
+
 
     var svg = d3.select(place)
                 .append("svg")
@@ -95,8 +99,8 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         .append("rect")
         .attr("class","bg_bar")
         .attr('x',function(d) {return xScale(d.name);})
-        .attr('y',0)
-        .attr("height",function(d){return yScale(0-padding_bottom)})
+        .attr('y',-padding)
+        .attr("height",function(d){return yScale(0)+2*padding})
         .attr("width",xScale.bandwidth())
         .style("opacity",function(d){
             if(d.anch == 666){
@@ -112,20 +116,19 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         });
     
     
-    // // -- Drawing dividing lines -- 
-    // svg.append("g").selectAll("line")
-    //     .data(testData)
-    //     .enter()
-    //     .append("line")
-    //     .attr("class","split_lines")
-    //     .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth();})
-    //     .attr('y',0)
-    //     .attr("y2",function(d){return yScale(0-padding_bottom)})
-    //     .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth();})
-    //     .style("stroke",function(d,i){
-    //         if (i == testData.length-1) {return "None";}
-    //         else {return "#A9A9A9";}})
-    //     .style("stroke-width",0.7);
+    // -- Drawing dividing lines -- 
+    svg.append("g").selectAll("line")
+        .data(testData)
+        .enter()
+        .append("line")
+        .attr("class","split_lines")
+        .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth()*0.5;})
+        .attr('y1',-padding)
+        .attr("y2",function(d){return yScale(0)+padding})
+        .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth()*0.5;})
+        .style("stroke",den_colour)
+        .style("stroke-width",1)
+        .style("opacity",0.5);
     
     // -- Drawing surrounding box -- 
         
@@ -147,7 +150,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
 
     svg.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + (height+padding) + ")")
         .call(xAxis)
         .selectAll("text")  
             .style("fill","black")
@@ -276,20 +279,24 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         var full_string = "";
 
         for(n=0 ; n < data.length; n++){
+
             var d = data[n];
 
-            x1 = xScale(d.name) + xScale.bandwidth()*0.30
-            x2 = xScale(d.name) + xScale.bandwidth()*0.70
-            x3 = xScale(d.name) + xScale.bandwidth()*0.5
-            y1 = yScale(d.scl_val)
-            y2 = yScale(d.scl_change)
+            // if ((d.scl_val != d.scl_change) || (!button3 && !button2)){
+            if (d.scl_val != d.scl_change) {
+                x1 = xScale(d.name) + xScale.bandwidth()*0.30
+                x2 = xScale(d.name) + xScale.bandwidth()*0.70
+                x3 = xScale(d.name) + xScale.bandwidth()*0.5
+                y1 = yScale(d.scl_val)
+                y2 = yScale(d.scl_change)
 
 
-            one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
-                +"L"+x1+","+y1;
+                one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
+                    +"L"+x1+","+y1;
 
+                full_string += one_tri;
+            }
 
-            full_string += one_tri
         }
         return full_string
     }
@@ -305,21 +312,22 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
 
 
 
-
-
     svg.append('g').selectAll("path")
     .data(allData)
     .enter()
     .append("path")
     .on('mouseover',function(){
-        d3.select(this)
-        .attr('stroke','black')
+        d3.selectAll(".arrows").attr("fill-opacity",0);
+        // d3.select(".arrows").attr("fill","black");
+        d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
     })
     .on('mouseout',function(){
-        d3.select(this)
-        .attr("stroke",'none')
+        d3.selectAll(".arrows").attr("fill-opacity",0.7);
+        d3.select(this).attr("stroke-opacity",0)
     })
-    .attr('d',function(d){return draw_triangle(d);})
+    .attr('d',function(d){
+        return draw_triangle(d);})
+    .attr("class","arrows")
     .attr("fill-opacity",0.7)
     .attr("fill",function(d){
         if (d[0].dec == 0) {
@@ -327,25 +335,32 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         else {
             return good_col;}
     })
-    .attr("stroke-width", 1.5);
+    .attr("stroke-width", 2)
+    .attr("stroke",function(d){
+        if (d[0].dec == 0) {
+            return bad_col;}
+        else {
+            return good_col;}
+    })
+    .attr("stroke-opacity",0);
 
 
 
 
-    // -- Drawing median -- 
-    svg.append("g").selectAll("line")
-        .data(testData)
-        .enter()
-        .append("line")
-        .attr("class","split_lines")
-        .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth();})
-        .attr('y',0)
-        .attr("y2",function(d){return yScale(0-padding_bottom)})
-        .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth();})
-        .style("stroke",function(d,i){
-            if (i == testData.length-1) {return "None";}
-            else {return "#A9A9A9";}})
-        .style("stroke-width",0.7);
+    // // -- Drawing median -- 
+    // svg.append("g").selectAll("line")
+    //     .data(testData)
+    //     .enter()
+    //     .append("line")
+    //     .attr("class","split_lines")
+    //     .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth();})
+    //     .attr('y',0)
+    //     .attr("y2",function(d){return yScale(0-padding_bottom)})
+    //     .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth();})
+    //     .style("stroke",function(d,i){
+    //         if (i == testData.length-1) {return "None";}
+    //         else {return "#A9A9A9";}})
+    //     .style("stroke-width",0.7);
 
 }
 
