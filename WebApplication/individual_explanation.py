@@ -477,8 +477,8 @@ if __name__ == '__main__':
     np.random.seed(150)
 
     # --- Parameters --- 
-    data_path = "static/data/diabetes.csv"
-    preproc_path = "static/data/diabetes_preproc.csv"
+    data_path = "static/data/delinquency/delinquency.csv"
+    preproc_path = "static/data/delinquency/delinquency_preproc.csv"
     no_bins = 10
     model_path = "TBD"   # Manual? 
 
@@ -509,10 +509,9 @@ if __name__ == '__main__':
 
     bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
     
-
     single_bin_result = bin_single_sample(test_sample, col_ranges)
 
-    aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, [0,1,2,3,4,10], bins_centred, X_pos_array, False)
+    # aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, [0,1,2,3,4,10], bins_centred, X_pos_array, False)
 
 
 

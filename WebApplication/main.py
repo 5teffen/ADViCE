@@ -32,28 +32,59 @@ Last Column Target
 
 # ============= Initialize model =========== #
 
-# --- Setting random seed -- 
+# --- Setting random seed --- 
 np.random.seed(150)
 
 
-# --- User ---
-
-# user = "Steffen"
-user = "Oscar"
-
-if user == "Steffen":
-	# --- Parameters --- 
-	data_path = "static/data/diabetes.csv"
-	preproc_path = "static/data/diabetes_preproc.csv"
-	projection_changes_path = "static/data/diabetes_changes_proj.csv"
-	projection_anchs_path = "static/data/diabetes_anchs_proj.csv"
-	no_bins = 10
+# --- Dataset Selection ---
+# data_name = "admissions"  #(Conversion : Good > 0.7 )
+# lock = [7]
 
 
-	# --- Data for diabetes ---
-	df = pd.read_csv(data_path)
+# data_name = "ADS"  # Note this dataset isnt in git. 
 
-elif user == "Oscar":
+
+# data_name = "diabetes"
+
+
+# data_name = "fico"
+
+
+# data_name = "heart"
+# lock = [1,2,5,6,8,10,11,12]
+
+
+data_name = "delinquency"
+lock = [0,1,5,6,14]
+
+
+# --- Parameters --- 
+folder_path = "static/data/" + data_name + '/'
+data_path = folder_path + data_name + ".csv"
+preproc_path = folder_path + data_name + "_preproc.csv"
+projection_changes_path = folder_path + data_name + "_changes_proj.csv"
+projection_anchs_path = folder_path + data_name + "_anchs_proj.csv"
+no_bins = 10
+
+
+
+
+# # --- Parameters --- 
+# data_path = "static/data/diabetes.csv"
+# preproc_path = "static/data/diabetes_preproc.csv"
+# projection_changes_path = "static/data/diabetes_changes_proj.csv"
+# projection_anchs_path = "static/data/diabetes_anchs_proj.csv"
+# no_bins = 10
+
+
+# --- Data for diabetes ---
+df = pd.read_csv(data_path)
+
+
+
+
+
+if data_name == "ADS":
 	# --- Parameters ---
 	data_path = "static/data/ADS.csv"
 	preproc_path = "static/data/ADS_preproc.csv"
@@ -72,7 +103,7 @@ elif user == "Oscar":
 model_path = "TBD"   # Manual? 
 
 # --- Advanced Parameters
-density_fineness = 10
+density_fineness = 100
 categorical_cols = []  # Categorical columns can be customized # Whether there is order
 monotonicity_arr = []  # Local test of monotonicity
 
@@ -81,11 +112,12 @@ all_data = np.array(df.values)
 
 # --- Split data and target values ---
 data = all_data[:,:-1]
+# data = np.array(data, dtype=float)
 target = all_data[:,-1]
 
 # --- Filter data by class ---
-high_data = df.loc[df['Academic_Flag'] == 1].values[:,:-1]
-low_data = df.loc[df['Academic_Flag'] == 0].values[:,:-1]
+# high_data = df.loc[df['Academic_Flag'] == 1].values[:,:-1]
+# low_data = df.loc[df['Academic_Flag'] == 0].values[:,:-1]
 
 no_samples, no_features = data.shape
 
@@ -96,8 +128,8 @@ svm_model.test_model()
 
 bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
 all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
-high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
-low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
+# high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
+# low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
 
 dict_array = all_den
 dict_array_orig = all_den
@@ -314,8 +346,8 @@ def violin_site_req():
 
 			# sample_cap = min(len(proj_samples), 30)
 			proj_samples = np.array([int(x)-1 for x in proj_samples])#[:sample_cap])
-			print(proj_samples)
-			print(data[proj_samples])
+			# print(proj_samples)
+			# print(data[proj_samples])
 			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
 			select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
 			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
