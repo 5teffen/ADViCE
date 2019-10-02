@@ -13,6 +13,7 @@ from preprocessing import create_summary_file
 from distance_function import generate_projection_files
 from projection import show_projection
 
+import os
 from os import path
 
 
@@ -35,10 +36,13 @@ Last Column Target
 # --- Setting random seed --- 
 np.random.seed(150)
 
+# --- Resets all stored files ---
+reset = True
+
 
 # --- Dataset Selection ---
-# data_name = "admissions"  #(Conversion : Good > 0.7 )
-# lock = [7]
+data_name = "admissions"  #(Conversion : Good > 0.7 )
+lock = [7]
 
 
 # data_name = "ADS"  # Note this dataset isnt in git. 
@@ -54,8 +58,8 @@ np.random.seed(150)
 # lock = [1,2,5,6,8,10,11,12]
 
 
-data_name = "delinquency"
-lock = [0,1,5,6,14]
+# data_name = "delinquency"
+# lock = [0,1,5,6,14]
 
 
 # --- Parameters --- 
@@ -137,9 +141,18 @@ dict_array_orig = all_den
 # --- Perform Preprocessing if new data --- 
 if not path.exists(preproc_path): 
 	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
+elif reset:
+		os.remove(preproc_path)
+		create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
+
+
 
 if ((not path.exists(projection_changes_path[:-4]+"_PCA.csv")) and (not path.exists(projection_anchs_path[:-4]+"_PCA.csv"))):
 	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+elif reset:
+		os.remove(projection_changes_path[:-4]+"_PCA.csv")
+		os.remove(projection_anchs_path[:-4]+"_PCA.csv")
+		generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
 
 # ------- Initialize WebApp ------- #
@@ -186,7 +199,7 @@ def handle_request():
 				
 				### Run MSC and Anchors
 				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, row, sample, X_pos_array,
-																				   bins_centred, no_bins, monotonicity_arr, col_ranges)
+																				   bins_centred, no_bins, monotonicity_arr, col_ranges, 1, True, lock)
 
 				### Parse values into python dictionary
 				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
@@ -363,4 +376,4 @@ def violin_site_req():
 if __name__ == '__main__':
 
 	np.random.seed(12345)
-	app.run(port=5005, host="0.0.0.0", debug=True)
+	app.run(port=5005, host="0.0.0.0", debug=True,use_reloader=False)

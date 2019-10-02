@@ -519,13 +519,14 @@ if __name__ == '__main__':
     # all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 
 
-    # sample_no = 1
+    sample_no = 1
+    locked = [1,2,3]
+    change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
+                                                        no_bins, monotonicity_arr, col_ranges)
 
-    # change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
-                                                        # no_bins, monotonicity_arr)
 
-
-
+# instance_explanation(svm_model, data, row, sample, X_pos_array,
+#             bins_centred, no_bins, monotonicity_arr, col_ranges)
     # create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
     # res = prepare_for_D3(data[sample_no], bins_centred, change_row, change_vector, anchors, percent, feature_names, False, monotonicity_arr)
 
