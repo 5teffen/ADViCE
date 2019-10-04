@@ -5,10 +5,9 @@ from individual_explanation import *
 
 
 
+
 def create_summary_file(X, y, model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, output_path, col_ranges, lock, perc_bar = True):
 	np.random.seed(0)  #Ensures Uniformity 
-
-	print(lock)
 
 	# --- Hardcoded Parameters --- 
 	no_anchs = 4
