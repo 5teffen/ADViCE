@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Visual Interface</title>
+    <meta name="author" content="NYU UGR Team">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="static/css/scratchstyle-light.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div class="main">
+      <div class="left-sidebar">
+        <header class="site-header">
+          <h1><a href="intro">NEW TITLE</a></h1>
+        </header>
+        <nav class="left-nav">
+          <ul>
+            <li><a href="global"> GLOBAL EXPLANATION </a></li>
+            <li><a href="individual"> LOCAL EXPLANATIONS </a></li>
+          </ul>
+        </nav>
+
+        <br>
+
+          <a href="https://github.com/5teffen/ML-Explainer" target="_blank" class="intro-links">
+            <img src="static/images/GitHub-Mark-32px.png" class="logo">
+            <img src="static/images/GitHub_Logo.png" class="text">
+          </a>
+
+
+          <br>
+          <a href="static/images/FICO_paper.pdf" target="_blank" class="intro-links">
+            <img src="static/images/paper.png" class="logo" id="paper-logo">
+            <img src="static/images/writeup.png" class="text">
+          </a>
+                
+      </div>
+      
+      <div class="right-side" id="demo">
+        <select id='dataset-selector' onchange="dropdownHandle(this.value)">
+          <option value="heart">Heart Disease UCI</option>
+          <option value="diabetes">Diabetes</option>
+          <option value="delinquency">Delinquency</option>
+          <option value="admissions">Graduate Admission</option>
+          <option value="fico">FICO xML Challenge</option>
+        </select>
+
+      </div>
+
+    </div>
+
+    <script>
+
+    function dropdownHandle(dataset) {
+      console.log(dataset);
+      makeRequestDataset(dataset);
+    }
+
+    var httpRequest;
+    function makeRequestDataset(dataset) {
+      httpRequest = new XMLHttpRequest();
+      if (!httpRequest) {
+        alert('Giving up :( Cannot create an XMLHTTP instance');
+        return false;
+      }
+      
+      httpRequest.onreadystatechange = alertDataset;
+      httpRequest.open('GET', 'change_dataset?dataset='+dataset);
+      httpRequest.send();
+      return false;
+    }
+
+    function alertDataset() {
+      if (httpRequest.readyState === XMLHttpRequest.OPENED) {
+        console.log("Data loading")
+      }
+      else if (httpRequest.readyState === XMLHttpRequest.DONE) {
+        if (httpRequest.status === 200) {
+          //Do stuff with the response                 
+          var resp = httpRequest.responseText;
+          console.log(resp);
+        } else {
+          alert('HttpRequest Error')
+        }
+      }
+    }
+
+    
+    </script>
+
+  </body>
+
+</html>
