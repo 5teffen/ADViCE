@@ -314,7 +314,10 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
                 if abs(top_change_vectors[j][idx]) == no_vertical_movement:
                     to_remove.append(idx)
             top_moving_fts[j] = [e for e in top_moving_fts[j] if e not in to_remove]
-            top_moving_fts[j].extend([top_moving_fts[j][-1] for e in range(keep_top-len(top_moving_fts[j]))]) # Add extra rows in case no. of moving fts < keep_top
+            try:
+                top_moving_fts[j].extend([top_moving_fts[j][-1] for e in range(keep_top-len(top_moving_fts[j]))]) # Add extra rows in case no. of moving fts < keep_top
+            except:
+                print(row_idx, k_row)
 
             # Avoids moving locked features
             for i in top_moving_fts[j]:
@@ -401,8 +404,11 @@ def instance_explanation(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_b
 
     initial_percentage = model.run_model(k_row)
 
-    change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top, threshold, locked_fts)
-    
+    try:
+        change_vector, change_row = find_MSC(model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, mono_arr, col_ranges, keep_top, threshold, locked_fts)
+    except:
+        change_vector, change_row = np.tile(np.zeros(k_row.shape[0]), (keep_top,1)),np.tile(k_row, (keep_top,1))
+
     anchors = find_anchors(model, data, k_row, 100)
 
 

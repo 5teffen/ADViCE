@@ -37,136 +37,164 @@ Last Column Target
 np.random.seed(150)
 
 # --- Resets all stored files ---
-reset = True
-
+reset = False
 
 # --- Dataset Selection ---
-data_name = "admissions"  #(Conversion : Good > 0.7 )
-lock = [7]
+admissions_dataset = dataset("admissions", [7]) # (Conversion : Good > 0.7 )
+diabetes_dataset = dataset("diabetes", [])
+fico_dataset = dataset("fico", [])
+heart_dataset = dataset("heart", [1,2,5,6,8,10,11,12])
+delinquency_dataset = dataset("delinquency", [0,1,5,6,14])
 
+dataset_dict = {
+	'admissions': admissions_dataset,
+	'diabetes': diabetes_dataset,
+	'fico': fico_dataset,
+	'heart': heart_dataset,
+	'delinquency': delinquency_dataset
+}
 
-# data_name = "ADS"  # Note this dataset isnt in git. 
+# --- Data initialization ---
+data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(11)
+categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(12)
+col_ranges, all_den, all_median, all_mean, dict_array, dict_array_orig = np.zeros(6)
+def init_data(dataset):
 
+	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness
+	global categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
+	global col_ranges, all_den, all_median, all_mean, dict_array, dict_array_orig
 
-# data_name = "diabetes"
+	data_name = dataset.name
+	lock = dataset.lock
 
+	# --- Path Parameters --- 
+	folder_path = "static/data/" + data_name + '/'
+	data_path = folder_path + data_name + ".csv"
+	preproc_path = folder_path + data_name + "_preproc.csv"
+	projection_changes_path = folder_path + data_name + "_changes_proj.csv"
+	projection_anchs_path = folder_path + data_name + "_anchs_proj.csv"
 
-# data_name = "fico"
-
-
-# data_name = "heart"
-# lock = [1,2,5,6,8,10,11,12]
-
-
-# data_name = "delinquency"
-# lock = [0,1,5,6,14]
-
-
-# --- Parameters --- 
-folder_path = "static/data/" + data_name + '/'
-data_path = folder_path + data_name + ".csv"
-preproc_path = folder_path + data_name + "_preproc.csv"
-projection_changes_path = folder_path + data_name + "_changes_proj.csv"
-projection_anchs_path = folder_path + data_name + "_anchs_proj.csv"
-no_bins = 10
-
-
-
-
-# # --- Parameters --- 
-# data_path = "static/data/diabetes.csv"
-# preproc_path = "static/data/diabetes_preproc.csv"
-# projection_changes_path = "static/data/diabetes_changes_proj.csv"
-# projection_anchs_path = "static/data/diabetes_anchs_proj.csv"
-# no_bins = 10
-
-
-# --- Data for diabetes ---
-df = pd.read_csv(data_path)
-
-
-
-
-
-if data_name == "ADS":
-	# --- Parameters ---
-	data_path = "static/data/ADS.csv"
-	preproc_path = "static/data/ADS_preproc.csv"
-	projection_changes_path = "static/data/ADS_changes_proj.csv"
-	projection_anchs_path = "static/data/ADS_anchs_proj.csv"
 	no_bins = 10
 
-	# --- Data for education ---
 	df = pd.read_csv(data_path)
-	df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
-	df = df.drop(columns=['Academic Score',
-	                'School','Grade',
-	                'Term','Student'])
-	df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
-
-model_path = "TBD"   # Manual? 
-
-# --- Advanced Parameters
-density_fineness = 100
-categorical_cols = []  # Categorical columns can be customized # Whether there is order
-monotonicity_arr = []  # Local test of monotonicity
-
-feature_names = np.array(df.columns)[:-1]
-all_data = np.array(df.values)
-
-# --- Split data and target values ---
-data = all_data[:,:-1]
-# data = np.array(data, dtype=float)
-target = all_data[:,-1]
-
-# --- Filter data by class ---
-# high_data = df.loc[df['Academic_Flag'] == 1].values[:,:-1]
-# low_data = df.loc[df['Academic_Flag'] == 0].values[:,:-1]
-
-no_samples, no_features = data.shape
-
-# --- Initialize and train model ---
-svm_model = SVM_model(data,target)
-svm_model.train_model()
-svm_model.test_model()
-
-bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
-all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
-# high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
-# low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
-
-dict_array = all_den
-dict_array_orig = all_den
-
-# --- Perform Preprocessing if new data --- 
-if not path.exists(preproc_path): 
-	create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
-elif reset:
-		os.remove(preproc_path)
-		create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges)
 
 
+	model_path = "TBD"   # Manual? 
 
-if ((not path.exists(projection_changes_path[:-4]+"_PCA.csv")) and (not path.exists(projection_anchs_path[:-4]+"_PCA.csv"))):
-	generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
-elif reset:
-		os.remove(projection_changes_path[:-4]+"_PCA.csv")
-		os.remove(projection_anchs_path[:-4]+"_PCA.csv")
+	# --- Advanced Parameters
+	density_fineness = 100
+	categorical_cols = []  # Categorical columns can be customized # Whether there is order
+	monotonicity_arr = []  # Local test of monotonicity
+
+	feature_names = np.array(df.columns)[:-1]
+	all_data = np.array(df.values)
+
+	# --- Split data and target values ---
+	data = all_data[:,:-1]
+	# data = np.array(data, dtype=float)
+	target = all_data[:,-1]
+
+	# --- Filter data by class ---
+	# high_data = df.loc[df['Academic_Flag'] == 1].values[:,:-1]
+	# low_data = df.loc[df['Academic_Flag'] == 0].values[:,:-1]
+
+	no_samples, no_features = data.shape
+
+	# --- Initialize and train model ---
+	svm_model = SVM_model(data,target)
+	svm_model.train_model()
+	svm_model.test_model()
+
+	bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
+	all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
+	# high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
+	# low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
+
+	dict_array = all_den
+	dict_array_orig = all_den
+
+	# --- Perform Preprocessing if new data --- 
+	if not path.exists(preproc_path): 
+		create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges, lock)
+	elif reset:
+			os.remove(preproc_path)
+			create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges, lock)
+
+	# --- Projection Files ---
+	if ((not path.exists(projection_changes_path[:-4]+"_PCA.csv")) or (not path.exists(projection_anchs_path[:-4]+"_PCA.csv"))):
 		generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+	elif reset:
+			os.remove(projection_changes_path[:-4]+"_PCA.csv")
+			os.remove(projection_anchs_path[:-4]+"_PCA.csv")
+			generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
+	all_params = {
+		# data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness,
+		# categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals,
+		# col_ranges, all_den, all_median, all_mean, dict_array, dict_array_orig
+
+		'data_name': data_name,
+		'lock': lock,
+		'folder_path': folder_path,
+		'data_path': data_path,
+		'preproc_path': preproc_path,
+		'projection_changes_path': projection_changes_path,
+		'projection_anchs_path': projection_anchs_path,
+		'no_bins': no_bins,
+		'df': df,
+		'model_path': model_path,
+		'density_fineness': density_fineness,
+		'categorical_cols': categorical_cols,
+		'monotonicity_arr': monotonicity_arr,
+		'feature_names': feature_names,
+		'all_data': all_data,
+		'data': data,
+		'target': target,
+		'no_samples': no_samples,
+		'no_features': no_features,
+		'svm_model': svm_model,
+		'bins_centred': bins_centred,
+		'X_pos_array': X_pos_array,
+		'init_vals': init_vals,
+		'col_ranges': col_ranges,
+		'all_den': all_den,
+		'all_median': all_median,
+		'all_mean': all_mean,
+		'dict_array': dict_array,
+		'dict_array_orig': dict_array_orig
+	}
+
+	return all_params
+
+# --- Parameter Dictionary ---
+PD = init_data(dataset_dict['diabetes'])
 
 # ------- Initialize WebApp ------- #
 
-app = Flask(__name__) # static_folder="C:/Users/Oscar/Documents/UGR 2018/Fico-Challenge-master/VisualApp1/static")
+app = Flask(__name__)
 
 @app.route('/')
 def hello():
-    return redirect("/intro")
+    return redirect("/paper_intro")
 
-@app.route('/intro')
-def intro_site():
-	return render_template("index_intro.html")
+@app.route('/challenge_intro')
+def intro_site_challenge():
+	return render_template("challenge_intro.html")
 
+@app.route('/paper_intro')
+def intro_site_paper():
+	return render_template("paper_intro.html")
+
+@app.route('/change_dataset', methods=['GET'])
+def handle_change_dataset():
+	if request.method == 'GET':
+		dataset_name = request.args.get('dataset')
+		print(dataset_name)
+
+		global PD
+		PD = init_data(dataset_dict[dataset_name])
+		
+		return 'Data loaded'
 
 # ------- Individual Explanations ------- #
 
@@ -198,9 +226,11 @@ def handle_request():
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
 				### Run MSC and Anchors
+				print(lock)
 				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, row, sample, X_pos_array,
 																				   bins_centred, no_bins, monotonicity_arr, col_ranges, 1, True, lock)
 
+				print(change_vector)
 				### Parse values into python dictionary
 				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
 				dict_array = []
@@ -220,92 +250,6 @@ def handle_request():
 							   'category': category, 'predicted': predicted})
 				
 				return json.dumps(ret_arr)
-
-
-# ------- Global Explanations ------- #
-
-@app.route('/glob_req')
-def glob_site_bars():
-
-	if request.method == 'GET':
-
-		ret_arr = []
-		arr = list (count_total)
-		for item in arr:
-			new_item = list(item)
-			ret_arr.append(new_item)
-
-		keyTots = []
-		chgTots = []
-		for i in range(no_features):
-			keyTots.append(ret_arr[i][0]+ret_arr[i][1])
-			chgTots.append(ret_arr[i][2]+ret_arr[i][3])
-
-
-		keySort = sorted(range(len(keyTots)), key=lambda k: keyTots[k])[::-1]
-		chgSort = sorted(range(len(chgTots)), key=lambda k: chgTots[k])[::-1]
-
-		ret_arr = [keySort, chgSort, ret_arr]
-
-		ret_string = json.dumps(ret_arr)
-
-	return ret_string
-
-@app.route('/global')
-def glob_site():
-	return render_template("index_global.html")
-
-@app.route('/glob_feat', methods=['GET'])
-def handle_request_mini_graphs():
-
-	if request.method == 'GET':
-
-		id_list = request.args.get('id_list').split(',')
-
-		# Cap number of minigraphs on right panel
-		sample_cap = min(len(id_list), 30)
-		id_list = [int(x) for x in id_list][:sample_cap]
-
-		mini_graph_arr = prep_for_D3_global("static/data/pred_data_x.csv","static/data/final_data_file.csv", id_list, bins_centred, X_pos_array, trans_dict)
-
-		## Parse values into python dictionary
-		ret_string = [mini_graph_arr, id_list]
-		ret_string = json.dumps(ret_string)
-
-		return ret_string
-
-@app.route('/first_panel', methods=['GET'])
-def handle_request_ft():
-
-	if request.method == 'GET':
-
-		ft_list = request.args.get('features')
-		ft_list = ft_list[1:-1].split(',')
-
-		# False = changes, True = keyfts
-		algorithm = (request.args.get('algorithm') == "True")
-
-		if ft_list[0] == -1 or ft_list == ['']:
-			return ""
-		else:
-			ft_list = [int(x) for x in ft_list]
-			ft_list.sort()
-
-		combinations = combination_finder("static/data/pred_data_x.csv",ft_list,algorithm)
-
-		ret_arr = []
-		if not algorithm:
-			for combi in combinations[:min(15,len(combinations))]:
-				ret_arr.append(changes_generator("static/data/pred_data_x.csv", combi))
-		else:
-			for combi in combinations[:min(15,len(combinations))]:
-				ret_arr.append(anchor_generator("static/data/pred_data_x.csv","static/data/final_data_file.csv", combi))
-
-
-		## Parse values into python dictionary
-		ret_string = json.dumps(ret_arr)
-		return ret_string
-
 
 # ------- New Projection ------- #
 
@@ -342,7 +286,6 @@ def bokeh_request_ft():
 		ret_string = json.dumps(ret_arr)
 		return ret_string
 
-
 @app.route('/violin_req')
 def violin_site_req():
 
@@ -376,4 +319,4 @@ def violin_site_req():
 if __name__ == '__main__':
 
 	np.random.seed(12345)
-	app.run(port=5005, host="0.0.0.0", debug=True,use_reloader=False)
+	app.run(port=5005, host="0.0.0.0", debug=True, use_reloader=False)

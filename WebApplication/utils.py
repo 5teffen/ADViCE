@@ -5,6 +5,11 @@ from sklearn import preprocessing
 from operator import itemgetter
 import copy
 
+class dataset():
+
+	def __init__ (self, name, lock):
+		self.name = name
+		self.lock = lock
 
 def model_overview(pre_proc_file):
 	pre_data = pd.read_csv(pre_proc_file).values
