@@ -24,12 +24,12 @@
     <div class="main">
       <div class="left-sidebar">
         <header class="site-header">
-          <h1><a href="intro">FICO CHALLENGE</a></h1>
+          <h1><a href="/">HOME</a></h1>
         </header>
         <nav class="left-nav">
           <ul>
-            <li><a href="global"> GLOBAL EXPLANATION </a></li>
-            <li><a href="projection"> PROJECTION </a></li>
+            <li><a href="projection"> GLOBAL EXPLANATION </a></li>
+            <li><a href="individual"> LOCAL EXPLANATION </a></li>
 <!--             <li><a href="projection"> PROJECTION </a></li> -->
           </ul>
         </nav>
@@ -189,9 +189,9 @@
         }
 
         var monot = "False";
-        if (document.getElementById("monot-button").style.backgroundColor == dark_shade){
-          monot = "True";
-        }
+        // if (document.getElementById("monot-button").style.backgroundColor == dark_shade){
+        //   monot = "True";
+        // }
         var sort = "False";
         if (document.getElementById("sort-button").style.backgroundColor == dark_shade){
           sort = "True";
@@ -429,7 +429,7 @@
         sort_button.onclick = function(){flip_property(this);};
 
         check_group.append(density_button);
-        check_group.append(monot_button);
+        // check_group.append(monot_button);
         check_group.append(sort_button);
         btn_td.append(check_group);
         row.append(ind_text);

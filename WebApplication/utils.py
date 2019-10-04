@@ -284,4 +284,34 @@ def test_match(idx, p):
 	t = (single_bin_result == X_pos_array[idx]).all()
 	if not t:
 		print(idx+1, "no match")
-	return t
+	return 
+
+def ids_with_combination(pre_proc_file,cols_lst,anchs):
+	# --- Finds all the combinations with the desired columns --- 
+
+	# print(cols_lst)
+	pre_data = pd.read_csv(pre_proc_file, index_col=False).values
+	print(pre_data)
+
+	all_combinations = {}
+
+	samples_list = []
+
+	for sample in range(pre_data.shape[0]):
+
+		cur_lst = []
+
+		if (anchs):
+			range_val = range(5,9)
+		else:
+			range_val = range(9,14)
+		for c in range_val:
+			val = pre_data[sample][c]
+			if (val < 0 or len(cur_lst) > 5):
+				break
+			cur_lst.append(val)
+
+		if (set(cols_lst).issubset(cur_lst)):
+			samples_list.append(pre_data[sample][0])
+
+	return samples_list

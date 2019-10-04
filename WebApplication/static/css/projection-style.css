@@ -1303,7 +1303,12 @@ table #model-display {
 
 /*}*/
 
-
+#dataset-selector {
+  float: left;
+  display: block;
+  margin-top: 20px;
+  width: 120px;
+}
 
 
 /*-------------*/
