@@ -126,6 +126,8 @@ def init_data(dataset):
 	elif reset:
 			os.remove(projection_changes_path[:-4]+"_PCA.csv")
 			os.remove(projection_anchs_path[:-4]+"_PCA.csv")
+			os.remove(projection_changes_path[:-4]+"_TSNE.csv")
+			os.remove(projection_anchs_path[:-4]+"_TSNE.csv")
 			generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
 
 	all_params = {
@@ -167,7 +169,8 @@ def init_data(dataset):
 	return all_params
 
 # --- Parameter Dictionary ---
-PD = init_data(dataset_dict['diabetes'])
+PD = init_data(dataset_dict['heart'])
+print(feature_names)
 
 # ------- Initialize WebApp ------- #
 
@@ -279,8 +282,9 @@ def bokeh_request_ft():
 			ft_list.sort()
 			ret_arr = ids_with_combination(preproc_path,ft_list,algorithm)
 
+		print(ret_arr)
 		# print(ret_arr)
-		show_projection(algorithm, ret_arr, dim_red, directionality)
+		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
 		## Parse values into python dictionary
 		ret_string = json.dumps(ret_arr)

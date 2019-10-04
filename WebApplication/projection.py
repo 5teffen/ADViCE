@@ -10,9 +10,8 @@ from bokeh.embed import file_html
 
 def show_projection(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
 
-    title = "2D Projection - Key Features"
-    if (not algorithm):
-        title = "2D Projection - Changes"
+    title = "2D Projection - Changes"
+    print(selected_ids)
 
     # filename += dim_red
 
@@ -99,23 +98,23 @@ def show_projection(filename, total_samples, algorithm=True, selected_ids=None, 
         lasso_select.select_every_mousemove = False
 
         # CheckboxGroup to select categories
-        category_selection = CheckboxGroup(labels=["TP", "TN", "FP", "FN"], active = [0, 1, 2, 3])
+        # category_selection = CheckboxGroup(labels=["TP", "TN", "FP", "FN"], active = [0, 1, 2, 3])
 
-        selection_callback = CustomJS(args=dict(source=s1), code="""
-            source.change.emit();
-        """)
-        category_selection.js_on_change('active', selection_callback)
+        # selection_callback = CustomJS(args=dict(source=s1), code="""
+        #     source.change.emit();
+        # """)
+        # category_selection.js_on_change('active', selection_callback)
 
-        # Define the custom filter to return the indices, compare against values in source.data
-        js_filter = CustomJSFilter(args=dict(category_selection=category_selection, source=s1), code="""
-                var indices = [];
-                for (var i = 0; i <= source.data['category'].length; i++){
-                    if (category_selection.active.includes(source.data['category'][i])) {
-                        indices.push(i)
-                    }
-                }
-                return indices;
-                """)
+        # # Define the custom filter to return the indices, compare against values in source.data
+        # js_filter = CustomJSFilter(args=dict(category_selection=category_selection, source=s1), code="""
+        #         var indices = [];
+        #         for (var i = 0; i <= source.data['category'].length; i++){
+        #             if (category_selection.active.includes(source.data['category'][i])) {
+        #                 indices.push(i)
+        #             }
+        #         }
+        #         return indices;
+        #         """)
 
         s1.callback = CustomJS( code="""
 
@@ -145,7 +144,7 @@ def show_projection(filename, total_samples, algorithm=True, selected_ids=None, 
          """)
 
         # Use the filter in a view
-        view = CDSView(source=s1, filters=[js_filter])
+        view = CDSView(source=s1)#, filters=[js_filter])
         p1.circle('x', 'y', source=s1, view=view, size=7.3, fill_alpha = 'fill_alpha', line_alpha = 'line_alpha', fill_color = 'colors', line_color = 'line_color',
                    nonselection_fill_alpha=alpha_opt[-1],
                    nonselection_fill_color=color_opt[-1],
@@ -153,7 +152,7 @@ def show_projection(filename, total_samples, algorithm=True, selected_ids=None, 
                    nonselection_line_alpha=alpha_opt[-1] 
                   )
 
-        layout = column(p1, category_selection)
+        layout = column(p1)#, category_selection)
 
         html = file_html(layout, CDN, "my_plot")
         html = html.replace("auto;", "0px;")
