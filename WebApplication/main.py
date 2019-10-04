@@ -40,11 +40,11 @@ np.random.seed(150)
 reset = False
 
 # --- Dataset Selection ---
-admissions_dataset = dataset("admissions", [7]) # (Conversion : Good > 0.7 )
+admissions_dataset = dataset("admissions", [6]) # (Conversion : Good > 0.7 )
 diabetes_dataset = dataset("diabetes", [])
-fico_dataset = dataset("fico", [])
-heart_dataset = dataset("heart", [1,2,5,6,8,10,11,12])
-delinquency_dataset = dataset("delinquency", [0,1,5,6,14])
+fico_dataset = dataset("fico", [0])
+heart_dataset = dataset("heart", [1,5,6,8])
+delinquency_dataset = dataset("delinquency", [9])
 
 dataset_dict = {
 	'admissions': admissions_dataset,
