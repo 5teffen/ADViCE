@@ -7,9 +7,10 @@ from copy import deepcopy as dc
 def build_shap_explainer(model, dataset):
 	# --- Summarizing the dataset ---
 	# Can be fine tuned further (Kmeans, etc.)
-	med = np.median(dataset, axis=0).reshape((1,dataset.shape[1]))
-	print("Summary data for SHAP:", med)
-	explainer = shap.KernelExplainer(model.run_model_data_prob, med, link="identity")
+	# summ = np.median(dataset, axis=0).reshape((1,dataset.shape[1]))
+	summ = shap.kmeans(dataset, 100)
+	print("Summary data for SHAP:", summ)
+	explainer = shap.KernelExplainer(model.run_model_data_prob, summ, link="identity")
 	print("Expected value for SHAP:", explainer.expected_value[1])
 	return explainer
 
@@ -145,93 +146,94 @@ def plot_local_imp(ft_imps, ft_names, ft_values):
 
 if __name__ == '__main__':
 
-	# import pandas as pd
-	# import sklearn
-	# from model import *
-	# from utils import *
-	# from individual_explanation import *
-	# from global_explanations import *
-	# from d3_functions import *
-	# from preprocessing import create_summary_file
-	# from os import path
+	import pandas as pd
+	import sklearn
+	from model import *
+	from utils import *
+	from individual_explanation import *
+	from global_explanations import *
+	from d3_functions import *
+	from preprocessing import create_summary_file
+	from os import path
 
-	# # ============= Initialize model =========== #
+	# ============= Initialize model =========== #
 
-	# # --- Setting random seed --- 
-	# np.random.seed(150)
-
-
-	# # --- User ---
-
-	# # user = "Steffen"
-	# user = "Oscar"
-
-	# if user == "Steffen":
-	# 	# --- Parameters --- 
-	# 	data_path = "static/data/diabetes.csv"
-	# 	preproc_path = "static/data/diabetes_preproc.csv"
-	# 	projection_changes_path = "static/data/changes_proj.csv"
-	# 	projection_anchs_path = "static/data/anchs_proj.csv"
-	# 	no_bins = 10
+	# --- Setting random seed --- 
+	np.random.seed(150)
 
 
-	# 	# --- Data for diabetes ---
-	# 	df = pd.read_csv(data_path)
+	# --- User ---
 
-	# elif user == "Oscar":
-	# 	# --- Parameters ---
-	# 	data_path = "static/data/ADS.csv"
-	# 	preproc_path = "static/data/ADS_preproc.csv"
-	# 	no_bins = 10
+	# user = "Steffen"
+	user = "Oscar"
 
-	# 	# --- Data for education ---
-	# 	df = pd.read_csv(data_path)
-	# 	df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
-	# 	df = df.drop(columns=['Academic Score',
-	# 	                'School','Grade',
-	# 	                'Term','Student'])
-	# 	df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
-
-	# model_path = "TBD"   # Manual? 
-
-	# feature_names = np.array(df.columns)[:-1]
-	# all_data = np.array(df.values)
-
-	# # -- Split data and target values --
-	# data = all_data[:,:-1]
-	# target = all_data[:,-1]
-	# no_samples, no_features = data.shape
+	if user == "Steffen":
+		# --- Parameters --- 
+		data_path = "static/data/diabetes.csv"
+		preproc_path = "static/data/diabetes_preproc.csv"
+		projection_changes_path = "static/data/changes_proj.csv"
+		projection_anchs_path = "static/data/anchs_proj.csv"
+		no_bins = 10
 
 
-	# # --- Initialize and train model ---
-	# svm_model = SVM_model(data,target)
-	# svm_model.train_model()
-	# svm_model.test_model()
+		# --- Data for diabetes ---
+		df = pd.read_csv(data_path)
 
-	# # --- Run SHAP --
-	# i=9
-	# shap_explainer = build_shap_explainer(svm_model, data)
-	# shap_values = shap_explanation(data[i], feature_names, shap_explainer)
-	# svg = plot_local_imp(shap_values, feature_names, data[i])
-	# fp = open("local_importance_shap.html", 'w', encoding="utf-8")
-	# fp.write(svg)
-	# fp.close()
+	elif user == "Oscar":
+		# --- Parameters ---
+		data_path = "static/data/ADS.csv"
+		preproc_path = "static/data/ADS_preproc.csv"
+		no_bins = 10
 
-	# # --- Run LIME ---
-	# categorical_features = [0,1,2,3,4,7,8,9,17]
-	# lime_explainer = build_lime_explainer(data, feature_names, categorical_features)
-	# lime_values = lime_explanation(svm_model, data[i], lime_explainer)
-	# svg = plot_local_imp(lime_values, feature_names, data[i])
-	# fp = open("local_importance_lime.html", 'w', encoding="utf-8")
-	# fp.write(svg)
-	# fp.close()
+		# --- Data for education ---
+		df = pd.read_csv(data_path)
+		df["Gender"] = df["Gender"].apply(lambda gend: 0 if gend == "Male" else 1)
+		df = df.drop(columns=['Academic Score',
+		                'School','Grade',
+		                'Term','Student'])
+		df["Academic_Flag"] = df["Academic_Flag"].apply(lambda flag: 0 if flag == "No" else 1)
 
-	# --- Test plot ---
-	test_imp = [2.266, -15.266, 3.266, -11.266, -0.8]
-	test_names = ['Aaaa', 'Bbbb', 'Ccccc', 'Dddd Ddddd Ddddddddd', 'Small']
-	test_values = [1, 2, 3, 4, 5]
+	model_path = "TBD"   # Manual? 
 
-	svg = plot_local_imp(test_imp, test_names, test_values)
-	fp = open("local_importance_plot.html", 'w', encoding="utf-8")
+	feature_names = np.array(df.columns)[:-1]
+	all_data = np.array(df.values)
+
+	# -- Split data and target values --
+	data = all_data[:,:-1]
+	target = all_data[:,-1]
+	no_samples, no_features = data.shape
+
+
+	# --- Initialize and train model ---
+	svm_model = SVM_model(data,target)
+	svm_model.train_model()
+	svm_model.test_model()
+
+	# --- Run SHAP --
+	i=0
+	shap_explainer = build_shap_explainer(svm_model, data)
+	shap_values = shap_explanation(data[i], feature_names, shap_explainer)
+	print(shap_values)
+	svg = plot_local_imp(shap_values, feature_names, data[i])
+	fp = open("local_importance_shap.html", 'w', encoding="utf-8")
 	fp.write(svg)
 	fp.close()
+
+	# --- Run LIME ---
+	categorical_features = [0,1,2,3,4,7,8,9,17]
+	lime_explainer = build_lime_explainer(data, feature_names, categorical_features)
+	lime_values = lime_explanation(svm_model, data[i], lime_explainer)
+	svg = plot_local_imp(lime_values, feature_names, data[i])
+	fp = open("local_importance_lime.html", 'w', encoding="utf-8")
+	fp.write(svg)
+	fp.close()
+
+	# # --- Test plot ---
+	# test_imp = [2.266, -15.266, 3.266, -11.266, -0.8]
+	# test_names = ['Aaaa', 'Bbbb', 'Ccccc', 'Dddd Ddddd Ddddddddd', 'Small']
+	# test_values = [1, 2, 3, 4, 5]
+
+	# svg = plot_local_imp(test_imp, test_names, test_values)
+	# fp = open("local_importance_plot.html", 'w', encoding="utf-8")
+	# fp.write(svg)
+	# fp.close()
