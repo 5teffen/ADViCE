@@ -32,13 +32,21 @@
     <div class="main">
       <div class="left-sidebar-proj">
         <header class="site-header-proj">
-          <h1><a href="intro">HOME</a></h1>
+          <h1><a href="/">HOME</a></h1>
         </header>
         <nav class="left-nav-proj">
           <ul>
-            <li><a href="global"> GLOBAL </a></li>
+            <li><a href="projection"> GLOBAL </a></li>
             <li><a href="individual"> LOCAL </a></li>
           </ul>
+
+          <select id='dataset-selector' onchange="dropdownHandle(this.value)">
+            <option value="heart">Heart Disease UCI</option>
+            <option value="diabetes">Diabetes</option>
+            <option value="delinquency">Delinquency</option>
+            <option value="admissions">Graduate Admission</option>
+            <option value="fico">FICO xML Challenge</option>
+          </select>
 
         </nav>
       </div>
@@ -46,12 +54,13 @@
       <div class="right-side-proj" id="demo">
 
         <div id="middle-panel-proj">
+
           <div class="btn-group">
-            <button id="key-button" class="algo-button"> Key Features </button>
-            <button id="chg-button" class="algo-button"> Changes </button>
+<!--             <button id="key-button" class="algo-button"> Key Features </button>-->
+<!--             <button id="chg-button" class="algo-button"> Changes </button> -->
             <button id="pca-button" class="dimred-button"> PCA </button>
             <button id="tsne-button" class="dimred-button"> tSNE </button>
-            <button id="direction-button" class="dimred-button"> Direct. </button>
+<!--             <button id="direction-button" class="dimred-button"> Direct. </button> -->
           </div>
 
           <div id="bokeh-div">
@@ -86,17 +95,53 @@
       var no_features = {{no_features}};
       var ft_names = "{{feature_names}}";
       ft_names = ft_names.replace(/&#34;/g, "");
-      ft_names = ft_names.slice(1, ft_names.length-1);
+      ft_names = ft_names.slice(1, ft_names.length-1).replace(/\s+/g, '');;
       ft_names = ft_names.split(",");
       var preproc_path = "{{preproc_path}}";
       var selected_fts = [-1];
       var dark_shade = "rgb(177, 196, 209)";
       var light_shade = "white";
+
       var txtFile;
       var httpRequest;
       var httpRequest2;
       var cold_start = true;
       var curr_aggr_ids = [];
+
+      function dropdownHandle(dataset) {
+        console.log(dataset);
+        makeRequestDataset(dataset);
+      }
+
+      var httpRequest;
+      function makeRequestDataset(dataset) {
+        httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+        
+        httpRequest.onreadystatechange = alertDataset;
+        httpRequest.open('GET', 'change_dataset?dataset='+dataset);
+        httpRequest.send();
+        return false;
+      }
+
+      function alertDataset() {
+        if (httpRequest.readyState === XMLHttpRequest.OPENED) {
+          console.log("Data loading")
+        }
+        else if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status === 200) {
+            //Do stuff with the response                 
+            var resp = httpRequest.responseText;
+            console.log(resp);
+            makeRequest3(selected_fts, "True", "PCA", "True");
+          } else {
+            alert('HttpRequest Error')
+          }
+        }
+      }
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -131,6 +176,9 @@
         // MAKE REQUEST TO GET ELEMENTS FOR MIDDLE PANEL
         
         req_arr = [];
+        console.log(features);
+        console.log(ft_names);
+
 
         if (features[0] == -1){
           req_arr.push(-1);
@@ -138,7 +186,9 @@
         else {
           for (i=0; i<features.length; i++) {
             ft_nm = document.getElementById("feat-" + features[i].toString()).innerHTML;
+            console.log(ft_nm);
             // req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            console.log((ft_names.indexOf(ft_nm)));
             req_arr.push(ft_names.indexOf(ft_nm));
             // features[i].style.fontSize = "15px";
             document.getElementById("feat-" + features[i].toString()).style.fontWeight = "bold"; 
@@ -184,17 +234,17 @@
       // Style buttons and send request
       function buttonRequest(elem) {
 
-        if (elem.id == "key-button") {
-          elem.style.backgroundColor = dark_shade;
-          var c_but = document.getElementById('chg-button');
-          c_but.style.backgroundColor = light_shade;
-        }
-        else if (elem.id == "chg-button") {
-          elem.style.backgroundColor = dark_shade;
-          var c_but = document.getElementById('key-button');
-          c_but.style.backgroundColor = light_shade;
-        }
-        else if (elem.id == "pca-button") {
+        // if (elem.id == "key-button") {
+        //   elem.style.backgroundColor = dark_shade;
+        //   var c_but = document.getElementById('chg-button');
+        //   c_but.style.backgroundColor = light_shade;
+        // }
+        // else if (elem.id == "chg-button") {
+        //   elem.style.backgroundColor = dark_shade;
+        //   var c_but = document.getElementById('key-button');
+        //   c_but.style.backgroundColor = light_shade;
+        // }
+        if (elem.id == "pca-button") {
           elem.style.backgroundColor = dark_shade;
           var c_but = document.getElementById('tsne-button');
           c_but.style.backgroundColor = light_shade;
@@ -204,14 +254,14 @@
           var c_but = document.getElementById('pca-button');
           c_but.style.backgroundColor = light_shade;
         }
-        else if (elem.id == "direction-button") {
-          if (elem.style.backgroundColor == dark_shade){
-            elem.style.backgroundColor = light_shade;
-          }
-          else{
-            elem.style.backgroundColor = dark_shade;
-          }   
-        }
+        // else if (elem.id == "direction-button") {
+        //   if (elem.style.backgroundColor == dark_shade){
+        //     elem.style.backgroundColor = light_shade;
+        //   }
+        //   else{
+        //     elem.style.backgroundColor = dark_shade;
+        //   }   
+        // }
 
         resetFeatures();
       }
@@ -270,39 +320,36 @@
       }
 
       // Right panel violin plot
+      var resp_list;
       function alertBokehContentsViolin() {
         if (httpRequest2.readyState === XMLHttpRequest.DONE) {
           if (httpRequest2.status === 200) {
             //Do stuff with the response
             
             var resp_arr = httpRequest2.responseText;
+            // --- Toggle Median Marker ---
+            var median_toggle = (document.getElementById("median-button").style.backgroundColor == dark_shade);
+
+            // --- Toggle Mean Marker ---
+            var mean_toggle = (document.getElementById("mean-button").style.backgroundColor == dark_shade);
+
+            // --- Toggle Density --- 
+            var density_toggle = (document.getElementById("density-button").style.backgroundColor == dark_shade);
+
+            // --- Sort Features --- 
+
+            // --- Monotonicity ---  
+
+            document.getElementById("distribution-div").innerHTML = "";
             if (resp_arr!="-1"){
-              var resp_list = JSON.parse(resp_arr);
-
-
-              // --- Toggle Median Marker ---
-              var median_toggle = (document.getElementById("median-button").style.backgroundColor == dark_shade);
-
-              // --- Toggle Mean Marker ---
-              var mean_toggle = (document.getElementById("mean-button").style.backgroundColor == dark_shade);
-
-              // --- Toggle Density --- 
-              var density_toggle = (document.getElementById("density-button").style.backgroundColor == dark_shade);
-
-              // --- Sort Features --- 
-
-              // --- Monotonicity ---  
-
-
-              // console.log("right panel violin");
-              document.getElementById("distribution-div").innerHTML = "";
-              // play_violin(allData,"#distribution-div");
-              draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
-                median_toggle, mean_toggle, density_toggle);
-              ft_list();
-              highlight_features();
-              cold_start = false;
+              resp_list = JSON.parse(resp_arr);
             }
+            
+            draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
+              median_toggle, mean_toggle, density_toggle);
+            ft_list();
+            highlight_features();
+            cold_start = false;
 
           }
           else {
@@ -376,18 +423,18 @@
 
         selected_fts = [-1];
         var curr_alg = "True";
-        var dim_red = "tSNE";
-        var directionality = "False";
+        var dim_red = "TSNE";
+        var directionality = "True";
 
-        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
-          curr_alg = "False";
-        }
+        // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+        //   curr_alg = "False";
+        // }
         if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
           dim_red = "PCA";
         }
-        if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
-          directionality = "True";
-        }
+        // if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
+        //   directionality = "True";
+        // }
         
         if (!cold_start){
           for (i=0; i<no_features; i++){
@@ -401,20 +448,20 @@
       function flip_feature(elemn) {
 
         var curr_alg = "True";
-        var dim_red = "tSNE";
-        var directionality = "False";
+        var dim_red = "TSNE";
+        var directionality = "True";
 
         // console.log(elemn.attributes.id.nodeValue.toString().substring(5));
 
-        if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
-          curr_alg = "False";
-        }
+        // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
+        //   curr_alg = "False";
+        // }
         if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
           dim_red = "PCA";
         }
-        if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
-          directionality = "True";
-        }
+        // if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
+        //   directionality = "True";
+        // }
 
         var index = selected_fts.indexOf(-1);
         if (index > -1) {
@@ -460,13 +507,13 @@
         var tsne_btn = document.createElement("button");
         var dir_btn = document.createElement("button");
 
-        k_btn = document.getElementById("key-button");
-        k_btn.onclick = function(){buttonRequest(this);};
-        k_btn.style.backgroundColor = light_shade;
+        // k_btn = document.getElementById("key-button");
+        // k_btn.onclick = function(){buttonRequest(this);};
+        // k_btn.style.backgroundColor = light_shade;
 
-        c_btn = document.getElementById("chg-button");
-        c_btn.onclick = function(){buttonRequest(this);};
-        c_btn.style.backgroundColor = dark_shade;
+        // c_btn = document.getElementById("chg-button");
+        // c_btn.onclick = function(){buttonRequest(this);};
+        // c_btn.style.backgroundColor = dark_shade;
 
         pca_btn = document.getElementById("pca-button");
         pca_btn.onclick = function(){buttonRequest(this);};
@@ -476,9 +523,9 @@
         tsne_btn.onclick = function(){buttonRequest(this);};
         tsne_btn.style.backgroundColor = light_shade;
 
-        dir_btn = document.getElementById("direction-button");
-        dir_btn.onclick = function(){buttonRequest(this);};
-        dir_btn.style.backgroundColor = dark_shade;
+        // dir_btn = document.getElementById("direction-button");
+        // dir_btn.onclick = function(){buttonRequest(this);};
+        // dir_btn.style.backgroundColor = dark_shade;
 
         median_btn = document.getElementById("median-button");
         median_btn.onclick = function(){proj_button_request(this);};
