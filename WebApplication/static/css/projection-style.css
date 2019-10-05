@@ -1092,7 +1092,7 @@ table #model-display {
 .left-sidebar-proj {
   font-family: 'Open Sans', sans-serif;
   float: left;
-  width: 120px;
+  width: 125px;
   /* background-color: #1f2124; */
   /*background-color: #20262e;*/
   background-color: #87959e;
@@ -1303,12 +1303,6 @@ table #model-display {
 
 /*}*/
 
-#dataset-selector {
-  float: left;
-  display: block;
-  margin-top: 20px;
-  width: 120px;
-}
 
 
 /*-------------*/
@@ -1406,4 +1400,6 @@ table #model-display {
   border: 1px solid lightgray;
   border-top: none;
   /*position: absolute;*/
+}
+;
 }

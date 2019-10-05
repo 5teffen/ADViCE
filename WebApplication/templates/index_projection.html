@@ -40,13 +40,6 @@
             <li><a href="individual"> LOCAL </a></li>
           </ul>
 
-          <select id='dataset-selector' onchange="dropdownHandle(this.value)">
-            <option value="heart">Heart Disease UCI</option>
-            <option value="diabetes">Diabetes</option>
-            <option value="delinquency">Delinquency</option>
-            <option value="admissions">Graduate Admission</option>
-            <option value="fico">FICO xML Challenge</option>
-          </select>
 
         </nav>
       </div>
@@ -108,40 +101,7 @@
       var cold_start = true;
       var curr_aggr_ids = [];
 
-      function dropdownHandle(dataset) {
-        console.log(dataset);
-        makeRequestDataset(dataset);
-      }
-
-      var httpRequest;
-      function makeRequestDataset(dataset) {
-        httpRequest = new XMLHttpRequest();
-        if (!httpRequest) {
-          alert('Giving up :( Cannot create an XMLHTTP instance');
-          return false;
-        }
-        
-        httpRequest.onreadystatechange = alertDataset;
-        httpRequest.open('GET', 'change_dataset?dataset='+dataset);
-        httpRequest.send();
-        return false;
-      }
-
-      function alertDataset() {
-        if (httpRequest.readyState === XMLHttpRequest.OPENED) {
-          console.log("Data loading")
-        }
-        else if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest.status === 200) {
-            //Do stuff with the response                 
-            var resp = httpRequest.responseText;
-            console.log(resp);
-            makeRequest3(selected_fts, "True", "PCA", "True");
-          } else {
-            alert('HttpRequest Error')
-          }
-        }
-      }
+    
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -552,6 +512,7 @@
 
       fetch_csv();
       begin_glob();
+      resetFeatures();
 
 
     </script>

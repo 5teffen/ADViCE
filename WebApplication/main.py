@@ -57,12 +57,12 @@ dataset_dict = {
 # --- Data initialization ---
 data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(11)
 categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(12)
-col_ranges, all_den, all_median, all_mean, dict_array, dict_array_orig = np.zeros(6)
+col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig = np.zeros(12)
 def init_data(dataset):
 
 	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness
 	global categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
-	global col_ranges, all_den, all_median, all_mean, dict_array, dict_array_orig
+	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig
 
 	data_name = dataset.name
 	lock = dataset.lock
@@ -95,8 +95,8 @@ def init_data(dataset):
 	target = all_data[:,-1]
 
 	# --- Filter data by class ---
-	# high_data = df.loc[df['Academic_Flag'] == 1].values[:,:-1]
-	# low_data = df.loc[df['Academic_Flag'] == 0].values[:,:-1]
+	high_data = all_data[all_data[:,-1] == 1][:,:-1]
+	low_data =  all_data[all_data[:,-1] == 0][:,:-1]
 
 	no_samples, no_features = data.shape
 
@@ -107,8 +107,8 @@ def init_data(dataset):
 
 	bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
 	all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
-	# high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
-	# low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
+	high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
+	low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
 
 	dict_array = all_den
 	dict_array_orig = all_den
@@ -185,7 +185,7 @@ def intro_site_challenge():
 
 @app.route('/paper_intro')
 def intro_site_paper():
-	return render_template("paper_intro.html")
+	return render_template("index_intro_paper.html")
 
 @app.route('/change_dataset', methods=['GET'])
 def handle_change_dataset():
@@ -196,13 +196,13 @@ def handle_change_dataset():
 		global PD
 		PD = init_data(dataset_dict[dataset_name])
 		
-		return 'Data loaded'
+		return preproc_path
 
 # ------- Individual Explanations ------- #
 
 @app.route('/individual')
 def ind_site():
-    return render_template("index_individual.html", no_samples=no_samples, no_features=no_features, preproc_path=preproc_path)
+    return render_template("index_individual.html", no_samples=no_samples, no_features=no_features, preproc_path=preproc_path, locked=lock)
 
 @app.route('/instance', methods=['GET'])
 def handle_request():
@@ -225,6 +225,16 @@ def handle_request():
 
 				monot = (request.args.get('monot') == "True")
 				sort = (request.args.get('sort') == "True")
+				density = request.args.get('density')
+				lock  = request.args.get('locked_features')[1:-1].split(',')
+				
+				if lock[0] == "none":
+					lock = []
+				if type(lock) in [int, str]:
+					lock = [lock]
+				lock = [int(e) for e in lock]
+				print(lock)
+
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
 				### Run MSC and Anchors
@@ -233,16 +243,19 @@ def handle_request():
 																				   bins_centred, no_bins, monotonicity_arr, col_ranges, 1, True, lock)
 
 				### Parse values into python dictionary
-				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
-				dict_array = []
-				if monot:
-					dict_array = dict_array_monot
+				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr, lock)
+				dens_array = []
+				if density == "High":
+				    dens_array = high_den
+				elif density == "Low":
+				    dens_array = low_den
 				else:
-					dict_array = dict_array_orig
+				    dens_array = all_den
+				
 				if sort:
-					data_array, dict_array = sort_by_val(data_array, dict_array)
+					data_array, dens_array = sort_by_val(data_array, dens_array)
 
-				ret_arr = [data_array, dict_array]
+				ret_arr = [data_array, dens_array]
 				
 				# text_exp = generate_text_explanation(good_percent, X[sample], change_row, change_vector , anchors)
 				# similar_ids = detect_similarities("static/data/pred_data_x.csv","static/data/final_data_file.csv", data[sample], change_row, bins_centred, good_percent)
@@ -278,10 +291,7 @@ def bokeh_request_ft():
 		else:
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
-			print(ft_list)
-			print("CALLING COMBINATIONS")
-			ret_arr = ids_with_combination(preproc_path,ft_list)
-			# print(ret_arr)
+			ret_arr = ids_with_combination(preproc_path,ft_list,algorithm)
 
 		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
@@ -322,4 +332,4 @@ def violin_site_req():
 if __name__ == '__main__':
 
 	np.random.seed(12345)
-	app.run(port=5005, host="0.0.0.0", debug=True, use_reloader=False)
+	app.run(port=5005, host="0.0.0.0", debug=True, use_reloader=True)
