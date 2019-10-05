@@ -10,7 +10,7 @@ function draw_graph(testData, densityData, result, place, max_width=800){
     var opp_colour = "";
     
     var separator = 0.015,
-        col_width = 40;
+        col_width = 42;
     
     if (result) {
         opp_colour = good_col;
@@ -23,11 +23,11 @@ function draw_graph(testData, densityData, result, place, max_width=800){
     var margin = {
             top: 0, 
             right: 10, 
-            bottom: 110, 
+            bottom: 140, 
             left: 30
         },
         width = Math.min(features*col_width - margin.right - margin.left, max_width),
-        height = 325 - margin.top - margin.bottom;
+        height = 360 - margin.top - margin.bottom;
 
     var padding_top = 0.2,
         padding_bottom = 0.1;
@@ -130,24 +130,26 @@ function draw_graph(testData, densityData, result, place, max_width=800){
             return "url(#grad-" + i.toString() + ")"
         });
     
-    // // -- Drawing feature locks
-    // svg.selectAll("g")
-    //     .data(testData)
-    //     .enter()
-    //     .append("g")
-    //     .attr("class", "lock-wrap")
-    //     .attr("onclick", function(d) {return 'flip_lock(' + d.orig_ft_pos.toString() + ')'; })
-    //     .append("text")
-    //     .attr("id", function(d) {return 'ft-lock-' + d.orig_ft_pos.toString(); })
-    //     .attr("data-orig-ft-pos", function(d) {return d.orig_ft_pos; })
-    //     .attr("data-locked",  function(d) {return d.locked; })
-    //     .attr('class', 'fas')
-    //     .attr('x',function(d) {return xScale(d.name) + width/(2*features);})
-    //     .attr('y',18)
-    //     .attr("font-family","FontAwesome")
-    //     .attr('font-size', '14px')
-    //     .attr('text-anchor', 'middle')
-    //     .text(function(d) { return (d.locked==1 ? '\uf023' : '\uf13e') })
+    // -- Drawing feature locks
+    svg.selectAll("g")
+        .data(testData)
+        .enter()
+        .append("g")
+        .attr("class", "lock-wrap")
+        .attr("onclick", function(d) {return 'flip_lock(' + d.orig_ft_pos.toString() + ')'; })
+        .append("text")
+        .attr("id", function(d) {return 'ft-lock-' + d.orig_ft_pos.toString(); })
+        .attr("data-orig-ft-pos", function(d) {return d.orig_ft_pos; })
+        .attr("data-locked",  function(d) {return d.locked; })
+        .attr('class', 'fas')
+        .attr('x',function(d) {return xScale(d.name) + width/(2*features);})
+        .attr('y',18)
+        .attr("font-family","FontAwesome")
+        .attr('font-size', '14px')
+        .attr('text-anchor', 'middle')
+        .text(function(d) { return (d.locked==1 ? '\uf023' : '\uf13e') })
+
+
             
 
     // -- Drawing dividing lines -- 
