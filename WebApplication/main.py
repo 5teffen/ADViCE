@@ -278,7 +278,10 @@ def bokeh_request_ft():
 		else:
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
-			ret_arr = ids_with_combination(preproc_path,ft_list,algorithm)
+			print(ft_list)
+			print("CALLING COMBINATIONS")
+			ret_arr = ids_with_combination(preproc_path,ft_list)
+			# print(ret_arr)
 
 		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
