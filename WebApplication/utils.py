@@ -286,32 +286,50 @@ def test_match(idx, p):
 		print(idx+1, "no match")
 	return 
 
-def ids_with_combination(pre_proc_file,cols_lst,anchs):
+def ids_with_combination(pre_proc_file, cols_lst, anchs = False):
 	# --- Finds all the combinations with the desired columns --- 
 
-	# print(cols_lst)
+	# --- Hardcoded Parameters --- 
+	no_vertical_movement = 5
+	no_lateral_movement = 5
+	anch_iterations = 4
+
 	pre_data = pd.read_csv(pre_proc_file, index_col=False).values
-	print(pre_data)
 
 	all_combinations = {}
 
 	samples_list = []
 
+	# -- Loop through all points -- 
 	for sample in range(pre_data.shape[0]):
 
 		cur_lst = []
 
+		# -- Determines if working with changes or anchs
 		if (anchs):
-			range_val = range(5,9)
+			range_val = range(5,5+anch_iterations)
+		
 		else:
-			range_val = range(9,14)
+			range_val = range(5+anch_iterations,5+anch_iterations+no_lateral_movement)
+		
+
 		for c in range_val:
 			val = pre_data[sample][c]
-			if (val < 0 or len(cur_lst) > 5):
+			if (val < 0 or len(cur_lst) > no_lateral_movement):
 				break
 			cur_lst.append(val)
 
-		if (set(cols_lst).issubset(cur_lst)):
+		# -- Checks if it fulfills the condition -- 
+		if (set(cols_lst).issubset(set(cur_lst))):
 			samples_list.append(pre_data[sample][0])
 
 	return samples_list
+
+
+
+
+
+
+
+
+

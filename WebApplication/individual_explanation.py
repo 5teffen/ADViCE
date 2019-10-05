@@ -483,8 +483,10 @@ if __name__ == '__main__':
     np.random.seed(150)
 
     # --- Parameters --- 
-    data_path = "static/data/delinquency/delinquency.csv"
-    preproc_path = "static/data/delinquency/delinquency_preproc.csv"
+    # data_path = "static/data/delinquency/delinquency.csv"
+    # preproc_path = "static/data/delinquency/delinquency_preproc.csv"
+    data_path = "static/data/heart/heart.csv"
+    preproc_path = "static/data/heart/heart_preproc.csv"
     no_bins = 10
     model_path = "TBD"   # Manual? 
 
@@ -511,11 +513,11 @@ if __name__ == '__main__':
 
     index = 7
 
-    test_sample = data[index]
+    # test_sample = data[index]
 
-    bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
+    # bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
     
-    single_bin_result = bin_single_sample(test_sample, col_ranges)
+    # single_bin_result = bin_single_sample(test_sample, col_ranges)
 
     # aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, [0,1,2,3,4,10], bins_centred, X_pos_array, False)
 
@@ -523,12 +525,14 @@ if __name__ == '__main__':
 
     # density_fineness = 1000
     # all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
+    cols_lst = [3,9,11,12]
 
-
+    anchs = False
+    print(ids_with_combination(preproc_path, cols_lst, anchs))
     sample_no = 1
-    locked = [1,2,3]
-    change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
-                                                        no_bins, monotonicity_arr, col_ranges)
+    # locked = [1,2,3]
+    # change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
+    #                                                     no_bins, monotonicity_arr, col_ranges)
 
 
 # instance_explanation(svm_model, data, row, sample, X_pos_array,

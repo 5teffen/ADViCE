@@ -11,7 +11,7 @@ from bokeh.embed import file_html
 def show_projection(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
 
     title = "2D Projection - Changes"
-    print(selected_ids)
+    # print(selected_ids)
 
     # filename += dim_red
 
