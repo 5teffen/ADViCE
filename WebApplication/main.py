@@ -170,7 +170,6 @@ def init_data(dataset):
 
 # --- Parameter Dictionary ---
 PD = init_data(dataset_dict['heart'])
-print(feature_names)
 
 # ------- Initialize WebApp ------- #
 
@@ -229,11 +228,10 @@ def handle_request():
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
 				### Run MSC and Anchors
-				print(lock)
+				# print(lock)
 				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, row, sample, X_pos_array,
 																				   bins_centred, no_bins, monotonicity_arr, col_ranges, 1, True, lock)
 
-				print(change_vector)
 				### Parse values into python dictionary
 				data_array = prepare_for_D3(row, bins_centred, change_row, change_vector, anchors, percent, feature_names, monot, monotonicity_arr)
 				dict_array = []
@@ -282,8 +280,6 @@ def bokeh_request_ft():
 			ft_list.sort()
 			ret_arr = ids_with_combination(preproc_path,ft_list,algorithm)
 
-		print(ret_arr)
-		# print(ret_arr)
 		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
 		## Parse values into python dictionary
