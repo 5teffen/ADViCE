@@ -1212,3 +1212,94 @@ table #model-display {
   border: 1px solid lightgray;
   /*position: absolute;*/
 }
+
+
+
+/* From Shiny App */ 
+
+
+label.control-label {
+  font-weight: 600;
+  margin-bottom: 0px;
+}
+
+
+/* Feature Locks */
+#locks {
+  border-width: thin;
+  border-style: solid;
+  width: 85px;
+  height: 34px;
+  border-radius: 4px;
+  background-color: white;
+  border-color: rgb(205, 202, 202);
+  font-size: 12px;
+  font-family: Open Sans, sans-serif;
+}
+#locks:hover {
+  cursor: pointer;
+}
+#locks:focus {
+  outline: none;
+}
+
+/* Sort select */
+#sort {
+  width: 85px;
+  height: 34px;
+  border-radius: 4px;
+  background-color: white;
+  border-color: rgb(204, 204, 204);
+  font-size: 12px;
+  font-family: Open Sans, sans-serif;
+}
+#sort:hover {
+  cursor: pointer;
+}
+#sort:focus {
+  outline: none;
+}
+
+/* Density select */
+#density {
+  width: 85px;
+  height: 34px;
+  border-radius: 4px;
+  background-color: white;
+  border-color: rgb(204, 204, 204);
+  font-size: 12px;
+  font-family: Open Sans, sans-serif;
+}
+#density:hover {
+  cursor: pointer;
+}
+#density:focus {
+  outline: none;
+}
+
+.lock-wrap:hover {
+  cursor: pointer;
+}
+
+/* Dataset select */
+#dataset-selector {
+  height: 34px;
+  border-radius: 4px;
+  background-color: white;
+  border-color: rgb(204, 204, 204);
+  font-size: 12px;
+  font-family: Open Sans, sans-serif;
+  display: block;
+  margin: auto;
+  width: 150px;
+}
+#dataset-selector:hover {
+  cursor: pointer;
+}
+#dataset-selector:focus {
+  outline: none;
+}
+
+.lock-wrap:hover {
+  cursor: pointer;
+}
