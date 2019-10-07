@@ -117,6 +117,7 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
     for i in range(no_feat):
       result = {}
       result["name"] = names[i]
+      result["sample"] = str(s+1)
       result["incr"] = 0 
 
       if pre_data[s][1] > 0.5:
