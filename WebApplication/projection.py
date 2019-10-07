@@ -10,7 +10,7 @@ from bokeh.embed import file_html
 
 def show_projection(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
 
-    title = "2D Projection - Changes"
+    title = "Space of counterfactuals"
     # print(selected_ids)
 
     # filename += dim_red
@@ -81,12 +81,24 @@ def show_projection(filename, total_samples, algorithm=True, selected_ids=None, 
 
         s1 = ColumnDataSource(data=dict(x=x, y=y, ids=ids, category=category, colors = colors, fill_alpha=fill_alpha, line_alpha = line_alpha, line_color=line_color, ft_selected_ids=ft_selected_ids))
         
-        hover = HoverTool(tooltips=""" """)
-        # help_b = HelpTool(help_tooltip = """    """)
         wheel_zoom = WheelZoomTool()
         lasso_select = LassoSelectTool()
 
-        p1 = figure(tools=[hover, lasso_select, "reset", "tap", wheel_zoom, "pan"],
+        taptoolcallback = CustomJS(args=dict(source=s1),code = """
+
+        var ids = source.data['ids'];
+        var inds = source['selected']['1d'].indices;
+        console.log(ids);
+        console.log(inds);
+        var sample = ids[inds[0]];
+        var reloc = window.location.origin + "/individual?sample=" + sample;
+        console.log(reloc);
+        parent.window.location.href = reloc;        
+        
+        """)
+        tap = TapTool(callback = taptoolcallback)
+
+        p1 = figure(tools=[lasso_select, "reset", tap, wheel_zoom, "pan"],
                     toolbar_location="right", toolbar_sticky=False, title=title, width = 390, height = 390)
         
         p1.title.text_font_size = '10pt'
