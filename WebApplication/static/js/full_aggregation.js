@@ -325,6 +325,12 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         d3.selectAll(".arrows").attr("fill-opacity",0.7);
         d3.select(this).attr("stroke-opacity",0)
     })
+    .on('click',function(d){
+        console.log(d[0].sample);
+        var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
+        window.location.href = reloc;
+    })
+    // .attr("data-id", function(d) {return d.orig_ft_pos; })
     .attr('d',function(d){
         return draw_triangle(d);})
     .attr("class","arrows")
