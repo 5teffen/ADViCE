@@ -4,8 +4,12 @@ function draw_percent_bar(result) {
     var bar_width = 250,
         bar_height = 20;
     
-    var x_buffer = 10,
-        y_buffer = 7;
+    var x_buffer = 40,
+        y_buffer = 15;
+
+    var bg_h = 30,
+        bg_w = 30;
+
     
     var xScale = d3.scaleLinear()
             .domain([0, 1])
@@ -15,10 +19,25 @@ function draw_percent_bar(result) {
         bad_col = "#d95f02";
 
     var svg = d3.select("#model-display").append("svg")
-                .attr("width",270)
-                .attr("height",52)
+                .attr("width",400)
+                .attr("height",60)
                 .append("g")
                      .attr("transform","translate(" + x_buffer + ',' + y_buffer +')');
+
+
+    // svg.append("rect")
+    //     .attr("height",bar_height + bg_h)
+    //     .attr("width",bar_width + bg_w)
+    //     .attr("rx",4)
+    //     .attr("ry",4)
+    //     .style("stroke","Black")
+    //     .style("stroke-width",1.3)
+    //     .style("fill","None");
+                    
+
+
+    // svg = svg.append("g")
+    //                  .attr("transform","translate(" + bg_w/2 + ',' + bg_h/2 +')');
     
     var defs = svg.append("defs");
 
@@ -44,9 +63,9 @@ function draw_percent_bar(result) {
         .attr("class","bg_bar")
         .attr("height",bar_height)
         .attr("width",bar_width)
-        .attr("rx",10)
-        .attr("ry",10)
-        .style("stroke","black")
+        .attr("rx",4)
+        .attr("ry",4)
+        .style("stroke","#A9A9A9")
         .style("stroke-width",1.3)
         .style("fill","url(#lin_gradient)");
     

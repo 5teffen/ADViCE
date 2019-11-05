@@ -363,8 +363,8 @@ table #category-display {
 }
 table #category-img {
   margin-top: 0px;
-  border-radius: 50%;
-  border: 0.7px solid black;
+  border-radius: 25%;
+  border: 0px solid black;
 }
 table #model-display {
   /*width: 30%;*/
