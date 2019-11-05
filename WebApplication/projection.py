@@ -205,8 +205,9 @@ def show_projection2(filename, total_samples, algorithm=True, selected_ids=None,
             'y_val': float(y[i]),
             'category': str(category[i])
             })
-    print(ret_list)
-    return ret_list
+
+    ranges = [min(x),max(x),min(y),max(y)]
+    return [ret_list, ranges]
 
 
         # var lasso_ids = cb_obj.selected['1d'].indices;
