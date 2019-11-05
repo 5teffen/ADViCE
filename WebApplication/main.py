@@ -11,7 +11,7 @@ from global_explanations import *
 from d3_functions import *
 from preprocessing import create_summary_file
 from distance_function import generate_projection_files
-from projection import show_projection
+from projection import show_projection, show_projection2
 
 import os
 from os import path
@@ -295,6 +295,7 @@ def bokeh_request_ft():
 			print(ret_arr)
 
 		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
+		ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
 		## Parse values into python dictionary
 		ret_string = json.dumps(ret_arr)
