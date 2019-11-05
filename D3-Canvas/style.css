@@ -40,7 +40,7 @@
 }
 
 .lasso .origin {
-    fill:#3399FF;
+    fill:#ab2424;
     fill-opacity:1;
 }
 
@@ -53,5 +53,5 @@
 }
 
 .selected {
-    fill: steelblue;
+    fill: #ff000a;
 }

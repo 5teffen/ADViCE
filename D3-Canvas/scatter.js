@@ -1,61 +1,76 @@
 var testData = [
-{
+{   
+    id: 0,
     x_val: 1,
     y_val: 1
 },
 {
+    id: 1,
     x_val: 3,
     y_val: 2
 },
 {
+    id: 2,
     x_val: 7,
     y_val: 2
 },
 {
+    id: 3,
     x_val: 4,
     y_val: 9
 },
 {
+    id: 4,
     x_val: 5,
     y_val: 2
 },
 {
+    id: 5,
     x_val: 8,
     y_val: 9
 },
 {
+    id: 6,
     x_val: 10,
     y_val: 5
 },
 {
+    id: 7,
     x_val: 2,
     y_val: 3
 },
 {
+    id: 8,
     x_val: 4,
     y_val: 6
 },
 {
+    id: 9,
     x_val: 9,
     y_val: 4
 },
 {
+    id: 10,
     x_val: 1,
     y_val: 3
 },
 {
+    id: 11,
     x_val: 3,
     y_val: 1
 },
 {
+    id: 12,
     x_val: 2,
     y_val: 2
 },
 {
+    id: 13,
     x_val: 4,
     y_val: 8
 },
 {
+    id: 14,
     x_val: 7,
     y_val: 7
 }];
@@ -114,13 +129,16 @@ function draw_scatter(data, place) {
         .attr("cy",function(d){return yScale(d.y_val);})
         .attr("r",3.5);
 
-    
+    var empty = true;
     // Lasso functions
         var lasso_start = function() {
             lasso.items()
                 .attr("r",3.5) // reset size
                 .classed("not_possible",true)
                 .classed("selected",false);
+
+            empty = true;
+            console.log("Start");
         };
 
         var lasso_draw = function() {
@@ -144,10 +162,14 @@ function draw_scatter(data, place) {
 
             // Style the selected dots
             lasso.selectedItems()
-                .classed("selected",true)
+                .classed("selected",function(d,i){
+                    if (i > -1){
+                        empty = false;
+                    } 
+                    return true;})
                 .attr("r",7);
 
-
+            // console.log(lasso);
             // SET A FLAG TO INDICATE EMPTY CLASS
             //https://stackoverflow.com/questions/9857752/correct-way-to-tell-if-my-selection-caught-any-existing-elements
             // .classed("my-selector", function (d, i) {return !d3.select(this).classed("my-selector");
@@ -155,7 +177,15 @@ function draw_scatter(data, place) {
 
             // Reset the style of the not selected dots
             lasso.notSelectedItems()
-                .attr("r",3.5);
+                .attr("r",function(){
+                    if(!empty){
+                        // empty = true;
+                        return 0;
+                    }
+                    else{
+                        return 3.5;
+                    }
+                })
 
         };
         
