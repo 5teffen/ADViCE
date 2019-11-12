@@ -173,6 +173,68 @@ def show_projection(filename, total_samples, algorithm=True, selected_ids=None, 
         fp.write(html)
         fp.close()
 
+def show_projection2(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
+
+    df = pd.read_csv(filename, header=None)
+    df = df.values
+    samples = df.shape[0]
+    
+    if selected_ids == None:
+        selected_ids = list(range(1,total_samples+1))
+
+    X = np.zeros((samples,2))
+    X[:,0] = df[:,3]
+    X[:,1] = df[:,4]
+    ids = df[:,0]
+    ft_selected_ids = np.array([1 if int(ids[i]) in selected_ids else 0 for i in range(samples)])
+    category = df[:,2]
+
+    # print(X)
+    # print(ids)
+    # print(ft_selected_ids)
+    # print(category)
+
+    x = X[:,0]
+    y = X[:,1]
+
+    ret_list = []
+    for i in range(samples):
+        ret_list.append({
+            'id': int(ids[i]),
+            'x_val': float(x[i]),
+            'y_val': float(y[i]),
+            'category': str(category[i])
+            })
+
+    ranges = [min(x),max(x),min(y),max(y)]
+    return [ret_list, ranges]
+
+
+        # var lasso_ids = cb_obj.selected['1d'].indices;
+        # //console.log(lasso_ids);
+        # var ft_selected_ids = cb_obj.data['ft_selected_ids'];
+        # var ids = cb_obj.data['ids'];
+        # //console.log(ft_selected_ids);
+
+        # var aggregation_ids = [];
+
+        # for (i=0; i<ft_selected_ids.length; i++){
+        #     if (ft_selected_ids[i] == 1 && lasso_ids.includes(i)){
+        #         //console.log(ids[i]);
+        #         aggregation_ids.push(ids[i]);
+        #     }
+        # }
+
+        # if (!(aggregation_ids && aggregation_ids.length)) {
+        #     aggregation_ids = [-1];
+        # }
+
+        # console.log(aggregation_ids);
+        # //parent.makeBokehRequest(aggregation_ids);
+        # parent.makeBokehRequest2(aggregation_ids);
+
+     
+
 if __name__ == '__main__':
 
     show_projection('static/data/diabetes_changes_proj_PCA.csv', 768)

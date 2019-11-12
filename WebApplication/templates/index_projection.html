@@ -25,6 +25,8 @@
     <script type="text/javascript" src="static/js/squares.js"></script>
     <script type="text/javascript" src="static/js/violin_graph.js"></script>
     <script type="text/javascript" src="static/js/full_aggregation.js"></script>
+    <script type="text/javascript" src="static/js/d3-lasso.min.js"></script>
+    <script type="text/javascript" src="static/js/scatter.js"></script>
 
   </head>
 
@@ -58,6 +60,8 @@
 
           <div id="bokeh-div">
             <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe>
+            <div id="d3-proj">
+            </div>
           </div>
 
           <button id="reset-button-proj">
@@ -179,8 +183,11 @@
             var bokeh_div = document.getElementById("bokeh-div");
             var resp_arr = httpRequest.responseText;
             // console.log(resp_arr);
-            document.getElementById('bokeh-iframe').contentWindow.location.reload();
-            document.getElementById('bokeh-iframe').style.display = "inline-block";
+            // document.getElementById('bokeh-iframe').contentWindow.location.reload();
+            document.getElementById('bokeh-iframe').style.display = "none";
+            var allData = JSON.parse(resp_arr);
+            console.log(allData);
+            draw_scatter(allData[0], allData[1], '#bokeh-div');
 
           }
           else {
@@ -505,6 +512,8 @@
         // document.getElementById("middle-panel-proj").append(reset);
 
         // ft_list();
+
+
       }
 
 

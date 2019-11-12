@@ -1,82 +1,82 @@
-var testData = [
-{   
-    id: 0,
-    x_val: 1,
-    y_val: 1
-},
-{
-    id: 1,
-    x_val: 3,
-    y_val: 2
-},
-{
-    id: 2,
-    x_val: 7,
-    y_val: 2
-},
-{
-    id: 3,
-    x_val: 4,
-    y_val: 9
-},
-{
-    id: 4,
-    x_val: 5,
-    y_val: 2
-},
-{
-    id: 5,
-    x_val: 8,
-    y_val: 9
-},
-{
-    id: 6,
-    x_val: 10,
-    y_val: 5
-},
-{
-    id: 7,
-    x_val: 2,
-    y_val: 3
-},
-{
-    id: 8,
-    x_val: 4,
-    y_val: 6
-},
-{
-    id: 9,
-    x_val: 9,
-    y_val: 4
-},
-{
-    id: 10,
-    x_val: 1,
-    y_val: 3
-},
-{
-    id: 11,
-    x_val: 3,
-    y_val: 1
-},
-{
-    id: 12,
-    x_val: 2,
-    y_val: 2
-},
-{
-    id: 13,
-    x_val: 4,
-    y_val: 8
-},
-{
-    id: 14,
-    x_val: 7,
-    y_val: 7
-}];
+// var testData = [
+// {   
+//     id: 0,
+//     x_val: 1,
+//     y_val: 1
+// },
+// {
+//     id: 1,
+//     x_val: 3,
+//     y_val: 2
+// },
+// {
+//     id: 2,
+//     x_val: 7,
+//     y_val: 2
+// },
+// {
+//     id: 3,
+//     x_val: 4,
+//     y_val: 9
+// },
+// {
+//     id: 4,
+//     x_val: 5,
+//     y_val: 2
+// },
+// {
+//     id: 5,
+//     x_val: 8,
+//     y_val: 9
+// },
+// {
+//     id: 6,
+//     x_val: 10,
+//     y_val: 5
+// },
+// {
+//     id: 7,
+//     x_val: 2,
+//     y_val: 3
+// },
+// {
+//     id: 8,
+//     x_val: 4,
+//     y_val: 6
+// },
+// {
+//     id: 9,
+//     x_val: 9,
+//     y_val: 4
+// },
+// {
+//     id: 10,
+//     x_val: 1,
+//     y_val: 3
+// },
+// {
+//     id: 11,
+//     x_val: 3,
+//     y_val: 1
+// },
+// {
+//     id: 12,
+//     x_val: 2,
+//     y_val: 2
+// },
+// {
+//     id: 13,
+//     x_val: 4,
+//     y_val: 8
+// },
+// {
+//     id: 14,
+//     x_val: 7,
+//     y_val: 7
+// }];
 
 
-var mask = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+// var mask = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
 
 
@@ -96,11 +96,13 @@ Mask - The array of 0/1s based on current selection
 
 
 
-function draw_scatter(data, place, mask = null) {
+function draw_scatter(data, ranges, place, mask = null) {
 
     if (mask == null){
         mask = new Array(data.length).fill(0);
     }
+
+    console.log(ranges);
 
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
@@ -110,7 +112,8 @@ function draw_scatter(data, place, mask = null) {
     
     var separator = 0.015;
 
-    
+    var radius = 3.5
+    var s_radius = 5
     // -- Establishing margins and canvas bounds -- 
     var margin = {
             top: 20, 
@@ -118,8 +121,8 @@ function draw_scatter(data, place, mask = null) {
             bottom: 20, 
             left: 20
         },
-        width = 350 - margin.right - margin.left,
-        height = 350 - margin.top - margin.bottom;
+        width = 390 - margin.right - margin.left,
+        height = 390 - margin.top - margin.bottom;
 
     var padding_top = 0.1,
         padding_bottom = 0.1;
@@ -127,10 +130,10 @@ function draw_scatter(data, place, mask = null) {
     
     // -- Adding scales based on canvas -- 
     var xScale = d3.scaleLinear()
-            .domain([0, 10])
-            .rangeRound([0, width]),
+            .domain([ranges[0], ranges[1]])
+            .rangeRound([width, 0]),
         yScale = d3.scaleLinear()
-            .domain([0, 10])
+            .domain([ranges[2], ranges[3]])
             .rangeRound([height, 0]);
 
     var svg = d3.select(place)
@@ -148,13 +151,13 @@ function draw_scatter(data, place, mask = null) {
         .append("circle")
         .attr("cx",function(d){return xScale(d.x_val);})
         .attr("cy",function(d){return yScale(d.y_val);})
-        .attr("r",3.5);
+        .attr("r",radius);
 
     var empty = true;
     // Lasso functions
         var lasso_start = function() {
             lasso.items()
-                .attr("r",3.5) // reset size
+                .attr("r",radius) // reset size
                 .classed("not_possible",true)
                 .classed("selected",false);
             
@@ -188,7 +191,7 @@ function draw_scatter(data, place, mask = null) {
                     empty = false;
                     mask[d.id] = 1;
                     return true;})
-                .attr("r",7);
+                .attr("r",s_radius);
 
             // Reset the style of the not selected dots
             lasso.notSelectedItems()
@@ -198,7 +201,7 @@ function draw_scatter(data, place, mask = null) {
                         return 0;
                     }
                     else{
-                        return 3.5;
+                        return radius;
                     }
                 })
 
