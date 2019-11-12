@@ -5,6 +5,9 @@ from sklearn.manifold import MDS
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
+from sklearn.preprocessing import normalize, scale, MinMaxScaler
+
+
 
 def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_anchs):
 	# --- Hardcoded Parameters --- 
@@ -262,3 +265,22 @@ def perform_tsne(data):
 	X_tsne = tsne_model.fit_transform(data)
 
 	return X_tsne
+
+
+def reduce_raw_data(data, output_file_name, method = "PCA"):
+	if (method == "PCA"):
+		PCA_model = PCA(n_components = 2, svd_solver = 'full')
+		X_2d = PCA_model.fit_transform(data)
+
+	elif (method == "TSNE"):
+		X_2d = TSNE(n_components=2, perplexity=100, random_state=11).fit_transform(data)
+	
+	# Additional methods can be added 
+	else:
+		print("No suitable dimensionality reduction method chosen")
+
+
+	# --- Normalize data ---
+	min_max_scaler = MinMaxScaler()
+	norm = min_max_scaler.fit_transform(X_2d)
+	np.savetxt(output_file_name+'_'+method+".csv", norm, delimiter=",", fmt='%s')

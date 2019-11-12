@@ -10,8 +10,8 @@ from individual_explanation import *
 from global_explanations import *
 from d3_functions import *
 from preprocessing import create_summary_file
-from distance_function import generate_projection_files
-from projection import show_projection, show_projection2
+from distance_function import generate_projection_files, reduce_raw_data
+from projection import show_projection, show_projection2, full_projection
 
 import os
 from os import path
@@ -55,12 +55,12 @@ dataset_dict = {
 }
 
 # --- Data initialization ---
-data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(11)
+data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(12)
 categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(12)
 col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig = np.zeros(12)
 def init_data(dataset):
 
-	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness
+	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness
 	global categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
 	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig
 
@@ -73,6 +73,10 @@ def init_data(dataset):
 	preproc_path = folder_path + data_name + "_preproc.csv"
 	projection_changes_path = folder_path + data_name + "_changes_proj.csv"
 	projection_anchs_path = folder_path + data_name + "_anchs_proj.csv"
+
+	reduced_data_path = folder_path + data_name + "_raw_proj"
+
+	print(reduced_data_path)
 
 	no_bins = 10
 
@@ -129,6 +133,18 @@ def init_data(dataset):
 			os.remove(projection_changes_path[:-4]+"_TSNE.csv")
 			os.remove(projection_anchs_path[:-4]+"_TSNE.csv")
 			generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
+
+
+	# --- Dimensionality reduction --- 
+	if (not path.exists(reduced_data_path+"_TSNE.csv")) or (not path.exists(reduced_data_path+"_PCA.csv")): 
+		reduce_raw_data(data, reduced_data_path, "PCA")
+		reduce_raw_data(data, reduced_data_path, "TSNE")
+	elif reset:
+		os.remove(reduced_data_path+"_TSNE.csv")
+		os.remove(reduced_data_path+"_PCA.csv")
+		reduce_raw_data(data, reduced_data_path, "PCA")
+		reduce_raw_data(data, reduced_data_path, "TSNE")
+
 
 	all_params = {
 		# data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness,
@@ -296,9 +312,16 @@ def bokeh_request_ft():
 
 		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 		ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
+		
+		# ============ WHY DOES THIS RESULT IN AN ERROR ===============
+		# print(str(reduced_data_path)+'_'+ ".csv")
+		# print(reduced_data_path)
+		# print(preproc_path)
+		result = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)	
+
 
 		## Parse values into python dictionary
-		ret_string = json.dumps(ret_arr)
+		ret_string = json.dumps(result)
 		return ret_string
 
 @app.route('/violin_req')

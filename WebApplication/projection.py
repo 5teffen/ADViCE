@@ -233,7 +233,40 @@ def show_projection2(filename, total_samples, algorithm=True, selected_ids=None,
         # //parent.makeBokehRequest(aggregation_ids);
         # parent.makeBokehRequest2(aggregation_ids);
 
-     
+
+
+def full_projection(file_reduced, file_meta):
+    # --- Data for dimensionlity reduction --- 
+    data = pd.read_csv(file_reduced, header=None)
+    data = data.values
+
+    # --- Preprocessed metadata for points --- 
+    meta = pd.read_csv(file_meta,index_col=False)
+    meta = meta.values
+    print(meta)
+
+    samples = data.shape[0]
+    
+    x_vals = data[:,0]
+    y_vals = data[:,1]
+    ids = meta[:,0]
+    percentages = meta[:,1]
+    categories = meta[:,2]
+
+    result = []
+    for i in range(samples):
+        result.append({
+            'id': int(ids[i]),
+            'x_val': float(x_vals[i]),
+            'y_val': float(y_vals[i]),
+            'category': str(categories[i]),
+            'perc': float(percentages[i])
+            })
+
+    return result
+
+
+
 
 if __name__ == '__main__':
 
