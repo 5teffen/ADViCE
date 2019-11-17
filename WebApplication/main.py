@@ -8,6 +8,7 @@ from model import *
 from utils import *
 from individual_explanation import *
 from global_explanations import *
+from queries import *
 from d3_functions import *
 from preprocessing import create_summary_file
 from distance_function import generate_projection_files, reduce_raw_data
@@ -56,12 +57,12 @@ dataset_dict = {
 
 # --- Data initialization ---
 data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(12)
-categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(12)
+categorical_cols, monotonicity_arr, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(13)
 col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig = np.zeros(12)
 def init_data(dataset):
 
 	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness
-	global categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
+	global categorical_cols, monotonicity_arr, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
 	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig
 
 	data_name = dataset.name
@@ -73,7 +74,6 @@ def init_data(dataset):
 	preproc_path = folder_path + data_name + "_preproc.csv"
 	projection_changes_path = folder_path + data_name + "_changes_proj.csv"
 	projection_anchs_path = folder_path + data_name + "_anchs_proj.csv"
-
 	reduced_data_path = folder_path + data_name + "_raw_proj"
 
 	print(reduced_data_path)
@@ -124,6 +124,7 @@ def init_data(dataset):
 			os.remove(preproc_path)
 			create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path, col_ranges, lock)
 
+
 	# --- Projection Files ---
 	if ((not path.exists(projection_changes_path[:-4]+"_PCA.csv")) or (not path.exists(projection_anchs_path[:-4]+"_PCA.csv"))):
 		generate_projection_files(preproc_path, data, target, projection_changes_path, projection_anchs_path) 
@@ -144,6 +145,12 @@ def init_data(dataset):
 		os.remove(reduced_data_path+"_PCA.csv")
 		reduce_raw_data(data, reduced_data_path, "PCA")
 		reduce_raw_data(data, reduced_data_path, "TSNE")
+
+
+
+	# --- Metadata ---
+	metadata = 	pd.read_csv(preproc_path, index_col=False).values
+
 
 
 	all_params = {
@@ -167,6 +174,7 @@ def init_data(dataset):
 		'feature_names': feature_names,
 		'all_data': all_data,
 		'data': data,
+		'metadata':metadata,
 		'target': target,
 		'no_samples': no_samples,
 		'no_features': no_features,
@@ -312,12 +320,24 @@ def bokeh_request_ft():
 
 		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 		ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
-		
-		# ============ WHY DOES THIS RESULT IN AN ERROR ===============
-		# print(str(reduced_data_path)+'_'+ ".csv")
-		# print(reduced_data_path)
-		# print(preproc_path)
-		result = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)	
+
+
+		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
+
+
+		start_mask = np.ones(data.shape[0])
+
+		mask1 = query_pred_range(metadata, 10, 20)
+		mask2 = query_confusion_mat(metadata, ["TN", "FN"])
+		mask3 = query_feature_combs(metadata, [15,19])
+		mask4 = query_value_range(data, 0, 60, 70)
+		mask5 = query_similar_points(data,metadata,10,0.5)
+		mask6 = query_sampled_data(data, 5)
+
+
+		current_mask = start_mask*mask6
+
+		result = apply_mask(all_points, current_mask)	
 
 
 		## Parse values into python dictionary
