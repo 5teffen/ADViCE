@@ -103,8 +103,8 @@ function draw_scatter(data, place, mask = null) {
     }
 
 
-    var good_col = "#d95f02",
-        bad_col = "#1b9e77";
+    var good_col = "#1b9e77",
+        bad_col = "#d95f02";
 
     var the_colour = "";
     var opp_colour = "";

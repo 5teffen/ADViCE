@@ -296,18 +296,22 @@ def projection_site():
 	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path)
 
-@app.route('/bokeh_req', methods=['GET'])
-def bokeh_request_ft():
+@app.route('/scatter_req', methods=['GET'])
+def scatter_request():
 
 	if request.method == 'GET':
 
-		ft_list = request.args.get('features')
+		ft_list = request.args.get('selected_fts')
 		ft_list = ft_list[1:-1].split(',')
 
 		# False = changes, True = keyfts
 		algorithm = (request.args.get('algorithm') == "True")
 		dim_red = request.args.get('dim_red')
 		directionality = (request.args.get('directionality') == "True")
+		confusion_mat = request.args.get('confusion_mat').split(',')
+		pred_range = request.args.get('pred_range').split(',')
+		pred_range = [int(x) for x in pred_range]
+		print(type(pred_range), pred_range)
 
 		if ft_list[0] == '-1' or ft_list == ['']:
 			ret_arr = list(range(data.shape[0]))
@@ -318,8 +322,8 @@ def bokeh_request_ft():
 			ret_arr = ids_with_combination(preproc_path,ft_list,anchs=False)
 			print(ret_arr)
 
-		show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
-		ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
+		#show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
+		#ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
 
 		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
@@ -327,15 +331,15 @@ def bokeh_request_ft():
 
 		start_mask = np.ones(data.shape[0])
 
-		mask1 = query_pred_range(metadata, 10, 20)
-		mask2 = query_confusion_mat(metadata, ["TN", "FN"])
+		mask1 = query_pred_range(metadata, pred_range)
+		mask2 = query_confusion_mat(metadata, confusion_mat)
 		mask3 = query_feature_combs(metadata, [15,19])
 		mask4 = query_value_range(data, 0, 60, 70)
 		mask5 = query_similar_points(data,metadata,10,0.5)
-		mask6 = query_sampled_data(data, 5)
+		mask6 = query_sampled_data(data, 30)
 
 
-		current_mask = start_mask*mask6
+		current_mask = start_mask*mask1*mask2 #*mask6
 
 		result = apply_mask(all_points, current_mask)	
 

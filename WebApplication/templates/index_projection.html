@@ -8,11 +8,15 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <link href="static/css/projection-style.css" rel="stylesheet" type="text/css">
+    <link href="static/css/rSlider.min.css" rel="stylesheet" type="text/css">
+
     <!-- D3.js and jQuery source -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
+    <!-- rSlider source -->
+    <script type="text/javascript" src="static/js/rSlider.min.js"></script>
     <!-- SVG scripts -->
     <script type="text/javascript" src="static/js/main_graph.js"></script>
     <script type="text/javascript" src="static/js/model_summary.js"></script>
@@ -27,6 +31,7 @@
     <script type="text/javascript" src="static/js/full_aggregation.js"></script>
     <script type="text/javascript" src="static/js/d3-lasso.min.js"></script>
     <script type="text/javascript" src="static/js/scatter.js"></script>
+    <script type="text/javascript" src="static/js/confusion_matrix.js"></script>
 
   </head>
 
@@ -50,16 +55,16 @@
 
         <div id="middle-panel-proj">
 
-          <div class="btn-group">
-<!--             <button id="key-button" class="algo-button"> Key Features </button>-->
-<!--             <button id="chg-button" class="algo-button"> Changes </button> -->
+          <div class="btn-group" style="height: 70px;">
+            <!--button id="key-button" class="algo-button"> Key Features </button>-->
+            <!--<button id="chg-button" class="algo-button"> Changes </button> -->
             <button id="pca-button" class="dimred-button"> PCA </button>
             <button id="tsne-button" class="dimred-button"> tSNE </button>
-<!--             <button id="direction-button" class="dimred-button"> Direct. </button> -->
+            <!--<button id="direction-button" class="dimred-button"> Direct. </button> -->
           </div>
 
           <div id="bokeh-div">
-            <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe>
+            <!-- <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe> -->
             <div id="d3-proj">
             </div>
           </div>
@@ -68,14 +73,19 @@
             Reset
           </button>
 
-          <!-- <div id="filter-div">
-            Filters
-          </div> -->
+          <div id="filter-div">
+            <input type="text" id="pred-range-slider" class="slider" /><br>
+            <input type="checkbox" id="TP-check" value="TP" checked onclick="checkTrigger(this)"> TP <br>
+            <input type="checkbox" id="FP-check" value="FP" checked onclick="checkTrigger(this)"> FP <br>
+            <input type="checkbox" id="TN-check" value="TN" checked onclick="checkTrigger(this)"> TN <br>
+            <input type="checkbox" id="FN-check" value="FN" checked onclick="checkTrigger(this)"> FN <br>
+            
+          </div>
 
         </div>
 
         <div id="right-panel-proj">
-          <div class="btn-group-proj">
+          <div class="btn-group-proj" >
             <button id="median-button" class="proj-button"> Median </button>
             <button id="mean-button" class="proj-button"> Mean </button>
             <button id="density-button" class="proj-button"> Density </button>
@@ -95,7 +105,6 @@
       ft_names = ft_names.slice(1, ft_names.length-1).replace(/\s+/g, '');;
       ft_names = ft_names.split(",");
       var preproc_path = "{{preproc_path}}";
-      var selected_fts = [-1];
       var dark_shade = "rgb(180, 177, 213)";
       var light_shade = "white";
 
@@ -104,8 +113,15 @@
       var httpRequest2;
       var cold_start = true;
       var curr_aggr_ids = [];
+      
+      var selected_fts = [-1];
+      var curr_alg = "True";
+      var dim_red = "PCA";
+      var directionality = "True";
+      var pred_range = [0,100];
+      var confusion_mat = ["TP", "FP", "TN", "FN"];
 
-    
+
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -130,7 +146,7 @@
       }
 
       // Request to send feature list
-      function makeRequest3(features, algo, dim_red, directionality) {
+      function makeScatterRequest() {
         httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
@@ -138,37 +154,38 @@
         }
         
         req_arr = [];
-        console.log(features);
-        console.log(ft_names);
+        console.log(selected_fts);
+        //console.log(ft_names);
 
 
-        if (features[0] == -1){
+        if (selected_fts[0] == -1){
           req_arr.push(-1);
         }
         else {
-          for (i=0; i<features.length; i++) {
-            ft_nm = document.getElementById("feat-" + features[i].toString()).innerHTML;
+          for (i=0; i<selected_fts.length; i++) {
+            ft_nm = document.getElementById("feat-" + selected_fts[i].toString()).innerHTML;
             console.log(ft_nm);
-            // req_arr.push(ft_names.indexOf(features[i].innerHTML));
+            // req_arr.push(ft_names.indexOf(selected_fts[i].innerHTML));
             console.log((ft_names.indexOf(ft_nm)));
             req_arr.push(ft_names.indexOf(ft_nm));
-            // features[i].style.fontSize = "15px";
-            document.getElementById("feat-" + features[i].toString()).style.fontWeight = "bold"; 
+            // selected_fts[i].style.fontSize = "15px";
+            document.getElementById("feat-" + selected_fts[i].toString()).style.fontWeight = "bold"; 
           }
         }
 
         
-        httpRequest.onreadystatechange = alertContents3;
-        httpRequest.open('GET', 'bokeh_req?features=['+req_arr+']&algorithm='+algo + '&dim_red='+dim_red + '&directionality='+directionality);
+        httpRequest.onreadystatechange = alertScatterPlot;
+        httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat='+ confusion_mat + '&pred_range='+ pred_range );
         httpRequest.send();
         return false;
       }
 
       // Bokeh middle panel
-      function alertContents3() {
+      function alertScatterPlot() {
 
         if (httpRequest.readyState === XMLHttpRequest.OPENED){
           document.getElementById("middle-panel-proj").style.display = "inline-block";
+          document.getElementById("bokeh-div").innerHTML = "";
           // document.getElementById("middle-panel-proj").innerHTML = "";
           // document.getElementById("right-panel-proj").innerHTML = "";
           // add_loader(document.getElementById("middle-panel-proj"));    
@@ -184,7 +201,7 @@
             var resp_arr = httpRequest.responseText;
             // console.log(resp_arr);
             // document.getElementById('bokeh-iframe').contentWindow.location.reload();
-            document.getElementById('bokeh-iframe').style.display = "none";
+            // document.getElementById('bokeh-iframe').style.display = "none";
             var allData = JSON.parse(resp_arr);
             draw_scatter(allData, '#bokeh-div');
 
@@ -259,7 +276,7 @@
               highlight_features();
               cold_start = false;
             }
-            // makeBokehRequest2(id_list);
+            // makeViolinRequest(id_list);
 
           }
           else {
@@ -269,7 +286,7 @@
       }
 
       // Request from bokeh plot to right panel violin plot
-      function makeBokehRequest2(id_list) {
+      function makeViolinRequest(id_list) {
         httpRequest2 = new XMLHttpRequest();
         if (!httpRequest2) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
@@ -323,14 +340,14 @@
       }
 
       // Proj buttons
-      function proj_button_request(elem){
+      function projButtonRequest(elem){
         if (elem.style.backgroundColor == dark_shade) {
           elem.style.backgroundColor = light_shade;
         }
         else{
           elem.style.backgroundColor = dark_shade;
         }
-        makeBokehRequest2(curr_aggr_ids);
+        makeViolinRequest(curr_aggr_ids);
       }
 
       // Hovering over left panel elements
@@ -361,7 +378,7 @@
 
       // Loader for projection
       function add_loader2(elem) {
-        document.getElementById("bokeh-iframe").style.display = "none";
+        // document.getElementById("bokeh-iframe").style.display = "none";
         var load_wrap = document.createElement("div");
         load_wrap.className = "loader_wrap";
         var loader = document.createElement("div");
@@ -386,9 +403,9 @@
       function resetFeatures() {
 
         selected_fts = [-1];
-        var curr_alg = "True";
-        var dim_red = "TSNE";
-        var directionality = "True";
+        curr_alg = "True";
+        dim_red = "TSNE";
+        directionality = "True";
 
         // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
         //   curr_alg = "False";
@@ -405,15 +422,15 @@
             document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
           }
         }
-        makeRequest3(selected_fts, curr_alg, dim_red, directionality);
+        makeScatterRequest();
       }
 
       // Select/deselect features
       function flip_feature(elemn) {
 
-        var curr_alg = "True";
-        var dim_red = "TSNE";
-        var directionality = "True";
+        curr_alg = "True";
+        dim_red = "TSNE";
+        directionality = "True";
 
         // console.log(elemn.attributes.id.nodeValue.toString().substring(5));
 
@@ -440,7 +457,7 @@
         else if (selected_fts.length < 5){
           selected_fts.push(elemn.attributes.id.nodeValue.toString().substring(5));
         }
-        makeRequest3(selected_fts, curr_alg, dim_red, directionality);
+        makeScatterRequest();
       }
 
       // Select previously selected features
@@ -492,15 +509,15 @@
         // dir_btn.style.backgroundColor = dark_shade;
 
         median_btn = document.getElementById("median-button");
-        median_btn.onclick = function(){proj_button_request(this);};
+        median_btn.onclick = function(){projButtonRequest(this);};
         median_btn.style.backgroundColor = dark_shade;
 
         mean_btn = document.getElementById("mean-button");
-        mean_btn.onclick = function(){proj_button_request(this);};
+        mean_btn.onclick = function(){projButtonRequest(this);};
         mean_btn.style.backgroundColor = dark_shade;
 
         density_btn = document.getElementById("density-button");
-        density_btn.onclick = function(){proj_button_request(this);};
+        density_btn.onclick = function(){projButtonRequest(this);};
         density_btn.style.backgroundColor = dark_shade;
 
         // var reset = document.createElement("button");
@@ -512,7 +529,39 @@
 
         // ft_list();
 
+        var mySlider = new rSlider({
+          target: '#pred-range-slider',
+          width: 200,
+          values: {min: 0, max: 100},
+          range: true,
+          tooltip: true,
+          scale: false,
+          labels: false,
+          step: 1,
+          set: [0, 100],
+          onChange: function (vals) {
+            console.log(vals);
+            pred_range=[vals];
+            makeScatterRequest();
+          }
+        });
 
+      }
+
+      function checkTrigger(elem) {
+        var text = elem.value;
+        console.log(text);
+        if (elem.checked == true){
+          console.log("Checked");
+          confusion_mat.push(text);
+          console.log(confusion_mat);
+
+        } else {
+           console.log("Unchecked");
+           confusion_mat.splice(confusion_mat.indexOf(text), 1);
+           console.log(confusion_mat);
+        }
+        makeScatterRequest();
       }
 
 

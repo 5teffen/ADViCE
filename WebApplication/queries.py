@@ -8,7 +8,9 @@ from projection import full_projection
 # Input: metadata (preproc data)
 
 # =============== Prediction Range ============== 
-def query_pred_range(meta, low, high):
+def query_pred_range(meta, rang):
+	low = rang[0]
+	high = rang[1]
 	no_samples = meta.shape[0]
 	mask = np.zeros(no_samples)
 
@@ -29,10 +31,8 @@ def query_confusion_mat(meta, targets):
 
 	for i in range(no_samples):
 		pred = meta[i][2]
-		for target in targets:
-			if target == pred:
-				mask[i] = 1
-				break
+		if pred in targets:
+			mask[i] = 1
 
 	return mask
 
