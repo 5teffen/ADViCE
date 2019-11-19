@@ -224,6 +224,27 @@ def perform_tsne(file_name, output_file_name):
 	np.savetxt(output_file_name, output, delimiter=",", fmt='%s')
 	print("Done")
 
+def reduce_raw_data(data, output_file_name, method = "PCA"):
+	print("Before ", data.shape)
+	if (method == "PCA"):
+
+		PCA_model = PCA(n_components = 2, svd_solver = 'full')
+		X_2d = PCA_model.fit_transform(data)
+
+	elif (method == "TSNE"):
+		X_2d = TSNE(n_components=2, perplexity=100, random_state=11).fit_transform(data)
+	
+	# Additional methods can be added 
+	
+	else:
+		print("No suitable dimensionality reduction method chosen")
+
+	print("After ", X_2d.shape)
+
+
+	np.savetxt(output_file_name+method+".csv", X_2d, delimiter=",", fmt='%s')
+
+
 
 # anch_vectors, change_vectors, y_a, y_c = extract_vectors("static/data/final_data_file.csv","static/data/pred_data_x.csv")
 # print(anch_vectors, change_vectors, y_a, y_c)

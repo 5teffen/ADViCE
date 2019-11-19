@@ -186,8 +186,7 @@
             // document.getElementById('bokeh-iframe').contentWindow.location.reload();
             document.getElementById('bokeh-iframe').style.display = "none";
             var allData = JSON.parse(resp_arr);
-            console.log(allData);
-            draw_scatter(allData[0], allData[1], '#bokeh-div');
+            draw_scatter(allData, '#bokeh-div');
 
           }
           else {

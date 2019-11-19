@@ -1,85 +1,136 @@
 var testData = [
 {   
     id: 0,
+    pred: 1,
+    label: "TP",
     x_val: 1,
     y_val: 1
 },
 {
     id: 1,
+    pred: 1,
+    label: "TP",
     x_val: 3,
     y_val: 2
 },
 {
     id: 2,
+    pred: 0,
+    label: "TN",
     x_val: 7,
     y_val: 2
 },
 {
     id: 3,
+    pred: 0,
+    label: "TN",
     x_val: 4,
     y_val: 9
 },
 {
     id: 4,
+    pred: 0,
+    label: "TN",
     x_val: 5,
     y_val: 2
 },
 {
     id: 5,
+    pred: 1,
+    label: "FP",
     x_val: 8,
     y_val: 9
 },
 {
     id: 6,
+    pred: 1,
+    label: "FP",
     x_val: 10,
     y_val: 5
 },
 {
     id: 7,
+    pred: 0,
+    label: "FN",
     x_val: 2,
     y_val: 3
 },
 {
     id: 8,
+    pred: 0,
+    label: "FN",
     x_val: 4,
     y_val: 6
 },
 {
     id: 9,
+    pred: 1,
+    label: "TP",
     x_val: 9,
     y_val: 4
 },
 {
     id: 10,
+    pred: 0,
+    label: "TN",
     x_val: 1,
     y_val: 3
 },
 {
     id: 11,
+    pred: 1,
+    label: "FP",
     x_val: 3,
     y_val: 1
 },
 {
     id: 12,
+    pred: 0,
+    label: "FN",
     x_val: 2,
     y_val: 2
 },
 {
     id: 13,
+    pred: 0,
+    label: "FN",
     x_val: 4,
     y_val: 8
 },
 {
     id: 14,
+    pred: 1,
+    label: "FP",
     x_val: 7,
     y_val: 7
 }];
 
 
+var mask = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 
 
-function draw_scatter(data, place) {
 
+
+
+/* 
+--- INPUT --- 
+Dataset - Array of Objects with variables id (0 indexed), x_val, y_val
+Optional: Mask - Array of 0/1s equal to number of points
+
+
+--- OUTPUT ---
+Mask - The array of 0/1s based on current selection
+
+*/
+
+
+
+
+function draw_scatter(data, place, mask = null) {
+
+    if (mask == null){
+        mask = new Array(data.length).fill(0);
+    }
 
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
@@ -92,13 +143,13 @@ function draw_scatter(data, place) {
     
     // -- Establishing margins and canvas bounds -- 
     var margin = {
-            top: 10, 
+            top: 20, 
             right: 20, 
-            bottom: 30, 
-            left: 10
+            bottom: 20, 
+            left: 20
         },
-        width = 500 - margin.right - margin.left,
-        height = 500 - margin.top - margin.bottom;
+        width = 350 - margin.right - margin.left,
+        height = 350 - margin.top - margin.bottom;
 
     var padding_top = 0.1,
         padding_bottom = 0.1;
@@ -126,8 +177,10 @@ function draw_scatter(data, place) {
         .enter()
         .append("circle")
         .attr("cx",function(d){return xScale(d.x_val);})
-        .attr("cy",function(d){return yScale(d.y_val);})
-        .attr("r",3.5);
+        .attr("cy",function(d){return yScale(d.y_val);})\
+        .attr("fill",function(d){return "white"})
+        .attr("stroke","red")
+        .attr("r",10);
 
     var empty = true;
     // Lasso functions
@@ -136,7 +189,8 @@ function draw_scatter(data, place) {
                 .attr("r",3.5) // reset size
                 .classed("not_possible",true)
                 .classed("selected",false);
-
+            
+            mask = new Array(mask.length).fill(0);
             empty = true;
             console.log("Start");
         };
@@ -163,17 +217,10 @@ function draw_scatter(data, place) {
             // Style the selected dots
             lasso.selectedItems()
                 .classed("selected",function(d,i){
-                    if (i > -1){
-                        empty = false;
-                    } 
+                    empty = false;
+                    mask[d.id] = 1;
                     return true;})
                 .attr("r",7);
-
-            // console.log(lasso);
-            // SET A FLAG TO INDICATE EMPTY CLASS
-            //https://stackoverflow.com/questions/9857752/correct-way-to-tell-if-my-selection-caught-any-existing-elements
-            // .classed("my-selector", function (d, i) {return !d3.select(this).classed("my-selector");
-
 
             // Reset the style of the not selected dots
             lasso.notSelectedItems()
@@ -202,4 +249,4 @@ function draw_scatter(data, place) {
 }
 
 
-draw_scatter(testData,'body')
+draw_scatter(testData, 'body')

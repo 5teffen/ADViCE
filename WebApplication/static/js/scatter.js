@@ -96,13 +96,12 @@ Mask - The array of 0/1s based on current selection
 
 
 
-function draw_scatter(data, ranges, place, mask = null) {
+function draw_scatter(data, place, mask = null) {
 
     if (mask == null){
         mask = new Array(data.length).fill(0);
     }
 
-    console.log(ranges);
 
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
@@ -127,14 +126,14 @@ function draw_scatter(data, ranges, place, mask = null) {
     var padding_top = 0.1,
         padding_bottom = 0.1;
 
-    
     // -- Adding scales based on canvas -- 
     var xScale = d3.scaleLinear()
-            .domain([ranges[0], ranges[1]])
-            .rangeRound([width, 0]),
+            .domain([0.0, 1.0])
+            .rangeRound([0, width]),
         yScale = d3.scaleLinear()
-            .domain([ranges[2], ranges[3]])
+            .domain([0.0, 1.0])
             .rangeRound([height, 0]);
+
 
     var svg = d3.select(place)
                 .append("svg")
@@ -151,6 +150,14 @@ function draw_scatter(data, ranges, place, mask = null) {
         .append("circle")
         .attr("cx",function(d){return xScale(d.x_val);})
         .attr("cy",function(d){return yScale(d.y_val);})
+        .attr("fill",function(d){
+            if (d.perc > 0.5) return good_col;
+            else return bad_col;
+            })
+        .attr("stroke", function(d){
+            if (d.category[0] == 'F') return "black";
+            else return "white";
+            })
         .attr("r",radius);
 
     var empty = true;
