@@ -86,9 +86,9 @@ var allFeatures = [oneFeature, oneFeature,oneFeature, oneFeature]
 
 function feature_selector(allFeatures, place) {
 
-	var section_h = 100,
-		section_w = 200,
-		section_sep = 20;
+	var section_h = 50,
+		section_w = 150,
+		section_sep = 10;
 
 	var no_features = allFeatures.length,
 		fineness = allFeatures[0].den.length;
@@ -124,7 +124,7 @@ function feature_selector(allFeatures, place) {
 
 	var yDenScale = d3.scaleLinear()
 	    .domain([0, 1])
-	    .rangeRound([section_h/4,0]);
+	    .rangeRound([section_h/3,0]);
 
 
     var svg = d3.select(place)
@@ -162,6 +162,9 @@ function feature_selector(allFeatures, place) {
 
 
    	for (ind=0 ; ind < no_features; ind++) {
+
+   		var start_arr = allFeatures[ind].den.slice();
+
 	    // -- Section Boundary -- 
 	    svg.append("g")
 	        .append("rect")
@@ -174,15 +177,46 @@ function feature_selector(allFeatures, place) {
 	        .attr("stroke-width",2)
 	        .attr("stroke","red");
 
+	    // -- Center the Density -- 
+	    svg = svg.append("g").attr("transform","translate(" + 0 + ',' + (section_h/2-section_h/6) +')');
+
 	    // -- Drawing Density -- 
-	    svg.append('g').append('path').datum(allFeatures[ind].den)
+	    var cur_arr = start_arr.splice(100,100)
+	    cur_arr.push(0);
+	    svg.append('g').append('path').datum(cur_arr)
 	        .attr('d',line)
 	        .attr('stroke',"blue")
 	        .attr('fill',"black")
 	        .attr('opacity',0.2);
 
+	    // -- Adding Ranges -- 
+	    svg.append("g")
+       		.append('text')
+        	.text(allFeatures[ind].range[0])
+        	.attr("x", 0)
+       	 	.attr("y", yDenScale(0)+12)
+        	.attr("font-family",'"Open Sans", sans-serif')
+        	.attr("font-size", '11px')
+        	.attr("font-weight", 'bold')
+        	.attr("fill",'black')
+        	.attr("text-anchor",'left');
+
+       	svg.append("g")
+       		.append('text')
+        	.text(allFeatures[ind].range[1])
+        	.attr("x", section_w)
+       	 	.attr("y", yDenScale(0)+12)
+        	.attr("font-family",'"Open Sans", sans-serif')
+        	.attr("font-size", '11px')
+        	.attr("font-weight", 'bold')
+        	.attr("fill",'black')
+        	.attr("text-anchor",'right');
+
+
 	    svg = svg.append("g").attr("transform","translate(" + x_shift + ',' + y_shift +')');
     }
+
+
 
  
     
