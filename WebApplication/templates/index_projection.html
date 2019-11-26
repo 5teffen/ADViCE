@@ -75,10 +75,10 @@
 
           <div id="filter-div">
             <input type="text" id="pred-range-slider" class="slider" /><br>
-            <input type="checkbox" id="TP-check" value="TP" checked onclick="checkTrigger(this)"> TP <br>
+            <!-- <input type="checkbox" id="TP-check" value="TP" checked onclick="checkTrigger(this)"> TP <br>
             <input type="checkbox" id="FP-check" value="FP" checked onclick="checkTrigger(this)"> FP <br>
             <input type="checkbox" id="TN-check" value="TN" checked onclick="checkTrigger(this)"> TN <br>
-            <input type="checkbox" id="FN-check" value="FN" checked onclick="checkTrigger(this)"> FN <br>
+            <input type="checkbox" id="FN-check" value="FN" checked onclick="checkTrigger(this)"> FN <br> -->
             
           </div>
 
@@ -212,7 +212,7 @@
         }
       }
 
-      // Style buttons and send request
+      // Style and send request for PCA and tSNE buttons
       function buttonRequest(elem) {
 
         // if (elem.id == "key-button") {
@@ -248,20 +248,20 @@
       }
       
       // Request from bokeh plot to right panel aggregation
-      function makeBokehRequest(id_list) {
+      function makeAggregationRequest(id_list) {
         httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
-        httpRequest.onreadystatechange = alertBokehContentsAggregation;
+        httpRequest.onreadystatechange = alertContentsAggregation;
         httpRequest.open('GET', 'aggregation_req?id_list='+id_list);   //id_list);
         httpRequest.send();
         return false;
       }
 
       // Right panel aggregation
-      function alertBokehContentsAggregation() {
+      function alertContentsAggregation() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
           if (httpRequest.status === 200) {
             //Do stuff with the response
@@ -546,6 +546,8 @@
           }
         });
 
+        confusion_matrix("#filter-div");
+
       }
 
       function checkTrigger(elem) {
@@ -564,6 +566,16 @@
         makeScatterRequest();
       }
 
+      function matrixTrigger(checked, text){
+        if (checked == true){
+          confusion_mat.push(text);
+          console.log(confusion_mat);
+        } else {
+           confusion_mat.splice(confusion_mat.indexOf(text), 1);
+           console.log(confusion_mat);
+        }
+        makeScatterRequest();
+      }
 
       fetch_csv();
       begin_glob();
