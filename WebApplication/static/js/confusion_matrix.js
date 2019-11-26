@@ -26,7 +26,7 @@ function confusion_matrix(elem) {
 
     var svg = d3.select(elem)
         .append("svg")
-        .attr("width",width + margin.right + margin.left)
+        .attr("width",width)// + margin.right + margin.left)
         .attr("height",height + margin.top + margin.bottom)
         .attr("class", "confusionMat")
         .append("g")
@@ -199,9 +199,11 @@ function confusion_matrix(elem) {
                 .attr("class",function(d){
                     if (cur_class == "selected"){
                         console.log("TP is 0");
+                        matrixTrigger(false, "TP");
                         return "boxes";
                     }
                     console.log("TP is 1");
+                    matrixTrigger(true, "TP");
                     return "selected";})
                 .attr("opacity", 1)
                 .attr("stroke","black");
@@ -226,9 +228,11 @@ function confusion_matrix(elem) {
                 .attr("class",function(d){
                     if (cur_class == "selected"){
                         console.log("FP is 0");
+                        matrixTrigger(false, "FP");
                         return "boxes";
                     }
                     console.log("FP is 1");
+                    matrixTrigger(true, "FP");
                     return "selected";})
                 .attr("opacity", 1)
                 .attr("stroke","black");
@@ -253,9 +257,11 @@ function confusion_matrix(elem) {
                 .attr("class",function(d){
                     if (cur_class == "selected"){
                         console.log("FN is 0");
+                        matrixTrigger(false, "FN");
                         return "boxes";
                     }
                     console.log("FN is 1");
+                    matrixTrigger(true, "FN");
                     return "selected";})
                 .attr("opacity", 1)
                 .attr("stroke","black");
@@ -280,9 +286,11 @@ function confusion_matrix(elem) {
                 .attr("class",function(d){
                     if (cur_class == "selected"){
                         console.log("TN is 0");
+                        matrixTrigger(false, "TN");
                         return "boxes";
                     }
                     console.log("TN is 1");
+                    matrixTrigger(true, "TN");
                     return "selected";})
                 .attr("opacity", 1)
                 .attr("stroke","black");
