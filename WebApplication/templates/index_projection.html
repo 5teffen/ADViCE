@@ -17,6 +17,8 @@
     <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
     <!-- rSlider source -->
     <script type="text/javascript" src="static/js/rSlider.min.js"></script>
+    <!-- AG Grid source -->
+    <script src="https://unpkg.com/@ag-grid-community/all-modules/dist/ag-grid-community.min.js"></script>
     <!-- SVG scripts -->
     <script type="text/javascript" src="static/js/main_graph.js"></script>
     <script type="text/javascript" src="static/js/model_summary.js"></script>
@@ -93,6 +95,9 @@
           <div id="distribution-div">
             Distribution
           </div>
+          <div id="table-div" class="ag-theme-balham">
+            Table
+          </div>
         </div>
           
 
@@ -110,7 +115,8 @@
 
       var txtFile;
       var httpRequest;
-      var httpRequest2;
+      var hhtpRequestViolin;
+      var httpRequestTable;
       var cold_start = true;
       var curr_aggr_ids = [];
       
@@ -203,6 +209,7 @@
             // document.getElementById('bokeh-iframe').contentWindow.location.reload();
             // document.getElementById('bokeh-iframe').style.display = "none";
             var allData = JSON.parse(resp_arr);
+            // console.log(allData);
             draw_scatter(allData, '#bokeh-div');
 
           }
@@ -285,29 +292,36 @@
         }
       }
 
-      // Request from bokeh plot to right panel violin plot
-      function makeViolinRequest(id_list) {
-        httpRequest2 = new XMLHttpRequest();
-        if (!httpRequest2) {
+      // Request from scatter plot to right panel violin plot
+      function makeViolinRequest(mask) {
+        httpRequestViolin = new XMLHttpRequest();
+        if (!httpRequestViolin) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
+
+        var id_list = [];
+        for (var k=0; k<mask.length; k++){
+          if(mask[k]==1) id_list.push(k);
+        }
+        if (id_list.length<1) id_list=[-1];
         curr_aggr_ids = id_list;
-        httpRequest2.onreadystatechange = alertBokehContentsViolin;
-        httpRequest2.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
-        httpRequest2.open('GET', 'violin_req?id_list='+id_list);  
-        httpRequest2.send();
+        console.log(curr_aggr_ids);
+        httpRequestViolin.onreadystatechange = alertContentsViolin;
+        // httpRequestViolin.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
+        httpRequestViolin.open('GET', 'violin_req?id_list='+id_list);  
+        httpRequestViolin.send();
         return false;
       }
 
       // Right panel violin plot
       var resp_list;
-      function alertBokehContentsViolin() {
-        if (httpRequest2.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest2.status === 200) {
+      function alertContentsViolin() {
+        if (httpRequestViolin.readyState === XMLHttpRequest.DONE) {
+          if (httpRequestViolin.status === 200) {
             //Do stuff with the response
             
-            var resp_arr = httpRequest2.responseText;
+            var resp_arr = httpRequestViolin.responseText;
             // --- Toggle Median Marker ---
             var median_toggle = (document.getElementById("median-button").style.backgroundColor == dark_shade);
 
@@ -328,9 +342,89 @@
             
             draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
               median_toggle, mean_toggle, density_toggle);
+            console.log("drawing violin aggr");
             ft_list();
             highlight_features();
             cold_start = false;
+
+          }
+          else {
+              alert('HttpRequest Error');
+          }
+        }
+      }
+
+      // Request from scatter plot to right panel table
+      function makeTableRequest(mask) {
+        httpRequestTable = new XMLHttpRequest();
+        if (!httpRequestTable) {
+          alert('Giving up :( Cannot create an XMLHTTP instance');
+          return false;
+        }
+
+        var id_list = [];
+        for (var k=0; k<mask.length; k++){
+          if(mask[k]==1) id_list.push(k);
+        }
+        if (id_list.length<1) return false;
+        curr_aggr_ids = id_list;
+        console.log(curr_aggr_ids);
+
+        httpRequestTable.onreadystatechange = alertContentsTable;
+        // httpRequestTable.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
+        httpRequestTable.open('GET', 'table_req?id_list='+id_list);  
+        httpRequestTable.send();
+        return false;
+      }
+
+      // Right panel table
+      var resp_list_table;
+      function alertContentsTable() {
+        if (httpRequestTable.readyState === XMLHttpRequest.DONE) {
+          if (httpRequestTable.status === 200) {
+            //Do stuff with the response
+            
+            var resp_arr = httpRequestTable.responseText;
+            
+            document.getElementById("table-div").innerHTML = "";
+            if (resp_arr!="-1"){
+              resp_list_table = JSON.parse(resp_arr);
+            }
+            var resp_ids = resp_list_table[0];
+            resp_list_table = resp_list_table[1];
+
+            // specify the columns
+            var columnDefs = [];
+            columnDefs.push({headerName: "ID", field: "ID"})
+            for (var k=0; k<ft_names.length; k++){
+              columnDefs.push({headerName: ft_names[k], field: ft_names[k]});
+            }
+
+                
+            // specify the data
+            var rowData = [];
+            for (var k=0; k<resp_list_table.length; k++){
+              var rowPoint = {};
+              rowPoint["ID"] = resp_ids[k];
+              for (var j=0; j<ft_names.length; j++){
+                rowPoint[ft_names[j]] = resp_list_table[k][j];
+              }
+              rowData.push(rowPoint);
+            }
+                
+            // let the grid know which columns and what data to use
+            var gridOptions = {
+              defaultColDef: {
+                  resizable: true
+              },
+              columnDefs: columnDefs,
+              rowData: rowData
+            };
+
+            // setup the grid after the page has finished loading
+            var gridDiv = document.querySelector('#table-div');
+            new agGrid.Grid(gridDiv, gridOptions);
+            gridOptions.api.sizeColumnsToFit();
 
           }
           else {
@@ -547,7 +641,6 @@
         });
 
         confusion_matrix("#filter-div");
-
       }
 
       function checkTrigger(elem) {
