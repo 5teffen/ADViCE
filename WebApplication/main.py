@@ -210,7 +210,7 @@ def hello():
 
 @app.route('/challenge_intro')
 def intro_site_challenge():
-	return render_template("challenge_intro.html")
+	return redirect("http://nyuvis-web.poly.edu/projects/fico/intro")
 
 @app.route('/paper_intro')
 def intro_site_paper():
