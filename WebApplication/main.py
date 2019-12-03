@@ -114,6 +114,11 @@ def init_data(dataset):
 	high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
 	low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
 
+
+	# --- oscar --- 
+	# ==== FEATURE SELECTOR ====
+	feature_selector_input = prep_feature_selector(1, feature_names, all_den, col_ranges) # 0 indexed
+
 	dict_array = all_den
 	dict_array_orig = all_den
 
