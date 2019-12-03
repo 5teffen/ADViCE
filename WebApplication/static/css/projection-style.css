@@ -1473,3 +1473,42 @@ table #model-display {
 .selected {
   
 }
+
+
+
+
+/*--------------*/
+/* AGGrid Table */
+/*--------------*/
+
+.table-fp {
+    background: repeating-linear-gradient(
+      -45deg,
+      #1b9e77,
+      #1b9e77 10%,
+      black 10%,
+      black 12%
+    );
+    color: white;
+}
+
+.table-fn {
+    background: repeating-linear-gradient(
+      -45deg,
+      #d95f02,
+      #d95f02 10%,
+      black 10%,
+      black 12%
+    );
+    color: white;
+}
+
+.table-tp {
+    background-color: #1b9e77;
+    color: white;
+}
+
+.table-tn {
+    background-color: #d95f02;
+    color: white;
+}
