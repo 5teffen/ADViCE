@@ -1318,6 +1318,24 @@ table #model-display {
 /* Right panel */
 /*-------------*/
 
+
+#right-panel-proj {
+  margin-left: 20px;
+  /*width: calc(100% - 300px);*/
+  width: 850px;
+  height: 700px;
+  margin-top: 15px;
+  /*background-color: darkgrey;*/
+  display: inline-block;
+  /*display: none;*/
+  float: left;
+/*  float: right;
+  margin-left: 100px;*/
+  -webkit-transition: all 2s;
+  /*border: 1px solid black;*/
+  /*position: absolute;*/
+}
+
 .btn-group-proj{
     float: left;
 }
@@ -1355,48 +1373,14 @@ table #model-display {
     outline: none;
 }
 
-#right-panel-proj {
-  margin-left: 20px;
-  /*width: calc(100% - 300px);*/
-  width: 850px;
-  height: 700px;
-  margin-top: 15px;
-  /*background-color: darkgrey;*/
-  display: inline-block;
-  /*display: none;*/
-  float: left;
-/*  float: right;
-  margin-left: 100px;*/
-  -webkit-transition: all 2s;
-  /*border: 1px solid black;*/
-  /*position: absolute;*/
-}
-
-#right-part-proj {
-  vertical-align: top;
-  width: 310px;
-  height: 100%;
-  background-color: white;
-  /*border: 1px solid black;*/
-  text-align: center;
-}
-
 #distribution-div {
-  margin-top: 20px;
-  /*width: calc(100% - 300px);*/
+  margin-top: 0px;
   width: 820px;
-  height: 450px;
+  height: 400px;
   padding-top: 0px;
-  /*background-color: darkgrey;*/
   display: inline-block;
-  /*display: none;*/
   float: left;
-/*  float: right;
-  margin-left: 100px;*/
-  -webkit-transition: all 2s;
   border: 0px solid lightgray;
-  /*border-bottom: none;*/
-  /*position: absolute;*/
 }
 
 #aggregation-div {
@@ -1415,6 +1399,16 @@ table #model-display {
   border: 1px solid lightgray;
   border-top: none;
   /*position: absolute;*/
+}
+
+#table-div {
+  margin-top: 0px;
+  width: 820px;
+  height: 300px;
+  padding-top: 0px;
+  display: inline-block;
+  float: left;
+  border: 0px solid lightgray;
 }
 
 

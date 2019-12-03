@@ -4,9 +4,7 @@ from model import SVM_model
 from sklearn.manifold import MDS
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
-
 from sklearn.preprocessing import normalize, scale, MinMaxScaler
-
 
 
 def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_anchs):
@@ -45,8 +43,6 @@ def generate_projection_files(pre_proc_file, X, y, out_path_changes, out_path_an
 	np.savetxt(out_path_changes[:-4]+"_TSNE.csv", changes_TSNE, delimiter=",",fmt='%s')
 	np.savetxt(out_path_anchs[:-4]+"_PCA.csv", anchs_PCA, delimiter=",",fmt='%s')
 	np.savetxt(out_path_anchs[:-4]+"_TSNE.csv", anchs_TSNE, delimiter=",",fmt='%s')
-
-
 
 def extract_vectors(pre_data,X,y):
 	no_samp = X.shape[0]
@@ -118,7 +114,6 @@ def extract_vectors(pre_data,X,y):
 
 	return anch_vectors,change_vectors,y_anch,y_change
 
-
 def anch_distances(anch_vectors , y, directionality):
 	# -- Anchor Distance Martix --
 	# --- Intersection/Union --- 
@@ -179,9 +174,6 @@ def anch_distances(anch_vectors , y, directionality):
 	result_tsne = np.append(info, anchs_red_TSNE, axis=1)
 	
 	return result_pca, result_tsne
-
-
-
 
 def change_distances(change_vectors , y, directionality):
 	# -- Changes Distance Martix --
@@ -250,7 +242,6 @@ def change_distances(change_vectors , y, directionality):
 	
 	return result_pca, result_tsne
 
-
 def perform_dr(data):
 
 	PCA_model = PCA(n_components = 2, svd_solver = 'full')
@@ -258,14 +249,12 @@ def perform_dr(data):
 
 	return X_pca
 
-
 def perform_tsne(data):
 
 	tsne_model = TSNE(n_components=2, perplexity=100, random_state=11)
 	X_tsne = tsne_model.fit_transform(data)
 
 	return X_tsne
-
 
 def reduce_raw_data(data, output_file_name, method = "PCA"):
 	if (method == "PCA"):
