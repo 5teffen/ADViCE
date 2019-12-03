@@ -6,6 +6,27 @@ from utils import *
 from global_explanations import *
 
 
+def prep_feature_selector(feature_no, names, all_den, ranges):
+  out_dict = {"name":names[feature_no]}
+  out_dict["den"] = all_den[feature_no]
+  out_dict["id"] = feature_no
+  
+  feat_range = ranges[feature_no]
+  min_val = feat_range[0][0]
+  max_val = 0  
+  for i in range(len(feat_range)):  # Finding the max range value
+    if (i == len(feat_range)-1):
+      max_val = feat_range[i][1]
+
+    elif (feat_range[i+1] == '-1'):
+      print("THIS")
+      max_val = feat_range[i][1]
+      break
+
+  out_dict["range"] = [min_val,max_val]
+
+  return out_dict
+
 
 
 def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, percent, names, apply_monot, monot_array, locked_fts=[]):
@@ -93,7 +114,6 @@ def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, per
         data.append(result)
         
     return data
-
 
 
 def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions,sort = False):
@@ -198,3 +218,5 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
 
   else:
     return final_data.tolist()
+
+
