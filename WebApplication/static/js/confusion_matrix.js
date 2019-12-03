@@ -4,8 +4,8 @@ function confusion_matrix(elem) {
         bad_col = "#d95f02";
 
 
-    var stroke = "white",
-        opp = 0.7;
+    var stroke = "black",
+        opp = 1;
 
 
     var box_w = 45,
@@ -52,7 +52,7 @@ function confusion_matrix(elem) {
     
     // ==== Positive Boxes ==== 
     svg.append('g').append("rect")
-        .attr("class", "boxes")
+        .attr("class", "selected")
         .attr("id","no1")
         .attr("x", 0)
         .attr("y", yScale(0))
@@ -67,7 +67,7 @@ function confusion_matrix(elem) {
     
 
     svg.append('g').append("rect")
-        .attr("class", "boxes")
+        .attr("class", "selected")
         .attr("id","no2")
         .attr("x", box_w+separation)
         .attr("y", yScale(0))
@@ -81,7 +81,7 @@ function confusion_matrix(elem) {
         .style("fill",good_col);
 
     svg.append('g').append("rect")
-        .attr("class", "boxes")
+        .attr("class", "selected")
         .attr("id","no2")
         .attr("x", box_w+separation)
         .attr("y", yScale(0))
@@ -94,7 +94,7 @@ function confusion_matrix(elem) {
     
     // ==== Negative Boxes ====  
     svg.append('g').append("rect")
-        .attr("class", "boxes")
+        .attr("class", "selected")
         .attr("id","no3")
         .attr("x", 0)
         .attr("y", yScale(box_h+separation))
@@ -109,7 +109,7 @@ function confusion_matrix(elem) {
     
 
     svg.append('g').append("rect")
-        .attr("class", "boxes")
+        .attr("class", "selected")
         .attr("id","no4")
         .attr("x", box_w+separation)
         .attr("y", yScale(box_h+separation))
@@ -123,7 +123,7 @@ function confusion_matrix(elem) {
         .style("fill",bad_col);
 
     svg.append('g').append("rect")
-        .attr("class", "boxes")
+        .attr("class", "selected")
         .attr("id","no3")
         .attr("x", 0)
         .attr("y", yScale(box_h+separation))
