@@ -378,24 +378,36 @@
       }
 
       // Right panel table
-      var resp_list_table;
+      
       function alertContentsTable() {
         if (httpRequestTable.readyState === XMLHttpRequest.DONE) {
           if (httpRequestTable.status === 200) {
             //Do stuff with the response
             
             var resp_arr = httpRequestTable.responseText;
-            
+            var resp_list_table;
+            var resp_list_meta;
+
             document.getElementById("table-div").innerHTML = "";
             if (resp_arr!="-1"){
-              resp_list_table = JSON.parse(resp_arr);
+              resp_arr = JSON.parse(resp_arr);
             }
-            var resp_ids = resp_list_table[0];
-            resp_list_table = resp_list_table[1];
+            resp_list_meta = resp_arr[0];
+            resp_list_table = resp_arr[1];
 
             // specify the columns
-            var columnDefs = [];
-            columnDefs.push({headerName: "ID", field: "ID"})
+            var columnDefs = [
+              {headerName: "ID", field: "ID"},
+              {headerName: "Percentage", field: "Percentage"},
+              {headerName: "Category", field: "Category",
+                cellClassRules: {
+                    'table-tp': function(params) { return params.value === "TP"},
+                    'table-tn': function(params) { return params.value === "TN"},
+                    'table-fp': function(params) { return params.value === "FP"},
+                    'table-fn': function(params) { return params.value === "FN"}
+                }
+              }
+            ];
             for (var k=0; k<ft_names.length; k++){
               columnDefs.push({headerName: ft_names[k], field: ft_names[k]});
             }
@@ -405,7 +417,9 @@
             var rowData = [];
             for (var k=0; k<resp_list_table.length; k++){
               var rowPoint = {};
-              rowPoint["ID"] = resp_ids[k];
+              rowPoint["ID"] = resp_list_meta[k][0];
+              rowPoint["Percentage"] = resp_list_meta[k][1];
+              rowPoint["Category"] = resp_list_meta[k][2];
               for (var j=0; j<ft_names.length; j++){
                 rowPoint[ft_names[j]] = resp_list_table[k][j];
               }
@@ -415,7 +429,8 @@
             // let the grid know which columns and what data to use
             var gridOptions = {
               defaultColDef: {
-                  resizable: true
+                  resizable: true,
+                  sortable: true
               },
               columnDefs: columnDefs,
               rowData: rowData
