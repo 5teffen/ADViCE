@@ -21,8 +21,6 @@ def query_pred_range(meta, rang):
 			mask[i] = 1
 	return mask
 
-
-
 # ======== Confusion Matrix Selection(s) ======== 
 def query_confusion_mat(meta, targets):
 	# Possible targets: TP, TN, FP, FN
@@ -35,8 +33,6 @@ def query_confusion_mat(meta, targets):
 			mask[i] = 1
 
 	return mask
-
-
 
 # ============ Feature Combinations =============
 def query_feature_combs(meta, col_ids):
@@ -64,8 +60,6 @@ def query_feature_combs(meta, col_ids):
 
 	return mask
 
-
-
 # ============= Feature Value Range =============
 def query_value_range(data, col_id, low, high):
 	no_samples = data.shape[0]
@@ -78,8 +72,6 @@ def query_value_range(data, col_id, low, high):
 			mask[i] = 1
 
 	return mask
-
-
 
 # ================ Similar Points ===============	
 def query_similar_points(data, meta, idx, radius):
@@ -94,8 +86,6 @@ def query_similar_points(data, meta, idx, radius):
 
 	return mask
 
-
-
 # =========== Create Sample of Points ===========	
 def query_sampled_data(data, percentage):
 	np.random.seed(1)
@@ -107,8 +97,6 @@ def query_sampled_data(data, percentage):
 	
 	return mask
 
-
-
 # ======== Use Mask to Filter Out Points ========
 def apply_mask(all_samples, mask):
 	result = []
@@ -118,7 +106,6 @@ def apply_mask(all_samples, mask):
 			result.append(all_samples[i])
 
 	return result
-
 
 
 

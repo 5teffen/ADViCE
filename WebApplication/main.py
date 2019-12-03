@@ -375,6 +375,23 @@ def violin_site_req():
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
 
+@app.route('/table_req')
+def table_site_req():
+
+	if request.method == 'GET':
+
+		table_samples = request.args.get('id_list').split(',')
+
+		if (table_samples[0]=='' or table_samples[0]=='-1'):
+			return "-1"
+
+		else:
+			table_samples = np.array([int(x)-1 for x in table_samples]) #[:sample_cap])
+			ret_string = json.dumps([ [x+1 for x in table_samples.tolist()], data[table_samples].tolist()])
+			print(ret_string)
+			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
+			return ret_string
+
 
 # ------- Run WebApp ------- #
 

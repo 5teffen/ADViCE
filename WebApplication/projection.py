@@ -236,7 +236,7 @@ def show_projection2(filename, total_samples, algorithm=True, selected_ids=None,
 
 
 def full_projection(file_reduced, file_meta):
-    # --- Data for dimensionlity reduction --- 
+    # --- Data for dimensionality reduction --- 
     data = pd.read_csv(file_reduced, header=None)
     data = data.values
 
