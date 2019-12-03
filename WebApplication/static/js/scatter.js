@@ -212,6 +212,10 @@ function draw_scatter(data, place, mask = null) {
                     }
                 })
 
+            // Send request for aggregation (violin) panel
+            makeViolinRequest(mask);
+            makeTableRequest(mask);
+
         };
         
         var lasso = d3.lasso()
