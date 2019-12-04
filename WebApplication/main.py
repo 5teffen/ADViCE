@@ -392,7 +392,7 @@ def table_site_req():
 
 		else:
 			table_samples = np.array([int(x)-1 for x in table_samples]) #[:sample_cap])
-			ret_string = json.dumps([ [x+1 for x in table_samples.tolist()], data[table_samples].tolist()])
+			ret_string = json.dumps([metadata[table_samples,:3].tolist(), data[table_samples].tolist()])
 			print(ret_string)
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
