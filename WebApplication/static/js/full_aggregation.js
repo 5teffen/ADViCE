@@ -190,7 +190,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         .attr('fill',den_colour)
         .attr('opacity',function(d){
             if (button3){
-                return 0.2;
+                return 0.15;
             }
             else{
                 return 0;
@@ -207,29 +207,30 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
             var med_right = rightMed[ind],
             med_left = leftMed[ind];
         
-            var tick_size = 4;
+            var tick_size = 20
+                tick_width = 1;
            
             den_svg.append("g")
                 .append("line")
                 .attr("class","split_lines")
-                .attr("x1",0)
+                .attr("x1",-tick_size)
                 .attr('y1',function(d){return yScale(med_right);})
                 .attr("y2",function(d){return yScale(med_right);})
                 .attr("x2",tick_size)
+                .style("stroke-dasharray","3,3")
                 .style("stroke",den_colour)
-                .style("stroke-width",3);
+                .style("stroke-width",tick_width);
 
             den_svg.append("g")
                 .append("line")
                 .attr("class","split_lines")
-                .attr("x1",0)
+                .attr("x1",tick_size)
                 .attr('y1',function(d){return yScale(med_left);})
                 .attr("y2",function(d){return yScale(med_left);})
                 .attr("x2",-tick_size)
                 .style("stroke",den_colour)
-                .style("stroke-width",3);
-            };
-
+                .style("stroke-width",tick_width);
+        }
 
         // ==== Drawing mean lines ====
         if (button2) {
@@ -237,27 +238,53 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
             med_left = leftMean[ind]
             mean_col = "#e7298a";
         
-            var tick_size = 4;
-           
-            den_svg.append("g")
-                .append("line")
-                .attr("class","split_lines")
-                .attr("x1",0)
-                .attr('y1',function(d){return yScale(med_right);})
-                .attr("y2",function(d){return yScale(med_right);})
-                .attr("x2",tick_size)
-                .style("stroke",mean_col)
-                .style("stroke-width",3);
+            var tick_size = 20
+                tick_width = 1;
+
 
             den_svg.append("g")
                 .append("line")
                 .attr("class","split_lines")
-                .attr("x1",0)
+                .attr("x1",-tick_size)
+                .attr('y1',function(d){return yScale(med_right);})
+                .attr("y2",function(d){return yScale(med_right);})
+                .attr("x2",tick_size)
+                .style("stroke-dasharray","3,3")
+                .style("stroke",mean_col)
+                .style("stroke-width",tick_width);
+
+            den_svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",tick_size)
                 .attr('y1',function(d){return yScale(med_left);})
                 .attr("y2",function(d){return yScale(med_left);})
                 .attr("x2",-tick_size)
                 .style("stroke",mean_col)
-                .style("stroke-width",3);
+                .style("stroke-width",tick_width);
+
+
+
+           
+            // den_svg.append("g")
+            //     .append("line")
+            //     .attr("class","split_lines")
+            //     .attr("x1",0)
+            //     .attr('y1',function(d){return yScale(med_right);})
+            //     .attr("y2",function(d){return yScale(med_right);})
+            //     .attr("x2",tick_size)
+            //     .style("stroke",mean_col)
+            //     .style("stroke-width",3);
+
+            // den_svg.append("g")
+            //     .append("line")
+            //     .attr("class","split_lines")
+            //     .attr("x1",0)
+            //     .attr('y1',function(d){return yScale(med_left);})
+            //     .attr("y2",function(d){return yScale(med_left);})
+            //     .attr("x2",-tick_size)
+            //     .style("stroke",mean_col)
+            //     .style("stroke-width",3);
         };
 
 
@@ -268,7 +295,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
         .attr('fill',den_colour)
         .attr('opacity',function(d){
             if (button3){
-                return 0.4;
+                return 0.3;
             }
             else{
                 return 0;
