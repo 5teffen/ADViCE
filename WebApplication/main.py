@@ -334,6 +334,11 @@ def scatter_request():
 		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
 
 
+		# OSCAR 
+		summary = prep_filter_summary(all_points,no_samples)
+		print(summary)
+
+
 		start_mask = np.ones(data.shape[0])
 
 		mask1 = query_pred_range(metadata, pred_range)

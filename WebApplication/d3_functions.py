@@ -6,6 +6,34 @@ from utils import *
 from global_explanations import *
 
 
+def prep_filter_summary(points, no_samples):
+  tp = 0
+  fp = 0 
+  tn = 0
+  fn = 0 
+  count = 0
+  for p in points:
+    cat = p['category']
+    if cat == "TP":
+      tp += 1
+    elif cat == "FP":
+      fp += 1 
+
+    elif cat == "TN":
+      tn += 1 
+
+    elif cat == "FN":
+      fn += 1
+
+    count += 1
+
+  result = {"tot_p": no_samples, "no_p": count, "tp":tp, "fp":fp, "tn":tn, "fn":fn,   }
+
+  return result
+
+
+
+
 def prep_feature_selector(feature_no, names, all_den, ranges):
   out_dict = {"name":names[feature_no]}
   out_dict["den"] = all_den[feature_no]
