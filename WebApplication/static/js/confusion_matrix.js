@@ -187,6 +187,7 @@ function confusion_matrix(elem) {
 
     svg.append('g').append("rect")
         .attr("class", "button")
+        .attr("id", "TP-button")
         .attr("x", 0)
         .attr("y", yScale(0))
         .attr("width", box_w)
@@ -194,15 +195,21 @@ function confusion_matrix(elem) {
         .attr("opacity", 0)
         .style("fill","black")        
         .on('click', function(d) {
+            if (confusion_restart == true){
+                //console.log("restart");
+                d3.select("#no"+"1").attr("class", "boxes");
+                matrixTrigger(true, "TP");
+                return;
+            }
             var cur_class = d3.select("#no"+"1").attr('class');
             d3.select("#no"+"1")
                 .attr("class",function(d){
                     if (cur_class == "selected"){
-                        console.log("TP is 0");
+                        //console.log("TP is 0");
                         matrixTrigger(false, "TP");
                         return "boxes";
                     }
-                    console.log("TP is 1");
+                    ////console.log("TP is 1");
                     matrixTrigger(true, "TP");
                     return "selected";})
                 .attr("opacity", 1)
@@ -216,6 +223,7 @@ function confusion_matrix(elem) {
 
     svg.append('g').append("rect")
         .attr("class", "button")
+        .attr("id", "FP-button")
         .attr("x", box_w+separation)
         .attr("y", yScale(0))
         .attr("width", box_w)
@@ -223,15 +231,21 @@ function confusion_matrix(elem) {
         .attr("opacity", 0)
         .style("fill","black")
         .on('click', function(d) {
+            if (confusion_restart == true){
+                //console.log("restart");
+                d3.select("#no"+"2").attr("class", "boxes");
+                matrixTrigger(true, "FP");
+                return;
+            }
             var cur_class = d3.select("#no"+"2").attr('class');
             d3.select("#no"+"2")
                 .attr("class",function(d){
                     if (cur_class == "selected"){
-                        console.log("FP is 0");
+                        //console.log("FP is 0");
                         matrixTrigger(false, "FP");
                         return "boxes";
                     }
-                    console.log("FP is 1");
+                    //console.log("FP is 1");
                     matrixTrigger(true, "FP");
                     return "selected";})
                 .attr("opacity", 1)
@@ -245,6 +259,7 @@ function confusion_matrix(elem) {
 
     svg.append('g').append("rect")
         .attr("class", "button")
+        .attr("id", "FN-button")
         .attr("x", 0)
         .attr("y", yScale(box_h+separation))
         .attr("width", box_w)
@@ -252,15 +267,22 @@ function confusion_matrix(elem) {
         .attr("opacity", 0)
         .style("fill","black")        
         .on('click', function(d) {
+            if (confusion_restart == true){
+                //console.log("restart");
+                d3.select("#no"+"3").attr("class", "boxes");
+                matrixTrigger(true, "FN");
+                return;
+            }
+            //console.log("no restart");
             var cur_class = d3.select("#no"+"3").attr('class');
             d3.select("#no"+"3")
                 .attr("class",function(d){
                     if (cur_class == "selected"){
-                        console.log("FN is 0");
+                        //console.log("FN is 0");
                         matrixTrigger(false, "FN");
                         return "boxes";
                     }
-                    console.log("FN is 1");
+                    //console.log("FN is 1");
                     matrixTrigger(true, "FN");
                     return "selected";})
                 .attr("opacity", 1)
@@ -274,6 +296,7 @@ function confusion_matrix(elem) {
 
     svg.append('g').append("rect")
         .attr("class", "button")
+        .attr("id", "TN-button")
         .attr("x", box_w+separation)
         .attr("y", yScale(box_h+separation))
         .attr("width", box_w)
@@ -281,15 +304,21 @@ function confusion_matrix(elem) {
         .attr("opacity", 0)
         .style("fill","black")
         .on('click', function(d) {
+            if (confusion_restart == true){
+                //console.log("restart");
+                d3.select("#no"+"4").attr("class", "boxes");
+                matrixTrigger(true, "TN");
+                return;
+            }
             var cur_class = d3.select("#no"+"4").attr('class');
             d3.select("#no"+"4")
                 .attr("class",function(d){
                     if (cur_class == "selected"){
-                        console.log("TN is 0");
+                        //console.log("TN is 0");
                         matrixTrigger(false, "TN");
                         return "boxes";
                     }
-                    console.log("TN is 1");
+                    //console.log("TN is 1");
                     matrixTrigger(true, "TN");
                     return "selected";})
                 .attr("opacity", 1)
