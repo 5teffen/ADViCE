@@ -46,13 +46,15 @@ diabetes_dataset = dataset("diabetes", [])
 fico_dataset = dataset("fico", [0])
 heart_dataset = dataset("heart", [1,5,6,8])
 delinquency_dataset = dataset("delinquency", [9])
+wine_dataset = dataset("wine", [])
 
 dataset_dict = {
 	'admissions': admissions_dataset,
 	'diabetes': diabetes_dataset,
 	'fico': fico_dataset,
 	'heart': heart_dataset,
-	'delinquency': delinquency_dataset
+	'delinquency': delinquency_dataset,
+	'wine':wine_dataset
 }
 
 # --- Data initialization ---

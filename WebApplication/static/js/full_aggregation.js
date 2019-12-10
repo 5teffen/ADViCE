@@ -217,8 +217,8 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
                 .attr('y1',function(d){return yScale(med_right);})
                 .attr("y2",function(d){return yScale(med_right);})
                 .attr("x2",tick_size)
-                .style("stroke-dasharray","3,3")
                 .style("stroke",den_colour)
+                .style("stroke-opacity",0.7)
                 .style("stroke-width",tick_width);
 
             den_svg.append("g")
@@ -229,6 +229,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
                 .attr("y2",function(d){return yScale(med_left);})
                 .attr("x2",-tick_size)
                 .style("stroke",den_colour)
+                .style("stroke-dasharray","3,3")
                 .style("stroke-width",tick_width);
         }
 
@@ -249,8 +250,8 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
                 .attr('y1',function(d){return yScale(med_right);})
                 .attr("y2",function(d){return yScale(med_right);})
                 .attr("x2",tick_size)
-                .style("stroke-dasharray","3,3")
                 .style("stroke",mean_col)
+                .style("stroke-opacity",0.7)
                 .style("stroke-width",tick_width);
 
             den_svg.append("g")
@@ -261,6 +262,7 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
                 .attr("y2",function(d){return yScale(med_left);})
                 .attr("x2",-tick_size)
                 .style("stroke",mean_col)
+                .style("stroke-dasharray","3,3")
                 .style("stroke-width",tick_width);
 
 

@@ -1,5 +1,6 @@
 function draw_summary(elem) {
-
+    var good_col = "#d95f02",
+        bad_col = "#1b9e77";
 
     const tp = "3282",
           fp = "1220",
@@ -152,7 +153,7 @@ function draw_summary(elem) {
         .attr("fill", 'url(#diagonalHatch)');
     
     
-        svg.append('g').append("text")
+    svg.append('g').append("text")
         .text(fn)
         .attr("x",centre-23)
         .attr("y",212)

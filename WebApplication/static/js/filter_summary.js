@@ -12,8 +12,8 @@ data_sum = {
 function draw_summary(data, place) {
 
     // --- Colour parameters --- 
-    var good_col = "#d95f02",
-        bad_col = "#1b9e77",
+    var bad_col = "#d95f02",
+        good_col = "#1b9e77",
         den_colour = "#7570b3",
         den_colour2 = "rgb(180, 177, 213)";
 
@@ -93,7 +93,8 @@ function draw_summary(data, place) {
 
 
     svg.append('g').append("text")
-        .text("Selected:\n " + data.no_p.toString() + '/'+ data.tot_p.toString())
+        // .text("Points:\n " + data.no_p.toString() + '/'+ data.tot_p.toString())
+        .text(data.no_p.toString() + '/'+ data.tot_p.toString())
         .attr("x",centre)
         .attr("y",30)
         .attr("text-anchor","middle")
