@@ -102,6 +102,11 @@ function draw_scatter(data, place, mask = null) {
         mask = new Array(data.length).fill(0);
     }
 
+    console.log(mask.length);
+
+    // makeViolinRequest(mask);
+    // makeTableRequest(mask);
+
 
     var good_col = "#1b9e77",
         bad_col = "#d95f02";

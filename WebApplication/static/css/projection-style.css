@@ -1403,12 +1403,13 @@ table #model-display {
 
 #table-div {
   margin-top: 0px;
-  width: 820px;
+  width: 600px;
   height: 300px;
   padding-top: 0px;
   display: inline-block;
-  float: left;
+  float: right;
   border: 0px solid lightgray;
+  margin-left: 15px;
 }
 
 

@@ -325,19 +325,13 @@ def scatter_request():
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
 			ret_arr = ids_with_combination(preproc_path,ft_list,anchs=False)
-			print(ret_arr)
 
 		#show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 		#ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
 
 		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
-
-
-		# OSCAR 
-		summary = prep_filter_summary(all_points,no_samples)
-		print(summary)
-
+		
 
 		start_mask = np.ones(data.shape[0])
 
@@ -351,11 +345,15 @@ def scatter_request():
 
 		current_mask = start_mask*mask1*mask2 #*mask6
 
-		result = apply_mask(all_points, current_mask)	
+		result = apply_mask(all_points, current_mask)
+		summary = prep_filter_summary(result,no_samples)
 
 
 		## Parse values into python dictionary
-		ret_string = json.dumps(result)
+		jsmask1 = [0]
+		jsmask2 = current_mask.tolist()
+		jsmask1.extend(jsmask2)
+		ret_string = json.dumps([result, jsmask1, summary])
 		return ret_string
 
 @app.route('/violin_req')

@@ -34,6 +34,7 @@
     <script type="text/javascript" src="static/js/d3-lasso.min.js"></script>
     <script type="text/javascript" src="static/js/scatter.js"></script>
     <script type="text/javascript" src="static/js/confusion_matrix.js"></script>
+    <script type="text/javascript" src="static/js/filter_summary.js"></script>
 
   </head>
 
@@ -95,9 +96,15 @@
           <div id="distribution-div">
             Distribution
           </div>
-          <div id="table-div" class="ag-theme-balham">
-            Table
-          </div>
+          <div style="display: inline-block;">
+            <div id="summary-div" style="display: inline-block;">
+              Summary
+            </div>
+            <div id="table-div" class="ag-theme-balham">
+              Table
+            </div>
+            
+          <div>
         </div>
           
 
@@ -126,6 +133,7 @@
       var directionality = "True";
       var pred_range = [0,100];
       var confusion_mat = ["TP", "FP", "TN", "FN"];
+      var confusion_restart = true;
 
 
 
@@ -160,7 +168,7 @@
         }
         
         req_arr = [];
-        console.log(selected_fts);
+        //console.log(selected_fts);
         //console.log(ft_names);
 
 
@@ -192,6 +200,7 @@
         if (httpRequest.readyState === XMLHttpRequest.OPENED){
           document.getElementById("middle-panel-proj").style.display = "inline-block";
           document.getElementById("bokeh-div").innerHTML = "";
+          document.getElementById("summary-div").innerHTML = "";
           // document.getElementById("middle-panel-proj").innerHTML = "";
           // document.getElementById("right-panel-proj").innerHTML = "";
           // add_loader(document.getElementById("middle-panel-proj"));    
@@ -210,7 +219,12 @@
             // document.getElementById('bokeh-iframe').style.display = "none";
             var allData = JSON.parse(resp_arr);
             // console.log(allData);
-            draw_scatter(allData, '#bokeh-div');
+            draw_scatter(allData[0], '#bokeh-div');
+            draw_summary(allData[2], '#summary-div');
+            //console.log(allData[1]);
+            makeViolinRequest(allData[1]);
+            makeTableRequest(allData[1]);
+            //makeAggregationRequest();
 
           }
           else {
@@ -306,7 +320,6 @@
         }
         if (id_list.length<1) id_list=[-1];
         curr_aggr_ids = id_list;
-        console.log(curr_aggr_ids);
         httpRequestViolin.onreadystatechange = alertContentsViolin;
         // httpRequestViolin.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
         httpRequestViolin.open('GET', 'violin_req?id_list='+id_list);  
@@ -362,13 +375,14 @@
           return false;
         }
 
+        console.log(mask.length);
+
         var id_list = [];
         for (var k=0; k<mask.length; k++){
           if(mask[k]==1) id_list.push(k);
         }
         if (id_list.length<1) return false;
         curr_aggr_ids = id_list;
-        console.log(curr_aggr_ids);
 
         httpRequestTable.onreadystatechange = alertContentsTable;
         // httpRequestTable.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
@@ -435,6 +449,8 @@
               columnDefs: columnDefs,
               rowData: rowData
             };
+
+            console.log("drawing table aggr");
 
             // setup the grid after the page has finished loading
             var gridDiv = document.querySelector('#table-div');
@@ -515,6 +531,16 @@
         curr_alg = "True";
         dim_red = "TSNE";
         directionality = "True";
+        
+
+        var cf = ["TP", "FP", "TN", "FN"];
+        for (var k=0; k<cf.length; k++){
+          if (!confusion_mat.includes(cf[k])){
+            var button_id = "#" + cf[k] + "-button";
+            d3.select(button_id).dispatch('click');
+          }
+        }
+        confusion_restart = true;
 
         // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
         //   curr_alg = "False";
@@ -664,23 +690,38 @@
         if (elem.checked == true){
           console.log("Checked");
           confusion_mat.push(text);
-          console.log(confusion_mat);
+          //console.log(confusion_mat);
 
         } else {
            console.log("Unchecked");
            confusion_mat.splice(confusion_mat.indexOf(text), 1);
-           console.log(confusion_mat);
+           //console.log(confusion_mat);
         }
         makeScatterRequest();
       }
 
       function matrixTrigger(checked, text){
+        // when restarted, all boxes are checked, click selects ONLY one
+        if (confusion_restart == true){
+          confusion_restart = false;
+          confusion_mat.splice(confusion_mat.indexOf(text), 1);
+          var local = ["TP", "FP", "TN", "FN"];
+          //local.splice(local.indexOf(text), 1);
+          for (var k=0; k<local.length; k++){
+            var button_id = "#" + local[k] + "-button";
+            //console.log(button_id);
+            d3.select(button_id).dispatch('click');
+            // document.getElementById(button_id).onclick();
+          }
+          return;
+          
+        }
         if (checked == true){
           confusion_mat.push(text);
-          console.log(confusion_mat);
+          //console.log(confusion_mat);
         } else {
            confusion_mat.splice(confusion_mat.indexOf(text), 1);
-           console.log(confusion_mat);
+           //console.log(confusion_mat);
         }
         makeScatterRequest();
       }
