@@ -78,7 +78,7 @@ def init_data(dataset):
 	projection_anchs_path = folder_path + data_name + "_anchs_proj.csv"
 	reduced_data_path = folder_path + data_name + "_raw_proj"
 
-	print(reduced_data_path)
+	# print(reduced_data_path)
 
 	no_bins = 10
 
@@ -264,7 +264,7 @@ def handle_request():
 				if type(lock) in [int, str]:
 					lock = [lock]
 				lock = [int(e) for e in lock]
-				print(lock)
+				# print(lock)
 
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
@@ -318,7 +318,7 @@ def scatter_request():
 		confusion_mat = request.args.get('confusion_mat').split(',')
 		pred_range = request.args.get('pred_range').split(',')
 		pred_range = [int(x) for x in pred_range]
-		print(type(pred_range), pred_range)
+		# print(type(pred_range), pred_range)
 
 		if ft_list[0] == '-1' or ft_list == ['']:
 			ret_arr = list(range(data.shape[0]))
@@ -331,9 +331,45 @@ def scatter_request():
 		#show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 		#ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
-
 		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
+
+
+		# OSCAR: At the moment the logic is with only one set of filters. Should be easy to accomodate multiple.
+		# 			Probaly add a global list variable that stores the last filter_dict. 
+		#		Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
 		
+		# ==== Filter Dictionary ==== 
+		# Note: order is TP, FP, FN, TN 
+		conf_list = [0,0,0,0]
+		for label in confusion_mat:
+			if label == "TP":
+				conf_list[0] = 1
+			if label == "FP":
+				conf_list[1] = 1
+			if label == "FN":
+				conf_list[2] = 1
+			if label == "TN":
+				conf_list[3] = 1
+
+		filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list}
+		
+
+		# ==== Filter Dictionary -> D3 ====
+		filter_lst = []
+		# Note: this logic might reorder the filters (future fix)
+		if ((pred_range[0] != 0) or (pred_range[1] != 100)):
+			single_filter = [1, {"low":pred_range[0], "high":pred_range[0]}]
+			filter_lst.append(single_filter)
+
+		if (not all(v == 1 for v in conf_list)):
+			single_filter = [2, {"tp":conf_list[0], "fp":conf_list[1] ,"fn":conf_list[2] ,"tn":conf_list[3]}]
+			filter_lst.append(single_filter)
+
+		print(filter_lst) # OSCAR: This needs to go to D3 feature selector as input
+
+
+
+		# === Apply Masks === 
 
 		start_mask = np.ones(data.shape[0])
 
@@ -398,7 +434,7 @@ def table_site_req():
 		else:
 			table_samples = np.array([int(x)-1 for x in table_samples]) #[:sample_cap])
 			ret_string = json.dumps([metadata[table_samples,:3].tolist(), data[table_samples].tolist()])
-			print(ret_string)
+			# print(ret_string)
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 			return ret_string
 
