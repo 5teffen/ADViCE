@@ -1,7 +1,31 @@
-function confusion_matrix(elem) {
+// Order: [TP, FP, FN, TN]
+
+// var test_input = [1,1,0,0];
+
+function confusion_matrix(state, elem) {
 
     var good_col = "#1b9e77",
         bad_col = "#d95f02";
+
+
+    // Input logic 
+
+    // if(state == [1,1,1,1])
+
+
+    var opp1 = 0.5,
+        opp2 = 0.5,
+        opp3 = 0.5,
+        opp4 = 0.5;
+    
+    if (state[0] == 1) {opp1 = 1;}
+
+    if (state[1] == 1) {opp2 = 1;}
+
+    if (state[2] == 1) {opp3 = 1;}
+
+    if (state[3] == 1) {opp4 = 1;}
+
 
 
     var stroke = "black",
@@ -52,7 +76,9 @@ function confusion_matrix(elem) {
     
     // ==== Positive Boxes ==== 
     svg.append('g').append("rect")
-        .attr("class", "selected")
+        .attr("class", function(d){
+            if (opp1 == 1){return "selected";}
+            else {return "boxes";}})
         .attr("id","no1")
         .attr("x", 0)
         .attr("y", yScale(0))
@@ -62,12 +88,14 @@ function confusion_matrix(elem) {
         .attr("ry", roundness)
         .attr("stroke",stroke)
         .attr("stroke-width","1")
-        .attr("opacity", opp)
+        .attr("opacity", opp1)
         .style("fill",good_col);
     
 
     svg.append('g').append("rect")
-        .attr("class", "selected")
+        .attr("class", function(d){
+            if (opp2 == 1){return "selected";}
+            else {return "boxes";}})
         .attr("id","no2")
         .attr("x", box_w+separation)
         .attr("y", yScale(0))
@@ -77,11 +105,13 @@ function confusion_matrix(elem) {
         .attr("ry", roundness)
         .attr("stroke",stroke)
         .attr("stroke-width","1")
-        .attr("opacity", opp)
+        .attr("opacity", opp2)
         .style("fill",good_col);
 
     svg.append('g').append("rect")
-        .attr("class", "selected")
+        .attr("class", function(d){
+            if (opp2 == 1){return "selected";}
+            else {return "boxes";}})
         .attr("id","no2")
         .attr("x", box_w+separation)
         .attr("y", yScale(0))
@@ -89,12 +119,14 @@ function confusion_matrix(elem) {
         .attr("height", box_h)
         .attr("rx", roundness)
         .attr("ry", roundness)
-        .attr("opacity", opp)
+        .attr("opacity", opp2)
         .attr("fill", 'url(#diagonalHatch)');
     
     // ==== Negative Boxes ====  
     svg.append('g').append("rect")
-        .attr("class", "selected")
+        .attr("class", function(d){
+            if (opp3 == 1){return "selected";}
+            else {return "boxes";}})
         .attr("id","no3")
         .attr("x", 0)
         .attr("y", yScale(box_h+separation))
@@ -104,12 +136,14 @@ function confusion_matrix(elem) {
         .attr("ry", roundness)
         .attr("stroke",stroke)
         .attr("stroke-width","1")
-        .attr("opacity", opp)
+        .attr("opacity", opp3)
         .style("fill",bad_col);
     
 
     svg.append('g').append("rect")
-        .attr("class", "selected")
+        .attr("class", function(d){
+            if (opp4 == 1){return "selected";}
+            else {return "boxes";}})
         .attr("id","no4")
         .attr("x", box_w+separation)
         .attr("y", yScale(box_h+separation))
@@ -119,11 +153,13 @@ function confusion_matrix(elem) {
         .attr("ry", roundness)
         .attr("stroke",stroke)
         .attr("stroke-width","1")
-        .attr("opacity", opp)
+        .attr("opacity", opp4)
         .style("fill",bad_col);
 
     svg.append('g').append("rect")
-        .attr("class", "selected")
+        .attr("class", function(d){
+            if (opp4 == 1){return "selected";}
+            else {return "boxes";}})
         .attr("id","no3")
         .attr("x", 0)
         .attr("y", yScale(box_h+separation))
@@ -131,7 +167,7 @@ function confusion_matrix(elem) {
         .attr("height", box_h)
         .attr("rx", roundness)
         .attr("ry", roundness)
-        .attr("opacity", opp)
+        .attr("opacity", opp4)
         .attr("fill", 'url(#diagonalHatch)');
 
 
@@ -209,7 +245,7 @@ function confusion_matrix(elem) {
                         matrixTrigger(false, "TP");
                         return "boxes";
                     }
-                    ////console.log("TP is 1");
+                    //console.log("TP is 1");
                     matrixTrigger(true, "TP");
                     return "selected";})
                 .attr("opacity", 1)
@@ -335,4 +371,4 @@ function confusion_matrix(elem) {
 
 
 
-confusion_matrix("body");
+confusion_matrix(test_input,"body");
