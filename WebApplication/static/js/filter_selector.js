@@ -1,26 +1,28 @@
 
-data_sum = {
-    no_p: 500,
-    tot_p: 1000,
-    tp: 20,
-    fp: 30,
-    fn: 15,
-    tn: 50
-}
+// data_sum = {
+//     no_p: 500,
+//     tot_p: 1000,
+//     tp: 20,
+//     fp: 30,
+//     fn: 15,
+//     tn: 50
+// }
 
-/*
 
-Filter Legend:
-0 - Model Accuracy Range
-1 - Prediction Label
-2 - Feature Range
-*/
 
-filter_data = [[1,{low: 10, high:50}], [2,{tp:1, fp:1 ,fn:0 ,tn:0}]];
-// filter_data = [];
+// Filter Legend:
+// 1 - Model Accuracy Range
+// 2 - Prediction Label
+// 3 - Feature Range
+
+
+// filter_data = [[1,{low: 10, high:50}], [2,{tp:1, fp:1 ,fn:0 ,tn:0}]];
+// // filter_data = [];
 
 
 function draw_summary(data, filData, place) {
+
+    console.log("drawing Summary")
 
     // --- Colour parameters --- 
     var good_col = "#d95f02",
@@ -365,4 +367,4 @@ function draw_summary(data, filData, place) {
 
 }
 
-draw_summary(data_sum, filter_data, "body")
+// draw_summary(data_sum, filter_data, "body")
