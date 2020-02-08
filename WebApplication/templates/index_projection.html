@@ -34,7 +34,7 @@
     <script type="text/javascript" src="static/js/d3-lasso.min.js"></script>
     <script type="text/javascript" src="static/js/scatter.js"></script>
     <script type="text/javascript" src="static/js/confusion_matrix.js"></script>
-    <script type="text/javascript" src="static/js/filter_summary.js"></script>
+    <script type="text/javascript" src="static/js/filter_selector.js"></script>
 
   </head>
 
@@ -100,6 +100,13 @@
             <div id="summary-div" style="display: inline-block;">
               Summary
             </div>
+            <div id="filter-select-div" style="display: inline-block;">
+              <div class="pagination">
+                <a id='filter-button-1' href="#" class="active" onclick="changeFilterSet(1)">1</a>
+                <a id='filter-button-2' href="#" onclick="changeFilterSet(2)">2</a>
+                <a id='filter-button-3' href="#" onclick="changeFilterSet(3)">3</a>
+              </div>
+            </div>
             <div id="table-div" class="ag-theme-balham">
               Table
             </div>
@@ -131,9 +138,11 @@
       var curr_alg = "True";
       var dim_red = "PCA";
       var directionality = "True";
-      var pred_range = [0,100];
-      var confusion_mat = ["TP", "FP", "TN", "FN"];
-      var confusion_restart = true;
+      var pred_range = [[0,100],[0,100],[0,100]];
+      var confusion_mat = [["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"]];
+      var confusion_restart = [true,true,true];
+      var filter_set_idx = 1;
+      // var master_filter_list = [{0},{0},{0}];
 
 
 
@@ -189,7 +198,7 @@
 
         
         httpRequest.onreadystatechange = alertScatterPlot;
-        httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat='+ confusion_mat + '&pred_range='+ pred_range );
+        httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat='+ confusion_mat[filter_set_idx] + '&pred_range='+ pred_range[filter_set_idx] + '&filter_set_idx='+ filter_set_idx );
         httpRequest.send();
         return false;
       }
@@ -218,19 +227,25 @@
             // document.getElementById('bokeh-iframe').contentWindow.location.reload();
             // document.getElementById('bokeh-iframe').style.display = "none";
             var allData = JSON.parse(resp_arr);
-            // console.log(allData);
+            console.log(allData);
             draw_scatter(allData[0], '#bokeh-div');
-            draw_summary(allData[2], '#summary-div');
+            draw_summary(allData[2],  allData[3], '#summary-div');
             //console.log(allData[1]);
             makeViolinRequest(allData[1]);
             makeTableRequest(allData[1]);
             //makeAggregationRequest();
+
+            // Save the results
 
           }
           else {
               alert('HttpRequest Error')
           }
         }
+      }
+
+      function displayCachedFilterResults(idx){
+
       }
 
       // Style and send request for PCA and tSNE buttons
@@ -391,8 +406,7 @@
         return false;
       }
 
-      // Right panel table
-      
+      // Right panel table   
       function alertContentsTable() {
         if (httpRequestTable.readyState === XMLHttpRequest.DONE) {
           if (httpRequestTable.status === 200) {
@@ -535,12 +549,12 @@
 
         var cf = ["TP", "FP", "TN", "FN"];
         for (var k=0; k<cf.length; k++){
-          if (!confusion_mat.includes(cf[k])){
+          if (!confusion_mat[filter_set_idx].includes(cf[k])){
             var button_id = "#" + cf[k] + "-button";
             d3.select(button_id).dispatch('click');
           }
         }
-        confusion_restart = true;
+        confusion_restart[filter_set_idx] = true;
 
         // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
         //   curr_alg = "False";
@@ -676,7 +690,7 @@
           set: [0, 100],
           onChange: function (vals) {
             console.log(vals);
-            pred_range=[vals];
+            pred_range[filter_set_idx]=[vals];
             makeScatterRequest();
           }
         });
@@ -689,12 +703,12 @@
         console.log(text);
         if (elem.checked == true){
           console.log("Checked");
-          confusion_mat.push(text);
+          confusion_mat[filter_set_idx].push(text);
           //console.log(confusion_mat);
 
         } else {
            console.log("Unchecked");
-           confusion_mat.splice(confusion_mat.indexOf(text), 1);
+           confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
            //console.log(confusion_mat);
         }
         makeScatterRequest();
@@ -702,9 +716,9 @@
 
       function matrixTrigger(checked, text){
         // when restarted, all boxes are checked, click selects ONLY one
-        if (confusion_restart == true){
-          confusion_restart = false;
-          confusion_mat.splice(confusion_mat.indexOf(text), 1);
+        if (confusion_restart[filter_set_idx] == true){
+          confusion_restart[filter_set_idx] = false;
+          confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
           var local = ["TP", "FP", "TN", "FN"];
           //local.splice(local.indexOf(text), 1);
           for (var k=0; k<local.length; k++){
@@ -717,13 +731,25 @@
           
         }
         if (checked == true){
-          confusion_mat.push(text);
+          confusion_mat[filter_set_idx].push(text);
           //console.log(confusion_mat);
         } else {
-           confusion_mat.splice(confusion_mat.indexOf(text), 1);
+           confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
            //console.log(confusion_mat);
         }
         makeScatterRequest();
+      }
+
+      function changeFilterSet(idx){
+        if (document.getElementById('filter-select-div').innerHTML != ''){
+          for (var j=1; j<=3; j++){
+            document.getElementById('filter-button-'+ j.toString()).classList.remove('active');
+          }
+          document.getElementById('filter-button-'+idx.toString()).classList.add('active');
+          filter_set_idx = idx;
+          makeScatterRequest();
+          // displayCachedFilterResults(idx);
+        }
       }
 
       fetch_csv();

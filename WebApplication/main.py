@@ -335,8 +335,8 @@ def scatter_request():
 
 
 		# OSCAR: At the moment the logic is with only one set of filters. Should be easy to accomodate multiple.
-		# 			Probaly add a global list variable that stores the last filter_dict. 
-		#		Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
+		# 		 Probaly add a global list variable that stores the last filter_dict. 
+		#		 Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
 		
 		# ==== Filter Dictionary ==== 
 		# Note: order is TP, FP, FN, TN 
@@ -351,6 +351,11 @@ def scatter_request():
 			if label == "TN":
 				conf_list[3] = 1
 
+		# // Filter Legend:
+		# // 1 - Model Accuracy Range
+		# // 2 - Prediction Label
+		# // 3 - Feature Range
+
 		filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list}
 		
 
@@ -358,7 +363,7 @@ def scatter_request():
 		filter_lst = []
 		# Note: this logic might reorder the filters (future fix)
 		if ((pred_range[0] != 0) or (pred_range[1] != 100)):
-			single_filter = [1, {"low":pred_range[0], "high":pred_range[0]}]
+			single_filter = [1, {"low":pred_range[0], "high":pred_range[1]}]
 			filter_lst.append(single_filter)
 
 		if (not all(v == 1 for v in conf_list)):
@@ -384,14 +389,14 @@ def scatter_request():
 		current_mask = start_mask*mask1*mask2 #*mask6
 
 		result = apply_mask(all_points, current_mask)
-		summary = prep_filter_summary(result,no_samples)
+		summary = prep_filter_summary(result, no_samples)
 
 
 		## Parse values into python dictionary
 		jsmask1 = [0]
 		jsmask2 = current_mask.tolist()
 		jsmask1.extend(jsmask2)
-		ret_string = json.dumps([result, jsmask1, summary])
+		ret_string = json.dumps([result, jsmask1, summary, filter_lst])
 		return ret_string
 
 @app.route('/violin_req')
