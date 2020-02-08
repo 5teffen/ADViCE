@@ -102,9 +102,9 @@
             </div>
             <div id="filter-select-div" style="display: inline-block;">
               <div class="pagination">
-                <a id='filter-button-1' href="#" class="active" onclick="changeFilterSet(1)">1</a>
-                <a id='filter-button-2' href="#" onclick="changeFilterSet(2)">2</a>
-                <a id='filter-button-3' href="#" onclick="changeFilterSet(3)">3</a>
+                <a id='filter-button-0' href="#" class="active" onclick="changeFilterSet(0)">1</a>
+                <a id='filter-button-1' href="#" onclick="changeFilterSet(1)">2</a>
+                <a id='filter-button-2' href="#" onclick="changeFilterSet(2)">3</a>
               </div>
             </div>
             <div id="table-div" class="ag-theme-balham">
@@ -140,11 +140,41 @@
       var directionality = "True";
       var pred_range = [[0,100],[0,100],[0,100]];
       var confusion_mat = [["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"]];
-      var confusion_restart = [true,true,true];
-      var filter_set_idx = 1;
+      // var confusion_restart = [true,true,true];
+      var filter_set_idx = 0;
       // var master_filter_list = [{0},{0},{0}];
 
+      // Check if currently all filters are selected to handle logic of click dispatches
+      function confusion_restart(){
+        if (confusion_mat[filter_set_idx].length == 4){
+          return true;
+        }
+        else return false;
+      }
 
+      function confusion_mat_2_state(curr_conf_mat){
+        // Order: [TP, FP, FN, TN]
+        var state = [];
+        if (curr_conf_mat.indexOf("TP") > -1){state.push(1);}
+        else {state.push(0);}
+        if (curr_conf_mat.indexOf("FP") > -1){state.push(1);}
+        else {state.push(0);}
+        if (curr_conf_mat.indexOf("FN") > -1){state.push(1);}
+        else {state.push(0);}
+        if (curr_conf_mat.indexOf("TN") > -1){state.push(1);}
+        else {state.push(0);}
+        return state;
+      }
+
+      // wrapper to avoid duplicates
+      function draw_confusion_matrix(elem, state){
+        // Order: [TP, FP, FN, TN]
+        var curr_matrix = document.getElementsByClassName("confusionMat");
+        if (curr_matrix.length > 0){
+          curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
+        }
+        confusion_matrix(elem, state);
+      }
 
       // Get preprocessed csv file
       function fetch_csv(){
@@ -554,7 +584,7 @@
             d3.select(button_id).dispatch('click');
           }
         }
-        confusion_restart[filter_set_idx] = true;
+        // confusion_restart[filter_set_idx] = true;
 
         // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
         //   curr_alg = "False";
@@ -695,7 +725,7 @@
           }
         });
 
-        confusion_matrix("#filter-div");
+        draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
       }
 
       function checkTrigger(elem) {
@@ -716,37 +746,43 @@
 
       function matrixTrigger(checked, text){
         // when restarted, all boxes are checked, click selects ONLY one
-        if (confusion_restart[filter_set_idx] == true){
-          confusion_restart[filter_set_idx] = false;
+        if (confusion_restart() == true){
+          // confusion_restart[filter_set_idx] = false;
+          console.log("AAA", confusion_mat[filter_set_idx]);
           confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
+          console.log("AAA", confusion_mat[filter_set_idx]);
           var local = ["TP", "FP", "TN", "FN"];
-          //local.splice(local.indexOf(text), 1);
+          local.splice(local.indexOf(text), 1);
           for (var k=0; k<local.length; k++){
             var button_id = "#" + local[k] + "-button";
-            //console.log(button_id);
+            console.log(button_id);
             d3.select(button_id).dispatch('click');
             // document.getElementById(button_id).onclick();
           }
+          d3.select("#" + text + "-button").dispatch('click');
           return;
           
         }
         if (checked == true){
+          console.log(checked);
           confusion_mat[filter_set_idx].push(text);
-          //console.log(confusion_mat);
+          console.log(confusion_mat[filter_set_idx]);
         } else {
+           console.log(checked);
            confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
-           //console.log(confusion_mat);
+           console.log(confusion_mat[filter_set_idx]);
         }
         makeScatterRequest();
       }
 
       function changeFilterSet(idx){
         if (document.getElementById('filter-select-div').innerHTML != ''){
-          for (var j=1; j<=3; j++){
+          for (var j=0; j<3; j++){
             document.getElementById('filter-button-'+ j.toString()).classList.remove('active');
           }
           document.getElementById('filter-button-'+idx.toString()).classList.add('active');
           filter_set_idx = idx;
+          draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
           makeScatterRequest();
           // displayCachedFilterResults(idx);
         }

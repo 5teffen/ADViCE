@@ -2,7 +2,7 @@
 
 // var test_input = [1,1,0,0];
 
-function confusion_matrix(state, elem) {
+function confusion_matrix(elem, state) {
 
     var good_col = "#1b9e77",
         bad_col = "#d95f02";
@@ -231,7 +231,7 @@ function confusion_matrix(state, elem) {
         .attr("opacity", 0)
         .style("fill","black")        
         .on('click', function(d) {
-            if (confusion_restart == true){
+            if (confusion_restart() == true){
                 //console.log("restart");
                 d3.select("#no"+"1").attr("class", "boxes");
                 matrixTrigger(true, "TP");
@@ -267,7 +267,7 @@ function confusion_matrix(state, elem) {
         .attr("opacity", 0)
         .style("fill","black")
         .on('click', function(d) {
-            if (confusion_restart == true){
+            if (confusion_restart() == true){
                 //console.log("restart");
                 d3.select("#no"+"2").attr("class", "boxes");
                 matrixTrigger(true, "FP");
@@ -303,7 +303,7 @@ function confusion_matrix(state, elem) {
         .attr("opacity", 0)
         .style("fill","black")        
         .on('click', function(d) {
-            if (confusion_restart == true){
+            if (confusion_restart() == true){
                 //console.log("restart");
                 d3.select("#no"+"3").attr("class", "boxes");
                 matrixTrigger(true, "FN");
@@ -340,7 +340,7 @@ function confusion_matrix(state, elem) {
         .attr("opacity", 0)
         .style("fill","black")
         .on('click', function(d) {
-            if (confusion_restart == true){
+            if (confusion_restart() == true){
                 //console.log("restart");
                 d3.select("#no"+"4").attr("class", "boxes");
                 matrixTrigger(true, "TN");
