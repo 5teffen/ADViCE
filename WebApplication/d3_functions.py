@@ -34,7 +34,7 @@ def prep_filter_summary(points, no_samples):
 
 
 
-def prep_feature_selector(feature_no, names, all_den, ranges):
+def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
   out_dict = {"name":names[feature_no]}
   out_dict["den"] = all_den[feature_no]
   out_dict["id"] = feature_no
@@ -52,6 +52,12 @@ def prep_feature_selector(feature_no, names, all_den, ranges):
       break
 
   out_dict["range"] = [min_val,max_val]
+
+  if init == None:
+    out_dict["current"] = [min_val,max_val]
+
+  else:
+    out_dict["current"] = init
 
   return out_dict
 

@@ -119,8 +119,10 @@ def init_data(dataset):
 
 	# --- oscar --- 
 	# ==== FEATURE SELECTOR ====
-	feature_selector_input = prep_feature_selector(1, feature_names, all_den, col_ranges) # 0 indexed
-
+	init_vals = [0,10]
+	feature_selector_input = prep_feature_selector(1, feature_names, all_den, col_ranges, init_vals) # 0 indexed
+	# If no init vals known then leave blank.
+	
 	dict_array = all_den
 	dict_array_orig = all_den
 
@@ -370,7 +372,7 @@ def scatter_request():
 			single_filter = [2, {"tp":conf_list[0], "fp":conf_list[1] ,"fn":conf_list[2] ,"tn":conf_list[3]}]
 			filter_lst.append(single_filter)
 
-		print(filter_lst) # OSCAR: This needs to go to D3 feature selector as input
+		print(filter_lst) # OSCAR: This needs to go to D3 filter selector as input
 
 
 
