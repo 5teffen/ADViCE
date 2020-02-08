@@ -252,9 +252,10 @@ var density = [9.16756684e-03, 1.09450544e-02, 1.27380886e-02, 1.45461940e-02,
  9.48756460e-03, 9.34562540e-03, 9.17931959e-03, 8.98843744e-03,0]
 
 var aFeature = {
-	name: "Age",
+	name: "Risk Estimate",
 	range:[0,10],
-	den: density
+	den: density,
+	current: [3,9] // init specific values
 }
 
 
@@ -293,8 +294,8 @@ function feature_selector(aFeature, place) {
             left: 10
         },
 
-        width = 220 - margin.right - margin.left,
-        height = 300 - margin.top - margin.bottom;
+        width = 190 - margin.right - margin.left,
+        height = 80 - margin.top - margin.bottom;
 
 
     // --- Scales for Entire SVG --- 
@@ -338,7 +339,7 @@ function feature_selector(aFeature, place) {
         .attr("width",width)
         .attr("fill",'none')
         .attr("stroke-width",2)
-        .attr("stroke","red");
+        .attr("stroke","None");
 
 	    
 
@@ -349,13 +350,25 @@ function feature_selector(aFeature, place) {
     var x_shift = 0,
     	y_shift = section_h+section_sep;
 
-		var start = aFeature.range[0],
-		 	end = aFeature.range[1],
-		 	full_range = end-start,
-		 	m1 = 0,   // Ranges
-		 	m2 = 100;
+    // var start = aFeature.range[0],
+		 	// end = aFeature.range[1],
+		 	// full_range = end-start,
+		 	// m1 = 0,   // Ranges
+		 	// m2 = 100,
 
-		var start_arr = aFeature.den.slice();
+
+	var start = aFeature.range[0],
+	 	end = aFeature.range[1],
+	 	full_range = end-start,
+	 	init_start = aFeature.current[0],
+	 	init_end = aFeature.current[1],
+	 	m1 = Math.round(100*init_start/full_range),   // Percentages for density
+	 	m2 = Math.round(100*init_end/full_range)
+	 	out_min = init_start,
+	 	out_max = init_end;
+
+
+	var start_arr = aFeature.den.slice();
 
     // -- Section Boundary -- 
     svg.append("g")
@@ -367,7 +380,7 @@ function feature_selector(aFeature, place) {
         .attr("width",section_w+20)
         .attr("fill",'none')
         .attr("stroke-width",2)
-        .attr("stroke","red");
+        .attr("stroke","None");
 
     // -- Center the Density -- 
     svg = svg.append("g").attr("transform","translate(" + 5 + ',' + (section_h/2-section_h/6) +')');
@@ -447,6 +460,7 @@ function feature_selector(aFeature, place) {
 	    		m1 = Math.round(percentage*100);
 	    		density_curve(m1,m2);
 
+	    		out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
 	    	}
 
 	    	else if (id == "slide2"){
@@ -455,6 +469,7 @@ function feature_selector(aFeature, place) {
 	    		m2 = Math.round(percentage*100);
 	    		density_curve(m1,m2);
 
+	    		out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    	}
 
 	    	// selection.attr("fill", "blue")
@@ -466,7 +481,7 @@ function feature_selector(aFeature, place) {
         .append("rect")
         .attr("class","slider")
         .attr("id", "slide1")
-        .attr('x',min_x)
+        .attr('x',xDenScale(Math.round(fineness*init_start/full_range)))
         .attr('y',0)
         .attr("height",slide_h)
         .attr("width",slide_w)
@@ -483,7 +498,7 @@ function feature_selector(aFeature, place) {
         .append("rect")
         .attr("class","slider")
         .attr("id", "slide2")
-        .attr('x',max_x)
+        .attr('x',xDenScale(Math.round(fineness*init_end/full_range))-slide_w)
         .attr('y',0)
         .attr("height",slide_h)
         .attr("width",slide_w)
@@ -501,6 +516,12 @@ function feature_selector(aFeature, place) {
 	var grad = svg.append("defs")
 			.append("linearGradient")
 			.attr("id", "grad");
+
+
+
+	// -- Custom init -- 		
+	density_curve(m1,m2);
+
 
     function density_curve(per1,per2) {
 
@@ -531,6 +552,20 @@ function feature_selector(aFeature, place) {
 
 
 	}
+
+
+	// -- Add the feature name --
+    svg = svg.append("g").attr("transform","translate(" + 0 + ',' + 45 +')');
+
+	svg.append("g")
+		.append('text')
+		.text("Feature: " + aFeature.name)
+		.attr("x", 0)
+		.attr("y", 0)
+		.attr("font-family",'"Open Sans", sans-serif')
+		.attr("font-size", '12px')
+		.attr("fill",'black')
+		.attr("text-anchor",'left'); 
 
 
 
