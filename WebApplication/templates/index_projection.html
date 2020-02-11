@@ -35,6 +35,7 @@
     <script type="text/javascript" src="static/js/scatter.js"></script>
     <script type="text/javascript" src="static/js/confusion_matrix.js"></script>
     <script type="text/javascript" src="static/js/filter_selector.js"></script>
+    <script type="text/javascript" src="static/js/percentage_filter.js"></script>
 
   </head>
 
@@ -57,61 +58,94 @@
       <div class="right-side-proj" id="demo">
 
         <div id="middle-panel-proj">
-
-          <div class="btn-group" style="height: 70px;">
-            <!--button id="key-button" class="algo-button"> Key Features </button>-->
-            <!--<button id="chg-button" class="algo-button"> Changes </button> -->
-            <button id="pca-button" class="dimred-button"> PCA </button>
-            <button id="tsne-button" class="dimred-button"> tSNE </button>
-            <!--<button id="direction-button" class="dimred-button"> Direct. </button> -->
-          </div>
-
-          <div id="bokeh-div">
-            <!-- <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe> -->
-            <div id="d3-proj">
-            </div>
-          </div>
-
-          <button id="reset-button-proj">
-            Reset
-          </button>
-
-          <div id="filter-div">
-            <input type="text" id="pred-range-slider" class="slider" /><br>
-            <!-- <input type="checkbox" id="TP-check" value="TP" checked onclick="checkTrigger(this)"> TP <br>
-            <input type="checkbox" id="FP-check" value="FP" checked onclick="checkTrigger(this)"> FP <br>
-            <input type="checkbox" id="TN-check" value="TN" checked onclick="checkTrigger(this)"> TN <br>
-            <input type="checkbox" id="FN-check" value="FN" checked onclick="checkTrigger(this)"> FN <br> -->
-            
-          </div>
-
+          <table class="proj-table">
+            <tr>
+              <th colspan="1">
+                <div class="btn-group">
+                  <!--button id="key-button" class="algo-button"> Key Features </button>-->
+                  <!--<button id="chg-button" class="algo-button"> Changes </button> -->
+                  <button id="pca-button" class="dimred-button"> PCA </button>
+                  <button id="tsne-button" class="dimred-button"> tSNE </button>
+                  <!--<button id="direction-button" class="dimred-button"> Direct. </button> -->
+                </div>
+              </th>
+            </tr>
+            <tr>
+              <td colspan="1">
+                <div id="bokeh-div">
+                  <!-- <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe> -->
+                  <div id="d3-proj">
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="1">
+                <button id="reset-button-proj">
+                  Reset
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="1">
+                <div id="filter-div">
+                  Filters
+                  <br>
+                  <div id="percentage-filter-div">
+                  </div>
+                  <div id="confusion-matrix-filter-div">
+                  </div>   
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
 
         <div id="right-panel-proj">
-          <div class="btn-group-proj" >
-            <button id="median-button" class="proj-button"> Median </button>
-            <button id="mean-button" class="proj-button"> Mean </button>
-            <button id="density-button" class="proj-button"> Density </button>
-          </div>
-          <div id="distribution-div">
-            Distribution
-          </div>
-          <div style="display: inline-block;">
-            <div id="summary-div" style="display: inline-block;">
-              Summary
-            </div>
-            <div id="filter-select-div" style="display: inline-block;">
-              <div class="pagination">
-                <a id='filter-button-0' href="#" class="active" onclick="changeFilterSet(0)">1</a>
-                <a id='filter-button-1' href="#" onclick="changeFilterSet(1)">2</a>
-                <a id='filter-button-2' href="#" onclick="changeFilterSet(2)">3</a>
-              </div>
-            </div>
-            <div id="table-div" class="ag-theme-balham">
-              Table
-            </div>
-            
+          <table class="proj-table">
+            <tr>
+              <th colspan="2" style="border-radius: 1px;">
+                <div class="btn-group-proj" >
+                  <button id="median-button" class="proj-button"> Median </button>
+                  <button id="mean-button" class="proj-button"> Mean </button>
+                  <button id="density-button" class="proj-button"> Density </button>
+                </div>
+              </th>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <div id="distribution-div">
+                  Distribution
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display: inline-block;">
+                  <div id="summary-div" style="display: inline-block;">
+                    Summary
+                  </div>
+              </td>
+              <td rowspan="2">
+                <div id="table-div" class="ag-theme-balham">
+                  Table
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div id="filter-select-div" style="display: inline-block;">
+                  <div class="pagination">
+                    <a id='filter-button-0' href="#" class="active" onclick="changeFilterSet(0)">1</a>
+                    <a id='filter-button-1' href="#" onclick="changeFilterSet(1)">2</a>
+                    <a id='filter-button-2' href="#" onclick="changeFilterSet(2)">3</a>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
           <div>
+
         </div>
           
 
@@ -174,6 +208,23 @@
           curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
         }
         confusion_matrix(elem, state);
+      }
+
+      // wrapper to avoid duplicates
+      function draw_filters(conf_mat_state){
+        // Confusion Matrix Order: [TP, FP, FN, TN]
+        var curr_matrix = document.getElementsByClassName("confusionMat");
+        if (curr_matrix.length > 0){
+          curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
+        }
+        confusion_matrix("#confusion-matrix-filter-div", conf_mat_state);
+
+        // Percentage Filter
+        var curr_percentage = document.getElementsByClassName("percentageBar");
+        if (curr_percentage.length > 0){
+          curr_percentage[0].parentNode.removeChild(curr_percentage[0]);
+        }
+        percentage_bar("#percentage-filter-div", pred_range[filter_set_idx]);
       }
 
       // Get preprocessed csv file
@@ -708,24 +759,25 @@
 
         // ft_list();
 
-        var mySlider = new rSlider({
-          target: '#pred-range-slider',
-          width: 200,
-          values: {min: 0, max: 100},
-          range: true,
-          tooltip: true,
-          scale: false,
-          labels: false,
-          step: 1,
-          set: [0, 100],
-          onChange: function (vals) {
-            console.log(vals);
-            pred_range[filter_set_idx]=[vals];
-            makeScatterRequest();
-          }
-        });
+        // var mySlider = new rSlider({
+        //   target: '#pred-range-slider',
+        //   width: 200,
+        //   values: {min: 0, max: 100},
+        //   range: true,
+        //   tooltip: true,
+        //   scale: false,
+        //   labels: false,
+        //   step: 1,
+        //   set: [0, 100],
+        //   onChange: function (vals) {
+        //     console.log(vals);
+        //     pred_range[filter_set_idx]=[vals];
+        //     makeScatterRequest();
+        //   }
+        // });
 
-        draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
+        // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
+        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
       }
 
       function checkTrigger(elem) {
@@ -782,7 +834,8 @@
           }
           document.getElementById('filter-button-'+idx.toString()).classList.add('active');
           filter_set_idx = idx;
-          draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
+          // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
+          draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
           makeScatterRequest();
           // displayCachedFilterResults(idx);
         }
