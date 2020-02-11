@@ -90,11 +90,18 @@
               <td colspan="1">
                 <div id="filter-div">
                   Filters
-                  <br>
                   <div id="percentage-filter-div">
                   </div>
                   <div id="confusion-matrix-filter-div">
-                  </div>   
+                  </div>
+                  <select id="feature-dropdown">
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                    <option value="opel">Opel</option>
+                    <option value="audi">Audi</option>
+                  </select>
+                  <div id="feature-range-filter-div">
+                  </div>  
                 </div>
               </td>
             </tr>
@@ -628,13 +635,10 @@
         directionality = "True";
         
 
-        var cf = ["TP", "FP", "TN", "FN"];
-        for (var k=0; k<cf.length; k++){
-          if (!confusion_mat[filter_set_idx].includes(cf[k])){
-            var button_id = "#" + cf[k] + "-button";
-            d3.select(button_id).dispatch('click');
-          }
-        }
+        confusion_mat[filter_set_idx] = ["TP", "FP", "TN", "FN"];
+        pred_range[filter_set_idx] = [0,100];
+        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
+
         // confusion_restart[filter_set_idx] = true;
 
         // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
