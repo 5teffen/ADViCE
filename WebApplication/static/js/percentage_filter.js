@@ -1,7 +1,7 @@
 
-var input = [30, 100]
+// var input = [30, 100]
 
-function precentage_bar(data, place) {
+function percentage_bar(place, data) {
 
 	//  --- Main Variables --- 
 
@@ -86,7 +86,7 @@ function precentage_bar(data, place) {
             .append("svg")
             .attr("width",width + margin.right + margin.left)
             .attr("height",height + margin.top + margin.bottom)
-            .attr("class", "main-svg")
+            .attr("class", "percentageBar")
             .append("g")
                  .attr("transform","translate(" + margin.left + ',' + margin.top +')');
 
@@ -99,8 +99,8 @@ function precentage_bar(data, place) {
         .attr("height",height)
         .attr("width",width)
         .attr("fill",'none')
-        .attr("stroke-width",2)
-        .attr("stroke","red");
+        // .attr("stroke-width",2)
+        // .attr("stroke","red");
 
 	    
 
@@ -185,6 +185,9 @@ function precentage_bar(data, place) {
 	    		// density_curve(m1,m2);
 
 	    		// out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
+	    		pred_range[filter_set_idx][0]=out_low;
+	    		makeScatterRequest();
+	    		// console.log("LOW:", out_low);
 	    	}
 
 	    	else if (id == "slide2"){
@@ -198,7 +201,7 @@ function precentage_bar(data, place) {
 	    		d3.select("#bar_selected")
 	    			.attr("width", xScale(out_high)-xScale(out_low));
 
-	    		console.log(out_high);
+	    		// console.log(out_high);
 
 	    		// var percentage = x/section_w;
 	    		// // m2 = Math.round(percentage*fineness);
@@ -206,6 +209,9 @@ function precentage_bar(data, place) {
 	    		// density_curve(m1,m2);
 
 	    		// out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
+	    		pred_range[filter_set_idx][1]=out_high;
+	    		makeScatterRequest();
+	    		// console.log("HIGH:", out_high);
 	    	}
 
 	        selection.attr('x',x);
@@ -481,4 +487,4 @@ function precentage_bar(data, place) {
 }
 
 
-precentage_bar(input, "body")
+// precentage_bar(input, "body")
