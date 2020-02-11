@@ -45,7 +45,7 @@ function confusion_matrix(elem, state) {
             left: 10
         },
         width = 150 - margin.right - margin.left,
-        height = 150 - margin.top - margin.bottom;
+        height = 80 - margin.top - margin.bottom;
 
 
     var svg = d3.select(elem)

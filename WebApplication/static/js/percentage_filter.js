@@ -189,9 +189,7 @@ function percentage_bar(place, data) {
 	    		// density_curve(m1,m2);
 
 	    		// out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
-	    		pred_range[filter_set_idx][0]	cur_low;
-	    		makeScatterRequest();
-	    		// console.log("LOW:",	cur_low);
+	    		
 	    	}
 
 	    	else if (id == "slide2"){
@@ -213,10 +211,7 @@ function percentage_bar(place, data) {
 	    		// density_curve(m1,m2);
 
 	    		// out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
-	    		pred_range[filter_set_idx][1]=cur_high;
-	    		makeScatterRequest();
-	    		// console.log("HIGH:", cur_high);
-	    	}
+	    			    	}
 
 	        selection.attr('x',x);
 
@@ -225,6 +220,12 @@ function percentage_bar(place, data) {
 	    .on("end", function(){
 			out_high = cur_high;
 			out_low = cur_low;
+
+			pred_range[filter_set_idx]=[out_low,out_high];
+    		makeScatterRequest();
+    		console.log("LOW:",	out_low);
+    		console.log("HIGH:", out_high);
+
 
 		});
 
