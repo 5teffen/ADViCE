@@ -8,7 +8,11 @@ function percentage_bar(place, data) {
 	var start = data[0],
 		end = data[1],
 
-		out_low = data[0],     // OSCAR: these two are the outputs. Current bar points
+		cur_low = data[0],    
+		cur_high = data[1].
+
+
+		out_low = data[0],		// OSCAR: these two are the outputs. Current bar points
 		out_high = data[1];
 
 
@@ -163,20 +167,20 @@ function percentage_bar(place, data) {
 
 	    	if (id == "slide1"){
 
-	    		out_low = xScaleInv(x); 
+	    		cur_low = xScaleInv(x); 
 
-	    		if (out_low > out_high){
-	    			x = xScale(out_high)
-	    			out_low = out_high; 
+	    		if 	(cur_low > cur_high){
+	    			x = xScale(cur_high)
+	    			cur_low = cur_high; 
 	    		}   		
 
 	    		d3.select("#bar_selected")
 	    			.attr("x", x)
-	    			.attr("width", xScale(out_high)-x);
+	    			.attr("width", xScale(cur_high)-x);
 
 
-	    		out_low = xScaleInv(x);
-	    		// console.log(out_low);
+	    		cur_low = xScaleInv(x);
+	    		// console.log	cur_low);
 
 
 	    		// var percentage = x/section_w;
@@ -185,23 +189,23 @@ function percentage_bar(place, data) {
 	    		// density_curve(m1,m2);
 
 	    		// out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
-	    		pred_range[filter_set_idx][0]=out_low;
+	    		pred_range[filter_set_idx][0]	cur_low;
 	    		makeScatterRequest();
-	    		// console.log("LOW:", out_low);
+	    		// console.log("LOW:",	cur_low);
 	    	}
 
 	    	else if (id == "slide2"){
-	    		out_high = xScaleInv(x);
+	    		cur_high = xScaleInv(x);
 
-	    		if (out_low > out_high){
-	    			x = xScale(out_low)
-	    			out_high = out_low; 
+	    		if 	(cur_low > cur_high){
+	    			x = xScale(cur_low)
+	    			cur_high =	cur_low; 
 	    		}   	
 	    		
 	    		d3.select("#bar_selected")
-	    			.attr("width", xScale(out_high)-xScale(out_low));
+	    			.attr("width", xScale(cur_high)-xScale(cur_low));
 
-	    		// console.log(out_high);
+	    		// console.log(cur_high);
 
 	    		// var percentage = x/section_w;
 	    		// // m2 = Math.round(percentage*fineness);
@@ -209,15 +213,20 @@ function percentage_bar(place, data) {
 	    		// density_curve(m1,m2);
 
 	    		// out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
-	    		pred_range[filter_set_idx][1]=out_high;
+	    		pred_range[filter_set_idx][1]=cur_high;
 	    		makeScatterRequest();
-	    		// console.log("HIGH:", out_high);
+	    		// console.log("HIGH:", cur_high);
 	    	}
 
 	        selection.attr('x',x);
 
 	    	// selection.attr("fill", "blue")
-	    });
+	    })
+	    .on("end", function(){
+			out_high = cur_high;
+			out_low = cur_low;
+
+		});
 
 
 
