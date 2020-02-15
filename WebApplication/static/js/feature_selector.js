@@ -261,7 +261,7 @@ var aFeature = {
 
 // var aFeature = [oneFeature, oneFeature,oneFeature, oneFeature]
 
-function feature_selector(aFeature, place) {
+function feature_selector(place, aFeature) {
 
 	var section_h = 50,
 		section_w = 150,

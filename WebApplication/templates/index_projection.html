@@ -165,6 +165,7 @@
       ft_names = ft_names.slice(1, ft_names.length-1).replace(/\s+/g, '');;
       ft_names = ft_names.split(",");
       var preproc_path = "{{preproc_path}}";
+      var dens_array = "{{dens_array}}";
       var dark_shade = "rgb(180, 177, 213)";
       var light_shade = "white";
 
@@ -184,6 +185,7 @@
       // var confusion_restart = [true,true,true];
       var filter_set_idx = 0;
       // var master_filter_list = [{0},{0},{0}];
+
 
       // Check if currently all filters are selected to handle logic of click dispatches
       function confusion_restart(){
@@ -208,16 +210,6 @@
       }
 
       // wrapper to avoid duplicates
-      function draw_confusion_matrix(elem, state){
-        // Order: [TP, FP, FN, TN]
-        var curr_matrix = document.getElementsByClassName("confusionMat");
-        if (curr_matrix.length > 0){
-          curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
-        }
-        confusion_matrix(elem, state);
-      }
-
-      // wrapper to avoid duplicates
       function draw_filters(conf_mat_state){
         // Confusion Matrix Order: [TP, FP, FN, TN]
         var curr_matrix = document.getElementsByClassName("confusionMat");
@@ -227,6 +219,13 @@
         confusion_matrix("#confusion-matrix-filter-div", conf_mat_state);
 
         // Percentage Filter
+        var curr_percentage = document.getElementsByClassName("percentageBar");
+        if (curr_percentage.length > 0){
+          curr_percentage[0].parentNode.removeChild(curr_percentage[0]);
+        }
+        percentage_bar("#percentage-filter-div", pred_range[filter_set_idx]);
+
+        // Feature Range Filter
         var curr_percentage = document.getElementsByClassName("percentageBar");
         if (curr_percentage.length > 0){
           curr_percentage[0].parentNode.removeChild(curr_percentage[0]);
