@@ -25,8 +25,8 @@ function draw_summary(data, filData, place) {
     console.log("drawing Summary")
 
     // --- Colour parameters --- 
-    var good_col = "#d95f02",
-        bad_col = "#1b9e77",
+    var bad_col = "#d95f02",
+        good_col = "#1b9e77",
         den_colour = "#7570b3",
         den_colour2 = "rgb(180, 177, 213)";
 
