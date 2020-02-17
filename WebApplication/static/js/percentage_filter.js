@@ -9,14 +9,12 @@ function percentage_bar(place, data) {
 		end = data[1],
 
 		cur_low = data[0],    
-		cur_high = data[1].
+		cur_high = data[1],
 
 
 		out_low = data[0],		// OSCAR: these two are the outputs. Current bar points
 		out_high = data[1];
 
-
-    
     // --- Establishing margins and canvas bounds --- 
     var margin = {
             top: 10, 
@@ -37,39 +35,20 @@ function percentage_bar(place, data) {
     	base_col = "lightgray";
 
 
-
  	// --- Slider Parameters --- 
     var slide_w = 20,
     	slide_h = 20,
-    	slide_curv = 1,
+    	slide_curv = 2,
     	slide_col = "lightgray",
     	fill_col = "lightgray",
     	fill_light = "#dcdef2";
 
 
-
-
-
-	// var section_h = 50,
-	// 	section_w = 150,
-	// 	section_sep = 10;
-
-
- //    var good_col = "#d95f02",
- //        bad_col = "#1b9e77";
-
- //    var separator = 0.015;
-
- //    // --- Slider Parameters --- 
-
- //    var slide_w = 5,
- //    	slide_h = 20,
- //    	slide_curv = 1,
- //    	slide_col = "#666666",
- //    	fill_col = "#7570b3"
- //    	fill_light = "#dcdef2";
-
-
+    // --- Label Parameters --- 
+    var lab_w = 30,
+    	lab_h = 20,
+    	lab_col = "white",
+    	lab_border = "black";
 
 
     // --- Scale Declaration --- 
@@ -104,7 +83,7 @@ function percentage_bar(place, data) {
         .attr("width",width)
         .attr("fill",'none')
         // .attr("stroke-width",2)
-        // .attr("stroke","red");
+        .attr("stroke","red");
 
 	    
 
@@ -164,8 +143,11 @@ function percentage_bar(place, data) {
 	        var selection = d3.select(this)
 	        
 	    	var id = selection.attr("id");
+	    	console.log(cur_high);
 
 	    	if (id == "slide1"){
+
+
 
 	    		cur_low = xScaleInv(x); 
 
@@ -179,7 +161,14 @@ function percentage_bar(place, data) {
 	    			.attr("width", xScale(cur_high)-x);
 
 
-	    		cur_low = xScaleInv(x);
+	    		d3.select("#l-lab").attr('x',x-lab_shift);
+
+	    		d3.select("#lt-lab")
+	    			.text(cur_low.toString())
+	    			.attr('x',x+text_shift);
+
+	    		selection.attr('x',x);
+	    		// cur_low = xScaleInv(x);
 	    		// console.log	cur_low);
 
 
@@ -203,6 +192,14 @@ function percentage_bar(place, data) {
 	    		d3.select("#bar_selected")
 	    			.attr("width", xScale(cur_high)-xScale(cur_low));
 
+
+	    		d3.select("#r-lab").attr('x',x-lab_shift);
+
+	    		d3.select("#rt-lab")
+		    		.text(cur_high.toString())
+		    		.attr('x',x+text_shift);
+
+		    	selection.attr('x',x);
 	    		// console.log(cur_high);
 
 	    		// var percentage = x/section_w;
@@ -213,14 +210,12 @@ function percentage_bar(place, data) {
 	    		// out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    			    	}
 
-	        selection.attr('x',x);
-
 	    	// selection.attr("fill", "blue")
 	    })
 	    .on("end", function(){
 			out_high = cur_high;
 			out_low = cur_low;
-
+			console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
 			pred_range[filter_set_idx]=[out_low,out_high];
     		makeScatterRequest();
     		console.log("LOW:",	out_low);
@@ -269,6 +264,62 @@ function percentage_bar(place, data) {
 
 
 	// -- Labels --
+    var lab_shift = (lab_w - slide_h)/2
+    var text_shift = (lab_w)/2 - lab_shift
+	svg.append("g")
+	    .append("rect")
+	    // .attr("class","left-label")
+	    .attr("id", "l-lab")
+	    .attr('x',xScale(start)-lab_shift)
+	    .attr('y',-30)
+	    .attr("height",lab_h)
+	    .attr("width",lab_w)
+	    .attr("fill",lab_col)
+	    .attr("stroke-width",1)
+	    .attr("stroke",lab_border)
+	    .attr("stroke-opacity",0.8)
+		.call(drag);
+
+
+	svg.append("g")
+	    .append("rect")
+	    .attr("class","right-label")
+	    .attr("id", "r-lab")
+	    .attr('x',xScale(end)-lab_shift)
+	    .attr('y',-30)
+	    .attr("height",lab_h)
+	    .attr("width",lab_w)
+	    .attr("fill",lab_col)
+	    .attr("stroke-width",1)
+	    .attr("stroke",lab_border)
+	    .attr("stroke-opacity",0.8)
+		.call(drag);
+
+
+	svg.append("g")
+		.append('text')
+		.text(start.toString())
+		.attr("id", "lt-lab")
+		.attr('x',xScale(start)+text_shift)
+		.attr('y',-16)
+		.attr("font-family",'"Open Sans", sans-serif')
+		.attr("font-size", '11px')
+		.attr("font-weight", 'bold')
+		.attr("fill",'black')
+		.attr("text-anchor",'middle');
+
+	svg.append("g")
+		.append('text')
+		.text(end.toString())
+		.attr("id", "rt-lab")
+		.attr('x',xScale(end)+text_shift)
+		.attr('y',-16)
+		.attr("font-family",'"Open Sans", sans-serif')
+		.attr("font-size", '11px')
+		.attr("font-weight", 'bold')
+		.attr("fill",'black')
+		.attr("text-anchor",'middle');
+
 
 
 
