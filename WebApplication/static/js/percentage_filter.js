@@ -81,9 +81,9 @@ function percentage_bar(place, data) {
         .attr('y',0)
         .attr("height",height)
         .attr("width",width)
-        .attr("fill",'none')
+        .attr("fill",'none');
         // .attr("stroke-width",2)
-        .attr("stroke","red");
+        // .attr("stroke","red");
 
 	    
 
