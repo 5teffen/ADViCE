@@ -303,7 +303,8 @@ def handle_request():
 @app.route('/projection')
 def projection_site():
 	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
-	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path)
+	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path,
+							dens_array = json.dumps([d['data'] for d in all_den]))
 
 @app.route('/scatter_req', methods=['GET'])
 def scatter_request():
