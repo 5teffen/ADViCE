@@ -11,6 +11,21 @@ class dataset():
 		self.name = name
 		self.lock = lock
 
+
+
+
+def find_feature_range(feat_range):
+	min_val = feat_range[0][0]
+	max_val = 0  
+	for i in range(len(feat_range)):  # Finding the max range value
+		if (i == len(feat_range)-1):
+			max_val = feat_range[i][1]
+
+		elif (feat_range[i+1] == '-1'):
+			max_val = feat_range[i][1]
+			break
+	return (min_val,max_val)
+
 def model_overview(pre_proc_file):
 	pre_data = pd.read_csv(pre_proc_file).values
 
