@@ -90,7 +90,7 @@ def init_data(dataset):
 	# --- Advanced Parameters
 	density_fineness = 100
 	categorical_cols = []  # Categorical columns can be customized # Whether there is order
-	monotonicity_arr = []  # Local test of monotonicity
+	# monotonicity_arr = []  # Local test of monotonicity
 
 	feature_names = np.array(df.columns)[:-1]
 	all_data = np.array(df.values)
@@ -115,6 +115,8 @@ def init_data(dataset):
 	all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 	high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
 	low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
+
+	monotonicity_arr = mono_finder(svm_model, data, col_ranges)
 
 
 	# --- oscar --- 
