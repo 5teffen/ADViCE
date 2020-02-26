@@ -90,7 +90,7 @@ def init_data(dataset):
 	# --- Advanced Parameters
 	density_fineness = 100
 	categorical_cols = []  # Categorical columns can be customized # Whether there is order
-	monotonicity_arr = []  # Local test of monotonicity
+	# monotonicity_arr = []  # Local test of monotonicity
 
 	feature_names = np.array(df.columns)[:-1]
 	all_data = np.array(df.values)
@@ -115,6 +115,8 @@ def init_data(dataset):
 	all_den, all_median, all_mean = all_kernel_densities(data,feature_names,density_fineness) # Pre-load density distributions
 	high_den, high_median, high_mean = all_kernel_densities(high_data,feature_names,density_fineness)
 	low_den, low_median, low_mean = all_kernel_densities(low_data,feature_names,density_fineness)
+
+	monotonicity_arr = mono_finder(svm_model, data, col_ranges)
 
 
 	# --- oscar --- 
@@ -321,7 +323,11 @@ def scatter_request():
 		confusion_mat = request.args.get('confusion_mat').split(',')
 		pred_range = request.args.get('pred_range').split(',')
 		pred_range = [int(x) for x in pred_range]
-		# print(type(pred_range), pred_range)
+
+		# Feature Selector Pre-Logic # OSCAR you need to get these two things with your call
+		ft_range = [50,85]
+		ft_idx = 1   # Zero-indexed
+
 
 		if ft_list[0] == '-1' or ft_list == ['']:
 			ret_arr = list(range(data.shape[0]))
@@ -357,21 +363,45 @@ def scatter_request():
 		# // Filter Legend:
 		# // 1 - Model Accuracy Range
 		# // 2 - Prediction Label
-		# // 3 - Feature Range
+		# // 3 - Feature RangeS
 
-		filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list}
+		filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list, "3":[]}
+
+		for c in range(len(col_ranges)):
+			col_range = find_feature_range(col_ranges[c])
+
+			# [low, high, changed]
+			if (c == ft_idx):
+				filter_dict["3"].append([ft_range[0], ft_range[1], 1])
+			else:
+				filter_dict["3"].append([col_range[0], col_range[1], 0])
+
+
+		# if (len(filter_dict["3"]) == 0):
+		# 	filter_dict["3"]
+			
 		
-
 		# ==== Filter Dictionary -> D3 ====
 		filter_lst = []
 		# Note: this logic might reorder the filters (future fix)
+
+		# --- Model Percentage ---
 		if ((pred_range[0] != 0) or (pred_range[1] != 100)):
 			single_filter = [1, {"low":pred_range[0], "high":pred_range[1]}]
 			filter_lst.append(single_filter)
-
+		
+		# --- Confusion Matrix ---
 		if (not all(v == 1 for v in conf_list)):
 			single_filter = [2, {"tp":conf_list[0], "fp":conf_list[1] ,"fn":conf_list[2] ,"tn":conf_list[3]}]
 			filter_lst.append(single_filter)
+
+		# --- Feature Selector ---
+		for f in range(len(filter_dict["3"])):
+			feat = filter_dict["3"][f]
+			if (feat[2] == 1):
+				single_filter = [3, {"name": feature_names[f], "low":feat[0], "high":feat[1]}]
+				filter_lst.append(single_filter)
+
 
 		print(filter_lst) # OSCAR: This needs to go to D3 filter selector as input
 

@@ -11,6 +11,54 @@ class dataset():
 		self.name = name
 		self.lock = lock
 
+
+def mono_finder(model,data, ranges):
+	"""
+	Assumes linearity. 
+	Potentially can be used for weighted monotonicity
+	"""
+	np.random.seed(5)
+	
+	no_ft = data.shape[1]
+
+	monotonicity_arr = np.zeros(no_ft)
+
+	sample_no = np.random.randint(0,data.shape[0])
+	test_sample = data[sample_no]
+
+	for ft in range(no_ft):
+		sample_low = copy.deepcopy(test_sample) 
+		sample_high = copy.deepcopy(test_sample) 
+		
+		min_val, max_val  = find_feature_range(ranges[ft])
+
+		sample_low[ft] = min_val
+		sample_high[ft] = max_val
+
+		model_low = model.run_model(sample_low)
+		model_high = model.run_model(sample_high)
+
+		if model_high > model_low:
+			monotonicity_arr[ft] = 1
+
+		else:
+			monotonicity_arr[ft] = -1
+
+	return monotonicity_arr
+
+
+def find_feature_range(feat_range):
+	min_val = feat_range[0][0]
+	max_val = 0  
+	for i in range(len(feat_range)):  # Finding the max range value
+		if (i == len(feat_range)-1):
+			max_val = feat_range[i][1]
+
+		elif (feat_range[i+1] == '-1'):
+			max_val = feat_range[i][1]
+			break
+	return (min_val,max_val)
+
 def model_overview(pre_proc_file):
 	pre_data = pd.read_csv(pre_proc_file).values
 

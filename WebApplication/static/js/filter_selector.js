@@ -1,12 +1,12 @@
 
-// data_sum = {
-//     no_p: 500,
-//     tot_p: 1000,
-//     tp: 20,
-//     fp: 30,
-//     fn: 15,
-//     tn: 50
-// }
+data_sum = {
+    no_p: 500,
+    tot_p: 1000,
+    tp: 20,
+    fp: 30,
+    fn: 15,
+    tn: 50
+}
 
 
 
@@ -16,13 +16,16 @@
 // 3 - Feature Range
 
 
-// filter_data = [[1,{low: 10, high:50}], [2,{tp:1, fp:1 ,fn:0 ,tn:0}]];
+filter_data = [[1,{low: 10, high:50}], [2,{tp:1, fp:0 ,fn:0 ,tn:1}],
+               [3,{name:"Best Risk Estimate", low:52 ,high:56}],
+               [3,{name:"Best Risk Estimate", low:52 ,high:56}],
+               [3,{name:"Best Risk Estimate", low:52 ,high:56}],
+                [3,{name:"Months since Del", low:30 ,high:100}]];
 // // filter_data = [];
 
 
 function draw_summary(data, filData, place) {
 
-    console.log("drawing Summary")
 
     // --- Colour parameters --- 
     var bad_col = "#d95f02",
@@ -62,8 +65,11 @@ function draw_summary(data, filData, place) {
         },
 
         width = 130 - margin.right - margin.left,
-        height = 150 - margin.top - margin.bottom + (filt_no*(sec_s+sec_h));
+        height = 150 - margin.top - margin.bottom + (filt_no*(sec_h)*1.2);
 
+    // if (filt_no > 2){  // Accomodate more filters
+    //     height += height*(filt_no-2)*0.5;
+    // }
 
     // --- Scales for Entire SVG --- 
     var yScale = d3.scaleLinear()
@@ -275,29 +281,28 @@ function draw_summary(data, filData, place) {
         filter_type = filter[0];
         filter_object = filter[1];
 
-        svg.append('g').append("rect")
-        .attr("class", "tbd")
-        .attr("id","tbd1")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", width)
-        .attr("height", sec_h)
-        .attr("rx", roundness)
-        .attr("ry", roundness)
-        .attr("stroke",den_colour2)
-        .attr("stroke-width","1")
-        .attr("opacity", opp)
-        .attr("fill","none");
+        var extended = 0;
+
+
 
         // === Dealing with each filter type ==
 
-
-        if (filter_type == 1) { // Model Range 
-
+        if (filter_type == 1) { // Model Range
+            extended = 1
             svg.append('g').append("text")
-                .text("Range:\n " + filter_object.low.toString() + ' - '+ filter_object.high.toString())
+                .text("Model Percentage:")
                 .attr("x",5)
                 .attr("y",sec_h-8)
+                .attr("text-anchor","right")
+                .attr("font-family",'"Open Sans", sans-serif')
+                .attr("font-size", '10px')
+                .attr("font-weight", 800)
+                .attr("fill","gray");
+            
+            svg.append('g').append("text")
+                .text("> range:\n " + filter_object.low.toString() + ' - '+ filter_object.high.toString())
+                .attr("x",5)
+                .attr("y",sec_h+3)
                 .attr("text-anchor","right")
                 .attr("font-family",'"Open Sans", sans-serif')
                 .attr("font-size", '10px')
@@ -307,32 +312,124 @@ function draw_summary(data, filData, place) {
 
         // tp:1, fp:1 ,fn:0 ,tn:0
 
-        else if (filter_type == 2) { // Prediction Labels  
-            svg.append('g').append("text")
-                    .text(function(){
-                        var full_s = "Labels: | ";
-                        if (filter_object.tp == 1) full_s += "TP | "
-                        if (filter_object.fp == 1) full_s += "FP | "
-                        if (filter_object.fn == 1) full_s += "FN | "
-                        if (filter_object.tn == 1) full_s += "TN | "
-                        return full_s;
-                    })
-                    .attr("x",5)
-                    .attr("y",sec_h-8)
-                    .attr("text-anchor","right")
-                    .attr("font-family",'"Open Sans", sans-serif')
-                    .attr("font-size", '10px')
-                    .attr("font-weight", 800)
-                    .attr("fill","gray");
+        else if (filter_type == 2) { // Prediction Labels 
+            var label_count = filter_object.tp + filter_object.fp + filter_object.fn + filter_object.tn;
+            if (label_count < 3){
+                svg.append('g').append("text")
+                        .text(function(){
+                            var full_s = "Labels: | ";
+                            if (filter_object.tp == 1){
+                                full_s += "TP | ";}
+                            if (filter_object.fp == 1){
+                                full_s += "FP | ";}
+                            if (filter_object.fn == 1){
+                                full_s += "FN | ";}
+                            if (filter_object.tn == 1){
+                                full_s += "TN | ";}
+                            return full_s;
+                        })
+                        .attr("x",5)
+                        .attr("y",sec_h-8)
+                        .attr("text-anchor","right")
+                        .attr("font-family",'"Open Sans", sans-serif')
+                        .attr("font-size", '10px')
+                        .attr("font-weight", 800)
+                        .attr("fill","gray");
+            }
+
+            else {
+                var sub_count = 0;
+                extended = 1;
+                svg.append('g').append("text")
+                        .text(function(){
+                            var full_s = "Labels: | ";
+                            if (filter_object.tp == 1){
+                                full_s += "TP | ";
+                                sub_count++;}
+                            if (filter_object.fp == 1){
+                                full_s += "FP | ";
+                                sub_count++;
+                                if (sub_count == 2) return full_s;}
+                            if (filter_object.fn == 1){
+                                full_s += "FN | ";
+                                return full_s;}
+                        })
+                        .attr("x",5)
+                        .attr("y",sec_h-8)
+                        .attr("text-anchor","right")
+                        .attr("font-family",'"Open Sans", sans-serif')
+                        .attr("font-size", '10px')
+                        .attr("font-weight", 800)
+                        .attr("fill","gray");
+
+                svg.append('g').append("text")
+                        .text(function(){
+                            var full_s = "| ";
+                            if (sub_count == 2 && filter_object.fn == 1){
+                                full_s += "FN | ";}
+                            if (filter_object.tn == 1){
+                                full_s += "TN | ";}
+                            return full_s;
+                        })
+                        .attr("x",42.8)
+                        .attr("y",sec_h + 3)
+                        .attr("text-anchor","right")
+                        .attr("font-family",'"Open Sans", sans-serif')
+                        .attr("font-size", '10px')
+                        .attr("font-weight", 800)
+                        .attr("fill","gray");
+            }
         }
 
         else if (filter_type = 3) { // Feature Range
+            extended = 1;
 
+            svg.append('g').append("text")
+                .text(filter_object.name)
+                .attr("x",5)
+                .attr("y",sec_h-8)
+                .attr("text-anchor","right")
+                .attr("font-family",'"Open Sans", sans-serif')
+                .attr("font-size", '10px')
+                .attr("font-weight", 800)
+                .attr("fill","gray");
+        
+            svg.append('g').append("text")
+                .text("> range:\n " + filter_object.low.toString() + ' - '+ filter_object.high.toString())
+                .attr("x",5)
+                .attr("y",sec_h+3)
+                .attr("text-anchor","right")
+                .attr("font-family",'"Open Sans", sans-serif')
+                .attr("font-size", '10px')
+                .attr("font-weight", 800)
+                .attr("fill","gray");
         }
 
 
-
         // === Removal Button === 
+        var cross_line = 4,
+            cross_op = 0.3;
+
+        svg.append('g').append("line")
+        .attr("x1", width-circ-5-cross_line)
+        .attr("y1", sec_h/2-cross_line)
+        .attr("x2", width-circ-5+cross_line)
+        .attr("y2", sec_h/2+cross_line)
+        .attr("stroke","red")
+        .attr("stroke-width","2")
+        .attr("stroke-opacity", cross_op);
+
+        svg.append('g').append("line")
+        .attr("x1", width-circ-5+cross_line)
+        .attr("y1", sec_h/2-cross_line)
+        .attr("x2", width-circ-5-cross_line)
+        .attr("y2", sec_h/2+cross_line)
+        .attr("stroke","red")
+        .attr("stroke-width","2")
+        .attr("stroke-opacity", cross_op);
+
+
+        
 
         svg.append('g').append("circle")
         .attr("id","exit"+i.toString())
@@ -341,7 +438,8 @@ function draw_summary(data, filData, place) {
         .attr("cy", sec_h/2)
         .attr("stroke","red")
         .attr("stroke-width","2")
-        .attr("opacity", 0.5)
+        .attr("stroke-opacity", cross_op)
+        .attr("fill-opacity", 0.1)
         .attr("fill","pink")
         .on('click', function(d) {
             var id = d3.select(this).attr("id"); 
@@ -354,7 +452,32 @@ function draw_summary(data, filData, place) {
         });
 
 
-        svg = svg.append("g").attr("transform","translate(0,"+ (sec_h)+')');
+        // === Drawing Surrounding box ===
+        svg.append('g').append("rect")
+            .attr("class", "tbd")
+            .attr("id","tbd1")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", width)
+            .attr("height", function(){
+                if(extended) return 1.3*sec_h;
+                return sec_h;
+            })
+            .attr("rx", roundness)
+            .attr("ry", roundness)
+            .attr("stroke",den_colour2)
+            .attr("stroke-width","1")
+            .attr("opacity", opp)
+            .attr("fill","none");
+
+
+
+        if(extended){
+            svg = svg.append("g").attr("transform","translate(0,"+ (1.3*sec_h)+')');
+        }
+        else{
+            svg = svg.append("g").attr("transform","translate(0,"+ (sec_h)+')');
+        }
 
 
 

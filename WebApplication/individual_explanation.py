@@ -241,7 +241,8 @@ def perturb_row_feature2(model, row, row_idx, feat_idx, current_bins, X_bin_pos,
     elif direction == 0:
         c_current_bins[feat_idx] -= 1
         p_row[feat_idx] = prev_value
-    
+
+    # print("DIRECTION: ", direction)
     return (p_row, c_current_bins)
 
 def percent_cond (improve, percent):
@@ -278,6 +279,9 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
     0: Needs check
 
     """
+
+    # mono_finder(model, data, col_ranges)
+
     if monotonicity_arr == []:
         monotonicity_arr = np.zeros(no_features)
     elif not improve:
@@ -321,7 +325,10 @@ def find_MSC (model, data, k_row, row_idx, X_bin_pos, mean_bins, no_bins, monoto
 
             # Avoids moving locked features
             for i in top_moving_fts[j]:
-                t_row, t_current_bins = perturb_row_feature2(model, top_rows[j], row_idx, i, top_current_bins[j], X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins, col_ranges)
+                # t_row, t_current_bins = perturb_row_feature2(model, top_rows[j], row_idx, i, top_current_bins[j], X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins, col_ranges)
+                # print(monotonicity_arr)
+                t_row, t_current_bins = perturb_row_feature(model, top_rows[j], row_idx, i, top_current_bins[j], X_bin_pos, mean_bins, monotonicity_arr, improve, no_bins, col_ranges)
+
                 new_rows.append(t_row)
                 new_percents.append(model.run_model(t_row))
                 new_curr_bins.append(t_current_bins)
@@ -494,7 +501,7 @@ if __name__ == '__main__':
     # --- Advanced Parameters
     density_fineness = 1000
     categorical_cols = []  # Categorical columns can be customized
-    monotonicity_arr = []
+    # monotonicity_arr = []
 
 
     df = pd.read_csv(data_path)
@@ -515,7 +522,7 @@ if __name__ == '__main__':
 
     # test_sample = data[index]
 
-    # bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
+    bins_centred, X_pos_array, init_vals, col_ranges = divide_data_bins(data,no_bins)  # Note: Does not account for categorical features
     
     # single_bin_result = bin_single_sample(test_sample, col_ranges)
 
@@ -528,13 +535,19 @@ if __name__ == '__main__':
     cols_lst = [3,9,11,12]
 
     anchs = False
-    print(ids_with_combination(preproc_path, cols_lst, anchs))
+    # print(ids_with_combination(preproc_path, cols_lst, anchs))
     sample_no = 1
     # locked = [1,2,3]
+
+    monotonicity_arr = mono_finder(svm_model, data, col_ranges)
+    # print("MONOTONICITY ARRAY:")
+    # print(monotonicity_arr)
     # change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[sample_no], sample_no, X_pos_array, bins_centred, 
+    #                                     no_bins, monotonicity_arr, col_ranges)
+    # for s in range(no_samples):
+    #     change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, data[s], s, X_pos_array, bins_centred, 
     #                                                     no_bins, monotonicity_arr, col_ranges)
-
-
+    #     print(change_vector)
 # instance_explanation(svm_model, data, row, sample, X_pos_array,
 #             bins_centred, no_bins, monotonicity_arr, col_ranges)
     # create_summary_file(data, target, svm_model, bins_centred, X_pos_array, init_vals, no_bins, monotonicity_arr, preproc_path)
