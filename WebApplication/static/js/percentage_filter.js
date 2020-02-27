@@ -143,7 +143,7 @@ function percentage_bar(place, data) {
 	        var selection = d3.select(this)
 	        
 	    	var id = selection.attr("id");
-	    	console.log(cur_high);
+	    	// console.log(cur_high);
 
 	    	if (id == "slide1"){
 

@@ -59,12 +59,12 @@ dataset_dict = {
 
 # --- Data initialization ---
 data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(12)
-categorical_cols, monotonicity_arr, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(13)
+categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(14)
 col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig = np.zeros(12)
 def init_data(dataset):
 
 	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness
-	global categorical_cols, monotonicity_arr, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
+	global categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
 	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig
 
 	data_name = dataset.name
@@ -121,8 +121,10 @@ def init_data(dataset):
 
 	# --- oscar --- 
 	# ==== FEATURE SELECTOR ====
-	init_vals = [0,10]
-	feature_selector_input = prep_feature_selector(1, feature_names, all_den, col_ranges, init_vals) # 0 indexed
+	# init_vals = [0,10]
+	feature_selector_input = []
+	for i in range(no_features):
+		feature_selector_input.append(prep_feature_selector(i, feature_names, all_den, col_ranges) )# 0 indexed
 	# If no init vals known then leave blank.
 	
 	dict_array = all_den
@@ -182,6 +184,7 @@ def init_data(dataset):
 		'density_fineness': density_fineness,
 		'categorical_cols': categorical_cols,
 		'monotonicity_arr': monotonicity_arr,
+		'feature_selector_input': feature_selector_input,
 		'feature_names': feature_names,
 		'all_data': all_data,
 		'data': data,
@@ -306,7 +309,8 @@ def handle_request():
 def projection_site():
 	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path,
-							dens_array = json.dumps([d['data'] for d in all_den]))
+							dens_array = json.dumps([d['data'] for d in all_den]),
+							feature_selector_input = json.dumps(feature_selector_input))
 
 @app.route('/scatter_req', methods=['GET'])
 def scatter_request():
