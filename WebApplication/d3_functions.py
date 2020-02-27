@@ -35,8 +35,9 @@ def prep_filter_summary(points, no_samples):
 
 
 def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
-  out_dict = {"name":names[feature_no]}
-  out_dict["den"] = all_den[feature_no]
+  out_dict = {}
+  # out_dict["name"] = '\"' + names[feature_no] + '\"'
+  out_dict["den"] = all_den[feature_no]['data']
   out_dict["id"] = feature_no
   
   feat_range = ranges[feature_no]
