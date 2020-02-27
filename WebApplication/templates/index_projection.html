@@ -97,7 +97,7 @@
                   </div>
                   <div id="feature-range-filter-div">
                     <select id="feature-dropdown">
-                      <option selected disabled>Choose feature</option>
+                      <option value="init" selected disabled>Choose feature</option>
                     </select>
                     <div id="feature-range-slider-div">
                       Feature range slider
@@ -192,13 +192,13 @@
       var httpRequestTable;
       var cold_start = true;
       var curr_aggr_ids = [];
-      
       var selected_fts = [-1];
       var curr_alg = "True";
       var dim_red = "PCA";
       var directionality = "True";
       var pred_range = [[0,100],[0,100],[0,100]];
       var confusion_mat = [["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"]];
+
       // var confusion_restart = [true,true,true];
       var filter_set_idx = 0;
       // var master_filter_list = [{0},{0},{0}];
@@ -215,7 +215,24 @@
         feature_selector_input[i]['name'] = ft_names[i];
       }
       console.log(feature_selector_input);
+      var ft_curr_range = [[],[],[]];
+      reset_ft_curr_ranges(0);
+      reset_ft_curr_ranges(1);
+      reset_ft_curr_ranges(2);
+      
+      console.log(ft_curr_range);
+      
+      function reset_ft_curr_ranges (idx){
+        // Generalize to many filter sets later
+        console.log("Reseting ranges at idx", idx);
+        var rangs = [];
+        for (i=0; i<ft_names.length; i++){
+          rangs.push (feature_selector_input[i]['range']); 
+        }
+        ft_curr_range[idx] = rangs;
 
+      }
+    
       // Check if currently all filters are selected to handle logic of click dispatches
       function confusion_restart(){
         if (confusion_mat[filter_set_idx].length == 4){
@@ -278,6 +295,8 @@
       function draw_feature_selector(ft_option){
         console.log("Feature selector idx:", ft_option.value);
         var aFeature = feature_selector_input[ft_option.value];
+        aFeature['current'] = ft_curr_range[filter_set_idx][ft_option.value];
+        console.log("Drawing range slider", aFeature);
         document.getElementById("feature-range-slider-div").innerHTML = "";
         feature_selector("#feature-range-slider-div", aFeature);
       }
@@ -685,6 +704,10 @@
 
         confusion_mat[filter_set_idx] = ["TP", "FP", "TN", "FN"];
         pred_range[filter_set_idx] = [0,100];
+        reset_ft_curr_ranges(filter_set_idx);
+
+        document.getElementById("feature-dropdown").value = "init";
+        document.getElementById("feature-range-slider-div").innerHTML = "Feature range slider";
         draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
 
         // confusion_restart[filter_set_idx] = true;
@@ -887,6 +910,8 @@
           document.getElementById('filter-button-'+idx.toString()).classList.add('active');
           filter_set_idx = idx;
           // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
+          document.getElementById("feature-dropdown").value = "init";
+          document.getElementById("feature-range-slider-div").innerHTML = "Feature range slider";
           draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
           makeScatterRequest();
           // displayCachedFilterResults(idx);
