@@ -163,7 +163,6 @@
       var no_features = {{no_features}};
       var feature_selector_input = "{{feature_selector_input}}";
       feature_selector_input = feature_selector_input.replace(/&#34;/g, "");
-      // feature_selector_input = feature_selector_input.replace(/name/g,'\"name\"');
       feature_selector_input = feature_selector_input.replace(/den/g, '\"den\"');
       feature_selector_input = feature_selector_input.replace(/id/g, '\"id\"');
       feature_selector_input = feature_selector_input.replace(/current/g, '\"current\"');
@@ -174,17 +173,8 @@
       ft_names = ft_names.slice(1, ft_names.length-1).replace(/\s+/g, '');;
       ft_names = ft_names.split(",");
       var preproc_path = "{{preproc_path}}";
-      // var dens_array = "{{dens_array}}";
       var dark_shade = "rgb(180, 177, 213)";
       var light_shade = "white";
-
-      // for (i=0; i<no_features; i++){
-      //   var replace = ft_names[i];
-      //   var rep2 = '"' + replace + '"';
-      //   var re = new RegExp(replace,"g");
-      //   feature_selector_input = feature_selector_input.replace(re, rep2);
-      // }
-      // console.log(feature_selector_input);
 
       var txtFile;
       var httpRequest;
@@ -198,29 +188,21 @@
       var directionality = "True";
       var pred_range = [[0,100],[0,100],[0,100]];
       var confusion_mat = [["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"]];
-
-      // var confusion_restart = [true,true,true];
       var filter_set_idx = 0;
-      // var master_filter_list = [{0},{0},{0}];
 
-      // dens_array = JSON.parse(dens_array);
-      // var densities_dict={};
-      // for (i=0; i<ft_names.length; i++){
-      //   densities_dict[ft_names[i]] = dens_array[i];
-      // }
-      // console.log(densities_dict);
-      console.log(ft_names);
       feature_selector_input = JSON.parse(feature_selector_input);
       for (i=0; i<ft_names.length; i++){
         feature_selector_input[i]['name'] = ft_names[i];
       }
-      console.log(feature_selector_input);
+      
       var ft_curr_range = [[],[],[]];
       reset_ft_curr_ranges(0);
       reset_ft_curr_ranges(1);
       reset_ft_curr_ranges(2);
-      
-      console.log(ft_curr_range);
+
+      console.log("FT names:", ft_names);
+      console.log("FT selector input:", feature_selector_input);
+      console.log("FT current ranges:", ft_curr_range);
       
       function reset_ft_curr_ranges (idx){
         // Generalize to many filter sets later
@@ -230,7 +212,6 @@
           rangs.push (feature_selector_input[i]['range']); 
         }
         ft_curr_range[idx] = rangs;
-
       }
     
       // Check if currently all filters are selected to handle logic of click dispatches
@@ -273,12 +254,10 @@
 
         // Feature selector dropdown
         var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option");
-        console.log(ft_dropdown_opts);
         if (ft_dropdown_opts.length <= 1){
           var ft_dropdown = document.getElementById("feature-dropdown");
           ft_dropdown.onchange = function () {draw_feature_selector(this);};
           for (i=0; i<ft_names.length; i++){
-            console.log(ft_names[i]);
             var option = document.createElement("option");
             option.text = ft_names[i];
             option.value = i;
@@ -351,9 +330,18 @@
           }
         }
 
+        // Check the features that have been moved from their original range and pass those indexes to the backend
+        var modified_range_idx = [];
+        for (var j=0; j<ft_names.length; j++){
+          if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
+            modified_range_idx.push(j);
+          }
+        }
+        console.log("modified range indexes:", modified_range_idx);
         
         httpRequest.onreadystatechange = alertScatterPlot;
-        httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat='+ confusion_mat[filter_set_idx] + '&pred_range='+ pred_range[filter_set_idx] + '&filter_set_idx='+ filter_set_idx );
+        httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat='+ confusion_mat[filter_set_idx] + '&pred_range='+ pred_range[filter_set_idx] + '&ft_curr_range='+ ft_curr_range[filter_set_idx] 
+          + '&modified_range_idx='+ modified_range_idx + '&filter_set_idx='+ filter_set_idx );
         httpRequest.send();
         return false;
       }

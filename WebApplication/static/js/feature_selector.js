@@ -254,9 +254,9 @@ function feature_selector(place, aFeature) {
 			out_high = out_max;
 			out_low = out_min;
 			console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
-			ft_curr_range[filter_set_idx][aFeature.id]=[out_low,out_high];
+			ft_curr_range[filter_set_idx][aFeature.id] = [out_low,out_high];
     		makeScatterRequest();
-    		console.log("idx: ", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
+    		console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
 
 
 		});
