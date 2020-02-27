@@ -309,7 +309,6 @@ def handle_request():
 def projection_site():
 	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path,
-							dens_array = json.dumps([d['data'] for d in all_den]),
 							feature_selector_input = json.dumps(feature_selector_input))
 
 @app.route('/scatter_req', methods=['GET'])
@@ -327,10 +326,24 @@ def scatter_request():
 		confusion_mat = request.args.get('confusion_mat').split(',')
 		pred_range = request.args.get('pred_range').split(',')
 		pred_range = [int(x) for x in pred_range]
+		modified_range_idx = request.args.get('modified_range_idx').split(',')
+		if modified_range_idx[0]!='': modified_range_idx = [int(x) for x in modified_range_idx] 
+		else: modified_range_idx = []
+		print ("MODIFIED RANGE INDEXES", modified_range_idx)
+		
+		ft_curr_range = request.args.get('ft_curr_range').split(',')
+		ft_curr_range = [int(x) for x in ft_curr_range]
+		temp_curr_range = []
+		idx = 0
+		while idx <= len(ft_curr_range)-2:
+			temp_curr_range.append((ft_curr_range[idx], ft_curr_range[idx+1]))
+			idx += 2
+		ft_curr_range = temp_curr_range
+		print ("FT CURR RANGE", ft_curr_range)
 
 		# Feature Selector Pre-Logic # OSCAR you need to get these two things with your call
-		ft_range = [50,85]
-		ft_idx = 1   # Zero-indexed
+		# ft_range = [50,85]
+		# ft_idx = 1   # Zero-indexed
 
 
 		if ft_list[0] == '-1' or ft_list == ['']:
@@ -372,15 +385,14 @@ def scatter_request():
 		filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list, "3":[]}
 
 		for c in range(len(col_ranges)):
-			col_range = find_feature_range(col_ranges[c])
-
 			# [low, high, changed]
-			if (c == ft_idx):
-				filter_dict["3"].append([ft_range[0], ft_range[1], 1])
+			if (c in modified_range_idx):
+				filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
 			else:
-				filter_dict["3"].append([col_range[0], col_range[1], 0])
+				filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
 
-
+		print ("FILTER DICT")
+		print(filter_dict)
 		# if (len(filter_dict["3"]) == 0):
 		# 	filter_dict["3"]
 			
@@ -407,7 +419,7 @@ def scatter_request():
 				filter_lst.append(single_filter)
 
 
-		print(filter_lst) # OSCAR: This needs to go to D3 filter selector as input
+		print("FILTER LIST", filter_lst) # OSCAR: This needs to go to D3 filter selector as input
 
 
 
@@ -418,12 +430,15 @@ def scatter_request():
 		mask1 = query_pred_range(metadata, pred_range)
 		mask2 = query_confusion_mat(metadata, confusion_mat)
 		mask3 = query_feature_combs(metadata, [15,19])
-		mask4 = query_value_range(data, 0, 60, 70)
+		# mask4 = query_value_range(data, 0, 60, 70)
 		mask5 = query_similar_points(data,metadata,10,0.5)
 		mask6 = query_sampled_data(data, 30)
 
+		mask4 = np.copy(start_mask)
+		for idx in modified_range_idx:
+			mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
 
-		current_mask = start_mask*mask1*mask2 #*mask6
+		current_mask = start_mask*mask1*mask2*mask4 #*mask6
 
 		result = apply_mask(all_points, current_mask)
 		summary = prep_filter_summary(result, no_samples)
