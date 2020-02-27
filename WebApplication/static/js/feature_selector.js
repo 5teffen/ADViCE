@@ -472,8 +472,21 @@ function feature_selector(place, aFeature) {
 	    		out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    	}
 
+	    	// console.log(out_min, out_max);
 	    	// selection.attr("fill", "blue")
-	    });
+	    })
+
+	    .on("end", function(){
+			out_high = out_max;
+			out_low = out_min;
+			console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
+			ft_curr_range[filter_set_idx][aFeature.id]=[out_low,out_high];
+    		makeScatterRequest();
+    		console.log("idx: ", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
+
+
+		});
+
 
 
 	// -- Slider section --
@@ -729,4 +742,4 @@ function feature_selector(place, aFeature) {
 }
 
 
-feature_selector(aFeature, "body")
+// feature_selector(aFeature, "body")
