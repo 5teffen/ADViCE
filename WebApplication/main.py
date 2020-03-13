@@ -12,7 +12,7 @@ from queries import *
 from d3_functions import *
 from preprocessing import create_summary_file
 from distance_function import generate_projection_files, reduce_raw_data
-from projection import show_projection, show_projection2, full_projection
+from projection import show_projection2, full_projection
 
 import os
 from os import path
@@ -307,7 +307,6 @@ def handle_request():
 
 @app.route('/projection')
 def projection_site():
-	show_projection(projection_changes_path[:-4]+"_PCA.csv", no_samples)
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path,
 							feature_selector_input = json.dumps(feature_selector_input))
 
