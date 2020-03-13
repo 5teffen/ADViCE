@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 
-
 def show_projection2(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
 
     df = pd.read_csv(filename, header=None)

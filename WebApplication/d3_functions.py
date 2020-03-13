@@ -48,7 +48,6 @@ def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
       max_val = feat_range[i][1]
 
     elif (feat_range[i+1] == '-1'):
-      print("THIS")
       max_val = feat_range[i][1]
       break
 
