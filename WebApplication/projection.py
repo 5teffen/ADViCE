@@ -1,12 +1,5 @@
 import numpy as np
 import pandas as pd
-from bokeh.layouts import gridplot, column
-from bokeh.models import CustomJS, ColumnDataSource, HoverTool, TapTool, WheelZoomTool, LassoSelectTool, BoxSelectTool, PanTool, HelpTool, CustomJSFilter, CDSView
-from bokeh.plotting import figure, output_file, show
-from bokeh.models.widgets import CheckboxGroup
-from bokeh.resources import CDN
-from bokeh.embed import file_html
-
 
 def show_projection(filename, total_samples, algorithm=True, selected_ids=None, dim_red="PCA", directionality=True):
 
