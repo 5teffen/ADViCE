@@ -16,7 +16,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
     <!-- rSlider source -->
-    <script type="text/javascript" src="static/js/rSlider.min.js"></script>
+    <script type="text/djavascript" src="static/js/rSlider.min.js"></script>
     <!-- AG Grid source -->
     <script src="https://unpkg.com/@ag-grid-community/all-modules/dist/ag-grid-community.min.js"></script>
     <!-- SVG scripts -->
@@ -37,6 +37,7 @@
     <script type="text/javascript" src="static/js/filter_selector.js"></script>
     <script type="text/javascript" src="static/js/percentage_filter.js"></script>
     <script type="text/javascript" src="static/js/feature_selector.js"></script>
+    <script type="text/javascript" src="static/js/basic_comparison.js"></script>
 
   </head>
 
@@ -511,9 +512,12 @@
               resp_list = JSON.parse(resp_arr);
             }
             
-            draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
-              median_toggle, mean_toggle, density_toggle);
-            console.log("drawing violin aggr");
+            // draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
+            //   median_toggle, mean_toggle, density_toggle);
+            draw_comparison(resp_list[0],resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4]
+              , "#distribution-div",
+              median_toggle, density_toggle, mean_toggle);
+            // console.log("drawing violin aggr");
             ft_list();
             highlight_features();
             cold_start = false;
