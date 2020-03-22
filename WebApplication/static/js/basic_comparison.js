@@ -12,6 +12,9 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
     testData = leftData[0]
 
+    var points_col = "#67a9cf",
+        point_size = 3;
+
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
 
@@ -229,7 +232,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         }
 
 
-        // -- Drawing right density distribution --
+    // -- Drawing right density distribution --
         den_svg.append('path').datum(right)
         .attr('d',right_line)
         .attr('stroke', den_colour)
@@ -242,6 +245,8 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 return 0;
             }});
     }
+
+
 
     function draw_triangle(data) {
         var full_string = "";
@@ -299,7 +304,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         d3.select(this).attr("stroke-opacity",0)
     })
     .on('click',function(d){
-        console.log(d[0].sample);
+        // console.log(d[0].sample);
         var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
         window.location.href = reloc;
     })
@@ -322,6 +327,25 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             return good_col;}
     })
     .attr("stroke-opacity",0);
+
+
+
+    // === Drawing left points ====
+    if (point_toggle) {
+        for(n=0 ; n < leftData.length; n++){
+            var oneData = leftData[n]
+            svg.append("g").selectAll("circle")
+                .data(oneData)
+                .enter()
+                .append("circle")
+                .attr('cx',function(d) {return (xScale(d.name) + xScale.bandwidth()*0.5);})
+                .attr("cy",function(d) {
+                    return yScale(d.scl_val);})
+                .attr("r", point_size)
+                .style("fill", points_col)
+                .style("opacity", 0.3);
+        }
+    }
 
 
 
@@ -346,7 +370,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         d3.select(this).attr("stroke-opacity",0)
     })
     .on('click',function(d){
-        console.log(d[0].sample);
+        // console.log(d[0].sample);
         var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
         window.location.href = reloc;
     })
@@ -369,6 +393,25 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             return good_col;}
     })
     .attr("stroke-opacity",0);
+
+
+
+    // === Drawing right points ====
+    if (point_toggle) {
+        for(n=0 ; n < rightData.length; n++){
+            var oneData = rightData[n]
+            svg.append("g").selectAll("circle")
+                .data(oneData)
+                .enter()
+                .append("circle")
+                .attr('cx',function(d) {return (xScale(d.name) + xScale.bandwidth()*0.5);})
+                .attr("cy",function(d) {
+                    return yScale(d.scl_val);})
+                .attr("r", point_size)
+                .style("fill", points_col)
+                .style("opacity", 0.3);
+        }
+    }
 
 
 

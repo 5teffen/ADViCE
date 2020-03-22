@@ -179,7 +179,7 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
       else:
         result["dec"] = 0
 
-      val = X[s][i].round(0)
+      val = X[s][i].round(0)   # FIX
       change = val
 
       # -- Identify Anchors --
@@ -212,8 +212,15 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
 
       if (scl_val < 0 ):
         scl_val = 0
+
+      if (scl_val > 1 ):
+        scl_val = 1
+      
       if (scl_change < 0):
         scl_change = 0
+
+      if (scl_change > 1 ):
+        scl_change = 1
 
       result["scl_val"] = float(scl_val)
       result["scl_change"] = float(scl_change)
