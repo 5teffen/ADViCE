@@ -489,10 +489,12 @@ def violin_site_req():
 			half_ft = int(proj_samples.shape[0]/2)
 			
 			first_samples = proj_samples[:half_ft]
-			second_samples = proj_samples[half_ft:]
+			second_samples = proj_samples[half_ft:]   
 
-			sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness)
+			sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
 			sel_den2, sel_median2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
+
+			# Steffen: Change density to bins/histograms
 
 			aggr_data1 = prep_for_D3_aggregation(preproc_path, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
 			aggr_data2 = prep_for_D3_aggregation(preproc_path, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
