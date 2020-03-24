@@ -469,12 +469,48 @@ def violin_site_req():
 			# print(proj_samples)
 			# print(data[proj_samples])
 			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
-			select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
+			# select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
 			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
 			# ret_string = json.dumps([np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
-			aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
-			ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
+			# aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
+			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
+
+
+			# -- One Example Version --
+			# select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
+			# aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
+			# ret_string = json.dumps([aggr_data, all_den, select_den, all_m
+
+
+
+
+			# OSCAR: Comparison part. Example of how it would work
+			half_ft = int(proj_samples.shape[0]/2)
+			
+			first_samples = proj_samples[:half_ft]
+			second_samples = proj_samples[half_ft:]   
+
+			sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
+			sel_den2, sel_median2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
+
+			# Steffen: Change density to bins/histograms
+
+			aggr_data1 = prep_for_D3_aggregation(preproc_path, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
+			aggr_data2 = prep_for_D3_aggregation(preproc_path, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
+
+
+			ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
+
+
+
+
+
+
+
+
+
+
 			return ret_string
 
 @app.route('/table_req')
