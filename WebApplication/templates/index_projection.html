@@ -113,11 +113,23 @@
         <div id="right-panel-proj">
           <table class="proj-table">
             <tr>
-              <th colspan="2" style="border-radius: 1px;">
+              <th colspan="1" style="border-radius: 1px; width: 227px">
                 <div class="btn-group-proj" >
                   <button id="median-button" class="proj-button"> Median </button>
                   <button id="mean-button" class="proj-button"> Mean </button>
                   <button id="density-button" class="proj-button"> Density </button>
+                </div>
+              </th>
+              <th colspan="1" style="border-radius: 1px;">
+                <div class="btn-group-proj" >
+                  <select id="compare-dropdown" onchange="compareTrigger(this)">
+                    <option value="init" selected disabled>Compare with</option>
+                    <option value="none" > No comparison </option>
+                    <option value="complement" > Complement </option>
+                    <option value="0" > Filter set 1 </option>
+                    <option value="1" > Filter set 2 </option>
+                    <option value="2" > Filter set 3 </option>
+                  </select>
                 </div>
               </th>
             </tr>
@@ -751,6 +763,7 @@
 
         confusion_mat[filter_set_idx] = ["TP", "FP", "TN", "FN"];
         pred_range[filter_set_idx] = [0,100];
+        doing_comparison = 0;
         reset_ft_curr_ranges(filter_set_idx);
 
         document.getElementById("feature-dropdown").value = "init";
@@ -956,6 +969,8 @@
           }
           document.getElementById('filter-button-'+idx.toString()).classList.add('active');
           filter_set_idx = idx;
+          document.getElementById("compare-dropdown").value = "init";
+          doing_comparison = 0;
           // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
           document.getElementById("feature-dropdown").value = "init";
           document.getElementById("feature-range-slider-div").innerHTML = "Feature range slider";
@@ -963,6 +978,25 @@
           makeScatterRequest();
           // displayCachedFilterResults(idx);
         }
+      }
+
+      function compareTrigger(trigger_dropdown){
+        idx = trigger_dropdown.value;
+        console.log("Compare trigger", idx);
+        if (idx == "none" || idx == "init" ){
+          doing_comparison = 0;
+          
+        }
+
+        else if (idx == "complement"){
+          // do later
+          doing_comparison = 0;
+        }
+        else {
+          doing_comparison = 1;
+          filter_set_idx_cmp = parseInt(idx);
+        }
+        makeScatterRequest();
       }
 
       fetch_csv();
