@@ -530,7 +530,7 @@ def violin_site_req():
 				# -- One Example Version --
 				select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples_1, feature_names, density_fineness)
 				aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples_1, bins_centred, X_pos_array, sort_toggle)
-				ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
+				ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
 
 
 			if doing_comparison:
