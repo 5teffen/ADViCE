@@ -118,8 +118,6 @@ def init_data(dataset):
 
 	monotonicity_arr = mono_finder(svm_model, data, col_ranges)
 
-
-	# --- oscar --- 
 	# ==== FEATURE SELECTOR ====
 	# init_vals = [0,10]
 	feature_selector_input = []
@@ -315,35 +313,10 @@ def scatter_request():
 
 	if request.method == 'GET':
 
+		doing_comparison = int(request.args.get('doing_comparison'))
+
 		ft_list = request.args.get('selected_fts')
 		ft_list = ft_list[1:-1].split(',')
-
-		# False = changes, True = keyfts
-		algorithm = (request.args.get('algorithm') == "True")
-		dim_red = request.args.get('dim_red')
-		directionality = (request.args.get('directionality') == "True")
-		confusion_mat = request.args.get('confusion_mat').split(',')
-		pred_range = request.args.get('pred_range').split(',')
-		pred_range = [int(x) for x in pred_range]
-		modified_range_idx = request.args.get('modified_range_idx').split(',')
-		if modified_range_idx[0]!='': modified_range_idx = [int(x) for x in modified_range_idx] 
-		else: modified_range_idx = []
-		print ("MODIFIED RANGE INDEXES", modified_range_idx)
-		
-		ft_curr_range = request.args.get('ft_curr_range').split(',')
-		ft_curr_range = [int(x) for x in ft_curr_range]
-		temp_curr_range = []
-		idx = 0
-		while idx <= len(ft_curr_range)-2:
-			temp_curr_range.append((ft_curr_range[idx], ft_curr_range[idx+1]))
-			idx += 2
-		ft_curr_range = temp_curr_range
-		print ("FT CURR RANGE", ft_curr_range)
-
-		# Feature Selector Pre-Logic # OSCAR you need to get these two things with your call
-		# ft_range = [50,85]
-		# ft_idx = 1   # Zero-indexed
-
 
 		if ft_list[0] == '-1' or ft_list == ['']:
 			ret_arr = list(range(data.shape[0]))
@@ -353,111 +326,182 @@ def scatter_request():
 			ft_list.sort()
 			ret_arr = ids_with_combination(preproc_path,ft_list,anchs=False)
 
+		# False = changes, True = keyfts
+		algorithm = (request.args.get('algorithm') == "True")
+		dim_red = request.args.get('dim_red')
+		directionality = (request.args.get('directionality') == "True")
+		
+		confusion_mat_1 = request.args.get('confusion_mat_1').split(',')
+		pred_range_1 = request.args.get('pred_range_1').split(',')
+		pred_range_1 = [int(x) for x in pred_range_1]
+		modified_range_idx_1 = request.args.get('modified_range_idx_1').split(',')
+
+		if modified_range_idx_1[0]!='': modified_range_idx_1 = [int(x) for x in modified_range_idx_1] 
+		else: modified_range_idx_1 = []
+		print ("MODIFIED RANGE INDEXES", modified_range_idx_1)
+		
+		ft_curr_range_1 = request.args.get('ft_curr_range_1').split(',')
+		ft_curr_range_1 = [int(x) for x in ft_curr_range_1]
+		temp_curr_range = []
+		idx = 0
+		while idx <= len(ft_curr_range_1)-2:
+			temp_curr_range.append((ft_curr_range_1[idx], ft_curr_range_1[idx+1]))
+			idx += 2
+		ft_curr_range_1 = temp_curr_range
+		print ("FT CURR RANGE", ft_curr_range_1)
+
+		if doing_comparison:
+			confusion_mat_2 = request.args.get('confusion_mat_2').split(',')
+			pred_range_2 = request.args.get('pred_range_2').split(',')
+			pred_range_2 = [int(x) for x in pred_range_2]
+			modified_range_idx_2 = request.args.get('modified_range_idx_2').split(',')
+
+			if modified_range_idx_2[0]!='': modified_range_idx_2 = [int(x) for x in modified_range_idx_2] 
+			else: modified_range_idx_2 = []
+			print ("MODIFIED RANGE INDEXES", modified_range_idx_2)
+			
+			ft_curr_range_2 = request.args.get('ft_curr_range_2').split(',')
+			ft_curr_range_2 = [int(x) for x in ft_curr_range_2]
+			temp_curr_range = []
+			idx = 0
+			while idx <= len(ft_curr_range_2)-2:
+				temp_curr_range.append((ft_curr_range_2[idx], ft_curr_range_2[idx+1]))
+				idx += 2
+			ft_curr_range_2 = temp_curr_range
+			print ("FT CURR RANGE", ft_curr_range_2)
+
+
+		# Feature Selector Pre-Logic
+		# ft_range = [50,85]
+		# ft_idx = 1   # Zero-indexed
+
+
 		#show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 		#ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
 		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
 
+		idx_range = range(2) if doing_comparison else range(1)
 
-		# OSCAR: At the moment the logic is with only one set of filters. Should be easy to accomodate multiple.
-		# 		 Probaly add a global list variable that stores the last filter_dict. 
-		#		 Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
-		
-		# ==== Filter Dictionary ==== 
-		# Note: order is TP, FP, FN, TN 
-		conf_list = [0,0,0,0]
-		for label in confusion_mat:
-			if label == "TP":
-				conf_list[0] = 1
-			if label == "FP":
-				conf_list[1] = 1
-			if label == "FN":
-				conf_list[2] = 1
-			if label == "TN":
-				conf_list[3] = 1
+		confusion_mat = confusion_mat_1
+		pred_range = pred_range_1
+		pred_range = pred_range_1
+		modified_range_idx = modified_range_idx_1
+		ft_curr_range = ft_curr_range_1
+		ret_string = ""
 
-		# // Filter Legend:
-		# // 1 - Model Accuracy Range
-		# // 2 - Prediction Label
-		# // 3 - Feature RangeS
+		for idx_k in idx_range:
 
-		filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list, "3":[]}
-
-		for c in range(len(col_ranges)):
-			# [low, high, changed]
-			if (c in modified_range_idx):
-				filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
-			else:
-				filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
-
-		print ("FILTER DICT")
-		print(filter_dict)
-		# if (len(filter_dict["3"]) == 0):
-		# 	filter_dict["3"]
+			# At the moment the logic is with only one set of filters. Should be easy to accomodate multiple.
+			# Probaly add a global list variable that stores the last filter_dict. 
+			# Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
 			
-		
-		# ==== Filter Dictionary -> D3 ====
-		filter_lst = []
-		# Note: this logic might reorder the filters (future fix)
+			# ==== Filter Dictionary ==== 
+			# Note: order is TP, FP, FN, TN 
+			conf_list = [0,0,0,0]
+			for label in confusion_mat:
+				if label == "TP":
+					conf_list[0] = 1
+				if label == "FP":
+					conf_list[1] = 1
+				if label == "FN":
+					conf_list[2] = 1
+				if label == "TN":
+					conf_list[3] = 1
 
-		# --- Model Percentage ---
-		if ((pred_range[0] != 0) or (pred_range[1] != 100)):
-			single_filter = [1, {"low":pred_range[0], "high":pred_range[1]}]
-			filter_lst.append(single_filter)
-		
-		# --- Confusion Matrix ---
-		if (not all(v == 1 for v in conf_list)):
-			single_filter = [2, {"tp":conf_list[0], "fp":conf_list[1] ,"fn":conf_list[2] ,"tn":conf_list[3]}]
-			filter_lst.append(single_filter)
+			# // Filter Legend:
+			# // 1 - Model Accuracy Range
+			# // 2 - Prediction Label
+			# // 3 - Feature RangeS
 
-		# --- Feature Selector ---
-		for f in range(len(filter_dict["3"])):
-			feat = filter_dict["3"][f]
-			if (feat[2] == 1):
-				single_filter = [3, {"name": feature_names[f], "low":feat[0], "high":feat[1]}]
+			filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list, "3":[]}
+
+			for c in range(len(col_ranges)):
+				# [low, high, changed]
+				if (c in modified_range_idx):
+					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
+				else:
+					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
+
+			print ("FILTER DICT")
+			print(filter_dict)
+			# if (len(filter_dict["3"]) == 0):
+			# 	filter_dict["3"]
+				
+			
+			# ==== Filter Dictionary -> D3 ====
+			filter_lst = []
+			# Note: this logic might reorder the filters (future fix)
+
+			# --- Model Percentage ---
+			if ((pred_range[0] != 0) or (pred_range[1] != 100)):
+				single_filter = [1, {"low":pred_range[0], "high":pred_range[1]}]
+				filter_lst.append(single_filter)
+			
+			# --- Confusion Matrix ---
+			if (not all(v == 1 for v in conf_list)):
+				single_filter = [2, {"tp":conf_list[0], "fp":conf_list[1] ,"fn":conf_list[2] ,"tn":conf_list[3]}]
 				filter_lst.append(single_filter)
 
-
-		print("FILTER LIST", filter_lst) # OSCAR: This needs to go to D3 filter selector as input
-
-
-
-		# === Apply Masks === 
-
-		start_mask = np.ones(data.shape[0])
-
-		mask1 = query_pred_range(metadata, pred_range)
-		mask2 = query_confusion_mat(metadata, confusion_mat)
-		mask3 = query_feature_combs(metadata, [15,19])
-		# mask4 = query_value_range(data, 0, 60, 70)
-		mask5 = query_similar_points(data,metadata,10,0.5)
-		mask6 = query_sampled_data(data, 30)
-
-		mask4 = np.copy(start_mask)
-		for idx in modified_range_idx:
-			mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
-
-		current_mask = start_mask*mask1*mask2*mask4 #*mask6
-
-		result = apply_mask(all_points, current_mask)
-		summary = prep_filter_summary(result, no_samples)
+			# --- Feature Selector ---
+			for f in range(len(filter_dict["3"])):
+				feat = filter_dict["3"][f]
+				if (feat[2] == 1):
+					single_filter = [3, {"name": feature_names[f], "low":feat[0], "high":feat[1]}]
+					filter_lst.append(single_filter)
 
 
-		## Parse values into python dictionary
-		jsmask1 = [0]
-		jsmask2 = current_mask.tolist()
-		jsmask1.extend(jsmask2)
-		ret_string = json.dumps([result, jsmask1, summary, filter_lst])
-		return ret_string
+			print("FILTER LIST", filter_lst) # This needs to go to D3 filter selector as input
+
+
+
+			# === Apply Masks === 
+
+			start_mask = np.ones(data.shape[0])
+
+			mask1 = query_pred_range(metadata, pred_range)
+			mask2 = query_confusion_mat(metadata, confusion_mat)
+			mask3 = query_feature_combs(metadata, [15,19])
+			# mask4 = query_value_range(data, 0, 60, 70)
+			mask5 = query_similar_points(data,metadata,10,0.5)
+			mask6 = query_sampled_data(data, 30)
+
+			mask4 = np.copy(start_mask)
+			for idx in modified_range_idx:
+				mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
+
+			current_mask = start_mask*mask1*mask2*mask4 #*mask6
+
+			result = apply_mask(all_points, current_mask)
+			summary = prep_filter_summary(result, no_samples)
+
+
+			## Parse values into python dictionary
+			jsmask1 = [0]
+			jsmask2 = current_mask.tolist()
+			jsmask1.extend(jsmask2)
+
+			if idx_k == 0:
+				ret_string = [result, jsmask1, summary, filter_lst, "null"]
+			else:
+				ret_string[-1] = jsmask1
+				confusion_mat = confusion_mat_2
+				pred_range = pred_range_2
+				pred_range = pred_range_2
+				modified_range_idx = modified_range_idx_2
+				ft_curr_range - ft_curr_range_2
+
+		return json.dumps(ret_string)
 
 @app.route('/violin_req')
 def violin_site_req():
 
 	if request.method == 'GET':
 
-		proj_samples = request.args.get('id_list').split(',')
+		proj_samples_1 = request.args.get('id_list_1').split(',')
+		proj_samples_2 = request.args.get('id_list_2').split(',')
 
-		if (proj_samples[0]=='' or proj_samples[0]=='-1'):
+		if (proj_samples_1[0]=='' or proj_samples_1[0]=='-1'):
 			return "-1"
 
 		else:
@@ -465,7 +509,10 @@ def violin_site_req():
 			sort_toggle = False
 
 			# sample_cap = min(len(proj_samples), 30)
-			proj_samples = np.array([int(x)-1 for x in proj_samples])#[:sample_cap])
+			doing_comparison = 1 if proj_samples_2[0]!="null" else 0
+			proj_samples_1 = np.array([int(x)-1 for x in proj_samples_1])#[:sample_cap])
+			if doing_comparison:
+				proj_samples_2 = np.array([int(x)-1 for x in proj_samples_2])#[:sample_cap])
 			# print(proj_samples)
 			# print(data[proj_samples])
 			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
@@ -477,39 +524,37 @@ def violin_site_req():
 			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 
 
-			# -- One Example Version --
-			# select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
-			# aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
-			# ret_string = json.dumps([aggr_data, all_den, select_den, all_m
+
+			if not doing_comparison:
+				print("NOT DOING COMP")
+				# -- One Example Version --
+				select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples_1, feature_names, density_fineness)
+				aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples_1, bins_centred, X_pos_array, sort_toggle)
+				ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 
 
+			if doing_comparison:
+				print("DOING COMP")
+				# OSCAR: Comparison part. Example of how it would work
+				# Get the two sets of selected indices
+				# half_ft = int(proj_samples.shape[0]/2)
+				
+				# first_samples = proj_samples[:half_ft]
+				# second_samples = proj_samples[half_ft:]
+
+				first_samples = proj_samples_1
+				second_samples = proj_samples_2 
+
+				sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
+				sel_den2, sel_median2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
+
+				# Steffen: Change density to bins/histograms
+
+				aggr_data1 = prep_for_D3_aggregation(preproc_path, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
+				aggr_data2 = prep_for_D3_aggregation(preproc_path, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
 
 
-			# OSCAR: Comparison part. Example of how it would work
-			half_ft = int(proj_samples.shape[0]/2)
-			
-			first_samples = proj_samples[:half_ft]
-			second_samples = proj_samples[half_ft:]   
-
-			sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
-			sel_den2, sel_median2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
-
-			# Steffen: Change density to bins/histograms
-
-			aggr_data1 = prep_for_D3_aggregation(preproc_path, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
-			aggr_data2 = prep_for_D3_aggregation(preproc_path, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
-
-
-			ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
-
-
-
-
-
-
-
-
-
+				ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
 
 			return ret_string
 

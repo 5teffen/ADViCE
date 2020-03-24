@@ -16,7 +16,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
     <!-- rSlider source -->
-    <script type="text/djavascript" src="static/js/rSlider.min.js"></script>
+    <script type="text/javascript" src="static/js/rSlider.min.js"></script>
     <!-- AG Grid source -->
     <script src="https://unpkg.com/@ag-grid-community/all-modules/dist/ag-grid-community.min.js"></script>
     <!-- SVG scripts -->
@@ -190,6 +190,8 @@
       var pred_range = [[0,100],[0,100],[0,100]];
       var confusion_mat = [["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"]];
       var filter_set_idx = 0;
+      var filter_set_idx_cmp = 0;
+      var doing_comparison = 0;
 
       feature_selector_input = JSON.parse(feature_selector_input);
       for (i=0; i<ft_names.length; i++){
@@ -331,20 +333,50 @@
           }
         }
 
-        // Check the features that have been moved from their original range and pass those indexes to the backend
-        var modified_range_idx = [];
-        for (var j=0; j<ft_names.length; j++){
-          if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
-            modified_range_idx.push(j);
+        // If not doing comparison
+
+        if (doing_comparison == 0){
+
+          // Check the features that have been moved from their original range and pass those indexes to the backend
+          var modified_range_idx = [];
+          for (var j=0; j<ft_names.length; j++){
+            if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
+              modified_range_idx.push(j);
+            }
           }
+          console.log("modified range indexes:", modified_range_idx);
+          
+          httpRequest.onreadystatechange = alertScatterPlot;
+          httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&pred_range_1='+ pred_range[filter_set_idx] + '&ft_curr_range_1='+ ft_curr_range[filter_set_idx] 
+            + '&modified_range_idx_1='+ modified_range_idx + '&filter_set_idx_1='+ filter_set_idx + '&doing_comparison='+ doing_comparison);
+          httpRequest.send();
+          return false;
         }
-        console.log("modified range indexes:", modified_range_idx);
-        
-        httpRequest.onreadystatechange = alertScatterPlot;
-        httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat='+ confusion_mat[filter_set_idx] + '&pred_range='+ pred_range[filter_set_idx] + '&ft_curr_range='+ ft_curr_range[filter_set_idx] 
-          + '&modified_range_idx='+ modified_range_idx + '&filter_set_idx='+ filter_set_idx );
-        httpRequest.send();
-        return false;
+
+        // If doing comparison
+        // Repeat for both filter sets filter_set_idx and filter_set_idx_cmp
+
+        else {
+          // Check the features that have been moved from their original range and pass those indexes to the backend
+          var modified_range_idx_1 = [];
+          var modified_range_idx_2 = [];
+          for (var j=0; j<ft_names.length; j++){
+            if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
+              modified_range_idx_1.push(j);
+            }
+            if (ft_curr_range[filter_set_idx_cmp][j] != feature_selector_input[j]['range']){
+              modified_range_idx_2.push(j);
+            }
+          }
+          console.log("modified range indexes:", modified_range_idx_1, modified_range_idx_2);
+          
+          httpRequest.onreadystatechange = alertScatterPlot;
+          httpRequest.open('GET', 'scatter_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&confusion_mat_2='+ confusion_mat[filter_set_idx_cmp] + '&pred_range_1='+ pred_range[filter_set_idx] + '&pred_range_2='+ pred_range[filter_set_idx_cmp] + '&ft_curr_range_1='+ ft_curr_range[filter_set_idx] + '&ft_curr_range_2='+ ft_curr_range[filter_set_idx_cmp] 
+            + '&modified_range_idx_1='+ modified_range_idx_1 + '&modified_range_idx_2='+ modified_range_idx_2 + '&filter_set_idx_1='+ filter_set_idx + '&filter_set_idx_2='+ filter_set_idx_cmp + '&doing_comparison='+ doing_comparison);
+          httpRequest.send();
+          return false;
+        }
+
       }
 
       // Bokeh middle panel
@@ -375,7 +407,7 @@
             draw_scatter(allData[0], '#bokeh-div');
             draw_summary(allData[2],  allData[3], '#summary-div');
             //console.log(allData[1]);
-            makeViolinRequest(allData[1]);
+            makeViolinRequest(allData[1], allData[4]);
             makeTableRequest(allData[1]);
             //makeAggregationRequest();
 
@@ -466,22 +498,32 @@
       }
 
       // Request from scatter plot to right panel violin plot
-      function makeViolinRequest(mask) {
+      function makeViolinRequest(mask_1, mask_2="null") {
         httpRequestViolin = new XMLHttpRequest();
         if (!httpRequestViolin) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
           return false;
         }
 
-        var id_list = [];
-        for (var k=0; k<mask.length; k++){
-          if(mask[k]==1) id_list.push(k);
+        var id_list_1 = [];
+        var id_list_2 = [];
+        for (var k=0; k<mask_1.length; k++){
+          if(mask_1[k]==1) id_list_1.push(k);
         }
-        if (id_list.length<1) id_list=[-1];
-        curr_aggr_ids = id_list;
+        if (id_list_1.length<1) id_list_1=[-1];
+
+        if (mask_2 != "null"){
+          for (var k=0; k<mask_1.length; k++){
+            if(mask_2[k]==1) id_list_2.push(k);
+          }
+          if (id_list_2.length<1) id_list_2=[-1];
+        }
+        else {id_list_2="null";}
+
+        // curr_aggr_ids = id_list;
         httpRequestViolin.onreadystatechange = alertContentsViolin;
         // httpRequestViolin.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
-        httpRequestViolin.open('GET', 'violin_req?id_list='+id_list);  
+        httpRequestViolin.open('GET', 'violin_req?id_list_1=' + id_list_1 + "&id_list_2=" + id_list_2);  
         httpRequestViolin.send();
         return false;
       }
@@ -511,15 +553,26 @@
             if (resp_arr!="-1"){
               resp_list = JSON.parse(resp_arr);
             }
-            
-            // draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
-            //   median_toggle, mean_toggle, density_toggle);
 
-            // OSCAR: This is the comparison call
-            draw_comparison(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5]
-              , "#distribution-div",
-              median_toggle, density_toggle, mean_toggle);
-            // console.log("drawing violin aggr");
+
+            if (doing_comparison == 0){
+              console.log("drawing violin aggr");
+              draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
+                median_toggle, mean_toggle, density_toggle);
+              
+            }
+
+
+            else{
+              // OSCAR: This is the comparison call
+              console.log("drawing violin comparison");
+              draw_comparison(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5]
+                , "#distribution-div",
+                median_toggle, density_toggle, mean_toggle);
+              
+            }
+
+
             ft_list();
             highlight_features();
             cold_start = false;
