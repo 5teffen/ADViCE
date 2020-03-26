@@ -164,6 +164,12 @@ def init_data(dataset):
 
 
 
+	# --- OSCAR: Percentage Filter ---
+
+	test = prep_percentage_filter(metadata, no_bins= 30)
+
+
+
 	all_params = {
 		# data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness,
 		# categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals,

@@ -207,34 +207,35 @@ function draw_aggregation_graph(allData,leftList,rightList,leftMed,rightMed,left
             var med_right = rightMed[ind],
             med_left = leftMed[ind];
         
-            var tick_size = 20
-                tick_width = 1;
+            var tick_size = 15
+                tick_width = 2;
            
             den_svg.append("g")
                 .append("line")
                 .attr("class","split_lines")
-                .attr("x1",-tick_size)
+                .attr("x1",0)
                 .attr('y1',function(d){return yScale(med_right);})
                 .attr("y2",function(d){return yScale(med_right);})
                 .attr("x2",tick_size)
                 .style("stroke",den_colour)
-                .style("stroke-opacity",0.7)
+                .style("stroke-opacity",1)
                 .style("stroke-width",tick_width);
 
             den_svg.append("g")
                 .append("line")
                 .attr("class","split_lines")
-                .attr("x1",tick_size)
+                .attr("x1",0)
                 .attr('y1',function(d){return yScale(med_left);})
                 .attr("y2",function(d){return yScale(med_left);})
                 .attr("x2",-tick_size)
                 .style("stroke",den_colour)
-                .style("stroke-dasharray","3,3")
+                .style("stroke-opacity",0.7)
                 .style("stroke-width",tick_width);
         }
 
         // ==== Drawing mean lines ====
-        if (button2) {
+        // if (button2) {
+        if (1==0) {
             var med_right = rightMean[ind],
             med_left = leftMean[ind]
             mean_col = "#e7298a";

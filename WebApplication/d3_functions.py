@@ -6,6 +6,45 @@ from utils import *
 from global_explanations import *
 
 
+
+def prep_percentage_filter(metadata, no_bins):
+  result = np.zeros((no_bins,))
+  one_bin = 100/no_bins
+
+  for i in range(metadata.shape[0]):
+    perc = metadata[i][1]*100
+
+    floor = 0
+    ceil = one_bin
+
+    for b in range(no_bins):
+      # -- Edge Cases -- 
+      if (b == 0 and perc < one_bin):
+        result[0] += 1
+        break
+
+      elif (b == (no_bins-1)):
+        result[no_bins-1] += 1
+        break
+
+      elif ((perc >= floor) and (perc < ceil)):
+         result[b] += 1
+         break
+     
+      floor += one_bin
+      ceil += one_bin
+
+  # -- Scale the bins --
+  highest_count = np.amax(result) 
+  result = result/highest_count
+
+  return result
+
+
+
+
+
+
 def prep_filter_summary(points, no_samples):
   tp = 0
   fp = 0 
