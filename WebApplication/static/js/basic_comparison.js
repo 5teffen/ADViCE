@@ -12,9 +12,9 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
     testData = leftData[0]
 
-    var points_col = "#67a9cf",
+    var points_col = "lightgray",
         point_size = 3;
-
+    // points_col = "#67a9cf"
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
 
@@ -216,7 +216,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .attr("y2",function(d){return yScale(med_right);})
                 .attr("x2",(tick_size-tick_sep))
                 .style("stroke",den_colour)
-                .style("stroke-opacity",0.3*3)
+                .style("stroke-opacity",1)
                 .style("stroke-width",tick_width);
 
             den_svg.append("g")
@@ -228,7 +228,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .attr("x2",-(tick_size-tick_sep))
                 .style("stroke",den_colour)
                 .style("stroke-width",tick_width)
-                .style("stroke-opacity",0.15*3);
+                .style("stroke-opacity",1);
         }
 
 
