@@ -5,9 +5,9 @@
 
 
 
-function percentage_bar(place, data) {
+function percentage_bar(place, data, histoData) {
 
-	var histoData = [0.2,0.3,0.5,0.6,0.9,0.9,0.8,0.3,0.2,0.2,0.5,0.5,0.6,0.1,0.3,0.7]
+	// var histoData = [0.2,0.3,0.5,0.6,0.9,0.9,0.8,0.3,0.2,0.2,0.5,0.5,0.6,0.1,0.3,0.7]
 
 
 	//  --- Main Variables --- 
