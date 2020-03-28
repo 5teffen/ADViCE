@@ -1,10 +1,16 @@
 
 // var input = [30, 100]
 
+
+
+
+
 function percentage_bar(place, data) {
 
-	//  --- Main Variables --- 
+	var histoData = [0.2,0.3,0.5,0.6,0.9,0.9,0.8,0.3,0.2,0.2,0.5,0.5,0.6,0.1,0.3,0.7]
 
+
+	//  --- Main Variables --- 
 	var start = data[0],
 		end = data[1],
 
@@ -32,7 +38,7 @@ function percentage_bar(place, data) {
     var bar_w = 150,
     	bar_h = 15,
     	select_col = "#7570b3",
-    	base_col = "lightgray";
+    	base_col = "#cac7eb";
 
 
  	// --- Slider Parameters --- 
@@ -51,6 +57,13 @@ function percentage_bar(place, data) {
     	lab_border = "black";
 
 
+    // --- Histogram Parameters --- 
+    var histo_h = 40,
+    	histo_col = "#7570b3",
+    	no_bins = histoData.length,
+    	histo_bin_w = bar_w/no_bins;
+
+
     // --- Scale Declaration --- 
     var yScale = d3.scaleLinear()
             .domain([0, height])
@@ -63,6 +76,10 @@ function percentage_bar(place, data) {
 	var xScaleInv = d3.scaleLinear() // Reverse conversion
 	    .domain([0, bar_w])
 	    .rangeRound([0, 100]);
+
+	var yHisto = d3.scaleLinear()
+            .domain([0, 1])
+            .rangeRound([0, histo_h]);
 
 
     var svg = d3.select(place)
@@ -118,6 +135,27 @@ function percentage_bar(place, data) {
         .attr("fill",select_col)
         .attr("stroke-width",0)
         .attr("stroke","black");
+
+
+    // === Histogram Base === 
+
+    for (n=0 ; n < no_bins; n++){
+    	var inBin = histoData[n];
+
+    	 svg.append("g")
+	        .append("rect")
+	        .attr("id","bar_selected")
+	        .attr('x',(n)*histo_bin_w)
+	        .attr('y',-yHisto(inBin)-1)
+	        .attr("height",yHisto(inBin))
+	        .attr("width",histo_bin_w)
+	        .attr("fill",histo_col)
+	        .attr("opacity",0.4)
+	        .attr("stroke-width",1)
+	        .attr("stroke","white");
+
+    }
+
 
 
 
