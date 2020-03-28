@@ -180,6 +180,8 @@
       feature_selector_input = feature_selector_input.replace(/id/g, '\"id\"');
       feature_selector_input = feature_selector_input.replace(/current/g, '\"current\"');
       feature_selector_input = feature_selector_input.replace(/range/g, '\"range\"');
+
+      var percentage_filter_input = {{percentage_filter_input}};
       
       var ft_names = "{{feature_names}}";
       ft_names = ft_names.replace(/&#34;/g, "");
@@ -218,6 +220,7 @@
       console.log("FT names:", ft_names);
       console.log("FT selector input:", feature_selector_input);
       console.log("FT current ranges:", ft_curr_range);
+      console.log("Percentage filter input:", percentage_filter_input);
       
       function reset_ft_curr_ranges (idx){
         // Generalize to many filter sets later
@@ -265,7 +268,7 @@
         if (curr_percentage.length > 0){
           curr_percentage[0].parentNode.removeChild(curr_percentage[0]);
         }
-        percentage_bar("#percentage-filter-div", pred_range[filter_set_idx]);
+        percentage_bar("#percentage-filter-div", pred_range[filter_set_idx], percentage_filter_input);
 
         // Feature selector dropdown
         var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option");
@@ -281,8 +284,7 @@
             option.onclick = function () {draw_feature_selector(this);};
             ft_dropdown.add(option);
           }
-        }
-        
+        }     
       }
 
       // wrapper to avoid duplicates
@@ -388,7 +390,6 @@
           httpRequest.send();
           return false;
         }
-
       }
 
       // Bokeh middle panel
@@ -433,7 +434,6 @@
       }
 
       function displayCachedFilterResults(idx){
-
       }
 
       // Style and send request for PCA and tSNE buttons

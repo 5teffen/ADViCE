@@ -60,12 +60,12 @@ dataset_dict = {
 # --- Data initialization ---
 data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(12)
 categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(14)
-col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig = np.zeros(12)
+col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input = np.zeros(13)
 def init_data(dataset):
 
 	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness
 	global categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
-	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig
+	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input
 
 	data_name = dataset.name
 	lock = dataset.lock
@@ -162,12 +162,8 @@ def init_data(dataset):
 	# --- Metadata ---
 	metadata = 	pd.read_csv(preproc_path, index_col=False).values
 
-
-
-	# --- OSCAR: Percentage Filter ---
-
-	test = prep_percentage_filter(metadata, no_bins= 30)
-
+	# --- Percentage Filter ---
+	percentage_filter_input = prep_percentage_filter(metadata, no_bins= 20).tolist()
 
 
 	all_params = {
@@ -189,6 +185,7 @@ def init_data(dataset):
 		'categorical_cols': categorical_cols,
 		'monotonicity_arr': monotonicity_arr,
 		'feature_selector_input': feature_selector_input,
+		'percentage_filter_input': percentage_filter_input,
 		'feature_names': feature_names,
 		'all_data': all_data,
 		'data': data,
@@ -312,7 +309,7 @@ def handle_request():
 @app.route('/projection')
 def projection_site():
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path,
-							feature_selector_input = json.dumps(feature_selector_input))
+							feature_selector_input = json.dumps(feature_selector_input), percentage_filter_input = json.dumps(percentage_filter_input))
 
 @app.route('/scatter_req', methods=['GET'])
 def scatter_request():
