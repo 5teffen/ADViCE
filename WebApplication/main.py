@@ -165,6 +165,12 @@ def init_data(dataset):
 	# --- Percentage Filter ---
 	percentage_filter_input = prep_percentage_filter(metadata, no_bins= 20).tolist()
 
+	
+	# --- Tests ---
+
+	prep_histo_data(data,col_ranges)
+
+
 
 	all_params = {
 		# data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness,

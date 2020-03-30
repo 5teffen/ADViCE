@@ -6,6 +6,87 @@ from utils import *
 from global_explanations import *
 
 
+def prep_histo_data(data,ranges, samples = []):
+
+  no_samp, no_feat = data.shape
+  no_bins = ranges.shape[1]
+
+  result = []
+
+  for c in range(no_feat):
+    col = data[:,c]
+    col_range = ranges[c]
+
+    col_bins =  list(np.zeros((no_bins,)))
+
+
+    # ---- OPTION 1: Generate histogram for all datapoints ----
+    if samples == []:   # OPTION 1: Generate histogram for all datapoints
+
+      for s in range(no_samp):
+        sample = col[s]
+
+        for b in range(no_bins):
+          
+          floor = ranges[c][b][0]
+          ceil = ranges[c][b][1]
+
+          if (b == 0 and sample < ceil): #Edge case first bin
+            col_bins[0] += 1
+            break
+
+          elif (b == (no_bins-1)):  #Edge case last bin
+            col_bins[no_bins-1] += 1
+            break
+
+          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
+            col_bins[b] += 1
+            break
+
+          elif ((sample >= floor) and (sample < ceil)):
+            col_bins[b] += 1
+            break
+
+
+    # ---- OPTION 2: Generate histogram for specific datapoints ----
+    else:
+      for s in samples:
+        sample = col[s]
+
+        for b in range(no_bins):
+          
+          floor = ranges[c][b][0]
+          ceil = ranges[c][b][1]
+
+          if (b == 0 and sample < ceil): #Edge case first bin
+            col_bins[0] += 1
+            break
+
+          elif (b == (no_bins-1)):  #Edge case last bin
+            col_bins[no_bins-1] += 1
+            break
+
+          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
+            col_bins[b] += 1
+            break
+
+          elif ((sample >= floor) and (sample < ceil)):
+            col_bins[b] += 1
+            break
+
+
+      # --- Normalize Histogram ---
+
+    highest_count = np.amax(col_bins) 
+    col_bins = list(col_bins/highest_count)
+    result.append(col_bins)
+
+  return result
+
+
+
+# def prep_feature_selector_w_hist(feature_no, names, all_den, ranges, init = None):
+
 
 def prep_percentage_filter(metadata, no_bins):
   result = np.zeros((no_bins,))
@@ -41,10 +122,6 @@ def prep_percentage_filter(metadata, no_bins):
   return result
 
 
-
-
-
-
 def prep_filter_summary(points, no_samples):
   tp = 0
   fp = 0 
@@ -69,8 +146,6 @@ def prep_filter_summary(points, no_samples):
   result = {"tot_p": no_samples, "no_p": count, "tp":tp, "fp":fp, "tn":tn, "fn":fn,   }
 
   return result
-
-
 
 
 def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
@@ -99,7 +174,6 @@ def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
     out_dict["current"] = init
 
   return out_dict
-
 
 
 def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, percent, names, apply_monot, monot_array, locked_fts=[]):
