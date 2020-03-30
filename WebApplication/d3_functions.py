@@ -118,7 +118,6 @@ def prep_percentage_filter(metadata, no_bins):
   # -- Scale the bins --
   highest_count = np.amax(result) 
   result = result/highest_count
-
   return result
 
 
