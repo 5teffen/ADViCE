@@ -159,9 +159,12 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         centre_x = xScale(ft_name) + xScale.bandwidth()/2;
 
         for (n=0 ; n < no_bins; n++){
-            var inLeftBin = leftDen[ind][n];
-            var inRightBin = rightDen[ind][n];
-            
+            var inLeftBin = xDenScale(leftDen[ind][n]);
+            var inRightBin = xDenScale(rightDen[ind][n]);
+
+            if (inLeftBin < 2) inLeftBin = 1.5;
+            if (inRightBin < 2) inRightBin = 1.5;
+
             // Right bin
             svg.append("g")
                 .append("rect")
@@ -169,7 +172,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .attr('x',centre_x)
                 .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
                 .attr("height",histo_bin_h)
-                .attr("width",xDenScale(inRightBin))
+                .attr("width",inRightBin)
                 .attr("fill",den_colour)
                 .attr('opacity',function(d){
                     if (density_toggle){
@@ -183,10 +186,10 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             svg.append("g")
                 .append("rect")
                 .attr("id","bar_selected")
-                .attr('x',centre_x-xDenScale(inLeftBin))
+                .attr('x',centre_x-inLeftBin)
                 .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
                 .attr("height",histo_bin_h)
-                .attr("width",xDenScale(inLeftBin))
+                .attr("width",inLeftBin)
                 .attr("fill",den_colour)
                 .attr('opacity',function(d){
                     if (density_toggle){
