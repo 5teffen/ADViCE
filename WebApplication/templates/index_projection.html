@@ -206,6 +206,8 @@
       var filter_set_idx = 0;
       var filter_set_idx_cmp = 0;
       var doing_comparison = 0;
+      var left_mask = [];
+      var right_mask = [];
 
       feature_selector_input = JSON.parse(feature_selector_input);
       for (i=0; i<ft_names.length; i++){
@@ -420,7 +422,9 @@
             draw_scatter(allData[0], '#bokeh-div');
             draw_summary(allData[2],  allData[3], '#summary-div');
             //console.log(allData[1]);
-            makeViolinRequest(allData[1], allData[4]);
+            left_mask = allData[1];
+            right_mask = allData[4];
+            makeViolinRequest(left_mask, right_mask);
             makeTableRequest(allData[1]);
             //makeAggregationRequest();
 
@@ -700,7 +704,7 @@
         else{
           elem.style.backgroundColor = dark_shade;
         }
-        makeViolinRequest(curr_aggr_ids);
+        makeViolinRequest(left_mask, right_mask);
       }
 
       // Hovering over left panel elements
