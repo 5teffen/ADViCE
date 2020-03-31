@@ -2,18 +2,20 @@
 
 // function draw_comparison(leftData,leftDen,rightDen,leftMed,rightMed,leftMean,rightMean,place, median_toggle, density_toggle, button3) {
 
-
-
 function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle) {
+    // leftDen = [[0.2, 0.2833333333333333, 0.45, 0.3333333333333333, 0.31666666666666665, 0.55, 0.5833333333333334, 0.8333333333333334, 0.5, 1.0], [0.463768115942029, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.34965034965034963, 0.6083916083916084, 0.16083916083916083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14285714285714285, 0.47619047619047616, 0.2222222222222222, 0.873015873015873, 1.0, 0.5555555555555556, 0.6666666666666666, 0.4126984126984127, 0.047619047619047616, 0.4126984126984127], [0.13725490196078433, 0.35294117647058826, 0.5686274509803921, 0.9607843137254902, 1.0, 0.9019607843137255, 0.7450980392156863, 0.47058823529411764, 0.43137254901960786, 0.37254901960784315], [1.0, 0.1744186046511628, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.9671052631578947, 1.0, 0.02631578947368421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.42592592592592593, 0.2777777777777778, 0.46296296296296297, 0.4074074074074074, 0.8333333333333334, 0.8148148148148148, 1.0, 0.8148148148148148, 0.3888888888888889, 0.18518518518518517], [1.0, 0.4852941176470588, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.46987951807228917, 0.20481927710843373, 0.15060240963855423, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14788732394366197, 0.9859154929577465, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.37142857142857144, 0.21714285714285714, 0.14285714285714285, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.12048192771084337, 1.0, 0.7048192771084337, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
+    // rightDen = [[0.2, 0.2833333333333333, 0.45, 0.3333333333333333, 0.31666666666666665, 0.55, 0.5833333333333334, 0.8333333333333334, 0.5, 1.0], [0.463768115942029, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.34965034965034963, 0.6083916083916084, 0.16083916083916083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14285714285714285, 0.47619047619047616, 0.2222222222222222, 0.873015873015873, 1.0, 0.5555555555555556, 0.6666666666666666, 0.4126984126984127, 0.047619047619047616, 0.4126984126984127], [0.13725490196078433, 0.35294117647058826, 0.5686274509803921, 0.9607843137254902, 1.0, 0.9019607843137255, 0.7450980392156863, 0.47058823529411764, 0.43137254901960786, 0.37254901960784315], [1.0, 0.1744186046511628, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.9671052631578947, 1.0, 0.02631578947368421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.42592592592592593, 0.2777777777777778, 0.46296296296296297, 0.4074074074074074, 0.8333333333333334, 0.8148148148148148, 1.0, 0.8148148148148148, 0.3888888888888889, 0.18518518518518517], [1.0, 0.4852941176470588, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.46987951807228917, 0.20481927710843373, 0.15060240963855423, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14788732394366197, 0.9859154929577465, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.37142857142857144, 0.21714285714285714, 0.14285714285714285, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.12048192771084337, 1.0, 0.7048192771084337, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
 
-    var features = leftData[0].length;   // Assumes left/right match
+    var features = leftData[0].length,
+        no_bins = rightDen[0].length ;   // Assumes left/right match
 
     var add_density = true;
 
     testData = leftData[0]
 
-    var points_col = "lightgray",
-        point_size = 3;
+    var points_col = "#67a9cf",
+        point_size = 3,
+        point_opp = 0.05;
     // points_col = "#67a9cf"
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
@@ -51,9 +53,6 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             .domain(testData.map(function(d){return d.name;}))
             .rangeRound([0, width])
             .paddingInner(separator),
-        yScaleFull = d3.scaleLinear()
-            .domain([0, 1])
-            .rangeRound([height, 0]),
         yScale = d3.scaleLinear()
             .domain([0, 1])
             .rangeRound([height, 0]);
@@ -77,25 +76,14 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         den_colour = "#7570b3";
 
     var yDenScale = d3.scaleLinear()
-        .domain([0, rightDen[0].data.length-1])
-        .rangeRound([height,0]);
+            .domain([0, height])
+            .rangeRound([height,0]);
 
-    xDenScaleLeft = d3.scaleLinear()
-        .domain([0, 1])
-        .rangeRound([(denWidth/2),0]);
+        xDenScale = d3.scaleLinear()
+            .domain([0, 1])
+            .rangeRound([0,xScale.bandwidth()/2 - 5]);
     
-    xDenScaleRight = d3.scaleLinear()
-        .domain([0, 1])
-        .rangeRound([0, (denWidth/2)]);
 
-    // -- Density Line Functions -- 
-    var left_line = d3.line()
-            .x(function(d) {return xDenScaleLeft(d);})
-            .y(function(d,i) {return yDenScale(i);});
-
-    var right_line = d3.line()
-            .x(function(d) {return xDenScaleRight(d);})
-            .y(function(d,i) {return yDenScale(i);});
 
 
     // -- Drawing background rectangles -- 
@@ -109,7 +97,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         .attr("height",function(d){return yScale(0)+2*padding})
         .attr("width",xScale.bandwidth())
         .attr("fill", "None")
-        .attr("stroke", "black")
+        .attr("stroke", "None")
         .style("opacity",0.5);
     
     
@@ -163,88 +151,171 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
     // ======= Density Distribution ======= 
+    histo_bin_h = height/no_bins;
 
-    for (ind=0 ; ind < rightDen.length; ind++) {
+    for (ind=0 ; ind < features; ind++) {
+        ft_name = leftData[0][ind].name;
 
-        var den_svg = svg.append("g"),
-            
-            right = rightDen[ind].data,
-            left = leftDen[ind].data,
+        centre_x = xScale(ft_name) + xScale.bandwidth()/2;
 
-            right_name = rightDen[ind].name,
-            left_name = leftDen[ind].name;
-       
+        for (n=0 ; n < no_bins; n++){
+            var inLeftBin = xDenScale(leftDen[ind][n]);
+            var inRightBin = xDenScale(rightDen[ind][n]);
 
-        // -- Allign SVG canvas -- 
-        den_svg = den_svg.append("g")
-                .attr("transform","translate(" + (xScale(right_name)) + ',0)'); 
+            if (inLeftBin < 2) inLeftBin = 1.5;
+            if (inRightBin < 2) inRightBin = 1.5;
+
+            // Right bin
+            svg.append("g")
+                .append("rect")
+                .attr("id","bar_selected")
+                .attr('x',centre_x)
+                .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
+                .attr("height",histo_bin_h)
+                .attr("width",inRightBin)
+                .attr("fill",den_colour)
+                .attr('opacity',function(d){
+                    if (density_toggle){
+                        return 0.4;
+                    }
+                    else{return 0;}})
+                .attr("stroke-width",1)
+                .attr("stroke","white");
+
+            // Left bin
+            svg.append("g")
+                .append("rect")
+                .attr("id","bar_selected")
+                .attr('x',centre_x-inLeftBin)
+                .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
+                .attr("height",histo_bin_h)
+                .attr("width",inLeftBin)
+                .attr("fill",den_colour)
+                .attr('opacity',function(d){
+                    if (density_toggle){
+                        return 0.2;
+                    }
+                    else{return 0;}})
+                .attr("stroke-width",1)
+                .attr("stroke","white");
 
 
-        // -- Drawing left density distribution --
-        den_svg.append('g').append('path').datum(left)
-        .attr('d',left_line)
-        .attr('stroke',den_colour)
-        .attr('fill',den_colour)
-        .attr('opacity',function(d){
-            if (density_toggle){
-                return 0.15;
-            }
-            else{
-                return 0;
-            }});
 
 
-         // -- Centre the image -- 
-        den_svg = den_svg.append("g")
-                .attr("transform","translate(" + (xDenScaleRight(1)) + ',0)'); 
-
-        // ==== Drawing median lines ====
-
-        if (median_toggle) {
-            var med_right = rightMed[ind],
-            med_left = leftMed[ind];
+        // if (median_toggle) {
+        //     var med_right = rightMed[ind],
+        //     med_left = leftMed[ind];
         
-            var tick_size = xDenScaleRight(1),
-                tick_width = 2,
-                tick_sep = 4;
+        //     var tick_size = 10,
+        //         tick_width = 2,
+        //         tick_sep = 4;
            
-            den_svg.append("g")
-                .append("line")
-                .attr("class","split_lines")
-                .attr("x1",tick_sep)
-                .attr('y1',function(d){return yScale(med_right);})
-                .attr("y2",function(d){return yScale(med_right);})
-                .attr("x2",(tick_size-tick_sep))
-                .style("stroke",den_colour)
-                .style("stroke-opacity",1)
-                .style("stroke-width",tick_width);
+        //     svg.append("g")
+        //         .append("line")
+        //         .attr("class","split_lines")
+        //         .attr("x1",centre_x + tick_sep)
+        //         .attr('y1',function(d){return yScale(med_right);})
+        //         .attr("y2",function(d){return yScale(med_right);})
+        //         .attr("x2",centre_x +(tick_size-tick_sep))
+        //         .style("stroke",den_colour)
+        //         .style("stroke-opacity",1)
+        //         .style("stroke-width",tick_width);
 
-            den_svg.append("g")
-                .append("line")
-                .attr("class","split_lines")
-                .attr("x1",-tick_sep)
-                .attr('y1',function(d){return yScale(med_left);})
-                .attr("y2",function(d){return yScale(med_left);})
-                .attr("x2",-(tick_size-tick_sep))
-                .style("stroke",den_colour)
-                .style("stroke-width",tick_width)
-                .style("stroke-opacity",1);
-        }
+        //     svg.append("g")
+        //         .append("line")
+        //         .attr("class","split_lines")
+        //         .attr("x1",centre_x -tick_sep)
+        //         .attr('y1',function(d){return yScale(med_left);})
+        //         .attr("y2",function(d){return yScale(med_left);})
+        //         .attr("x2",centre_x -(tick_size-tick_sep))
+        //         .style("stroke",den_colour)
+        //         .style("stroke-width",tick_width)
+        //         .style("stroke-opacity",1);
+        // }
 
-
-    // -- Drawing right density distribution --
-        den_svg.append('path').datum(right)
-        .attr('d',right_line)
-        .attr('stroke', den_colour)
-        .attr('fill',den_colour)
-        .attr('opacity',function(d){
-            if (density_toggle){
-                return 0.3;
-            }
-            else{
-                return 0;
-            }});
     }
+
+    
+
+
+
+    }
+
+    //     var den_svg = svg.append("g");
+
+
+
+
+    //     // -- Allign SVG canvas -- 
+    //     den_svg = den_svg.append("g")
+    //             .attr("transform","translate(" + (xScale(right_name)) + ',0)'); 
+
+
+    //     // -- Drawing left density distribution --
+    //     den_svg.append('g').append('path').datum(left)
+    //     .attr('d',left_line)
+    //     .attr('stroke',den_colour)
+    //     .attr('fill',den_colour)
+    //     .attr('opacity',function(d){
+    //         if (density_toggle){
+    //             return 0.15;
+    //         }
+    //         else{
+    //             return 0;
+    //         }});
+
+
+    //      // -- Centre the image -- 
+    //     den_svg = den_svg.append("g")
+    //             .attr("transform","translate(" + (xDenScale(1)) + ',0)'); 
+
+    //     // ==== Drawing median lines ====
+
+    //     if (median_toggle) {
+    //         var med_right = rightMed[ind],
+    //         med_left = leftMed[ind];
+        
+    //         var tick_size = xDenScaleRight(1),
+    //             tick_width = 2,
+    //             tick_sep = 4;
+           
+    //         den_svg.append("g")
+    //             .append("line")
+    //             .attr("class","split_lines")
+    //             .attr("x1",tick_sep)
+    //             .attr('y1',function(d){return yScale(med_right);})
+    //             .attr("y2",function(d){return yScale(med_right);})
+    //             .attr("x2",(tick_size-tick_sep))
+    //             .style("stroke",den_colour)
+    //             .style("stroke-opacity",1)
+    //             .style("stroke-width",tick_width);
+
+    //         den_svg.append("g")
+    //             .append("line")
+    //             .attr("class","split_lines")
+    //             .attr("x1",-tick_sep)
+    //             .attr('y1',function(d){return yScale(med_left);})
+    //             .attr("y2",function(d){return yScale(med_left);})
+    //             .attr("x2",-(tick_size-tick_sep))
+    //             .style("stroke",den_colour)
+    //             .style("stroke-width",tick_width)
+    //             .style("stroke-opacity",1);
+    //     }
+
+
+    // // -- Drawing right density distribution --
+    // den_svg.append('path').datum(right)
+    //     .attr('d',right_line)
+    //     .attr('stroke', den_colour)
+    //     .attr('fill',den_colour)
+    //     .attr('opacity',function(d){
+    //         if (density_toggle){
+    //             return 0.3;
+    //         }
+    //         else{
+    //             return 0;
+    //         }});
+    // }
 
 
 
@@ -343,7 +414,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                     return yScale(d.scl_val);})
                 .attr("r", point_size)
                 .style("fill", points_col)
-                .style("opacity", 0.3);
+                .style("opacity", point_opp);
         }
     }
 
@@ -412,9 +483,6 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .style("opacity", 0.3);
         }
     }
-
-
-
 
 }
 

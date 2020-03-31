@@ -165,6 +165,12 @@ def init_data(dataset):
 	# --- Percentage Filter ---
 	percentage_filter_input = prep_percentage_filter(metadata, no_bins= 20).tolist()
 
+	
+	# --- Tests ---
+
+	# prep_histo_data(data,col_ranges)
+
+
 
 	all_params = {
 		# data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness,
@@ -553,13 +559,14 @@ def violin_site_req():
 				sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
 				sel_den2, sel_median2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
 
-				# Steffen: Change density to bins/histograms
+				sel_hist1 = prep_histo_data(data,col_ranges,first_samples)
+				sel_hist2 = prep_histo_data(data,col_ranges,second_samples)
 
 				aggr_data1 = prep_for_D3_aggregation(preproc_path, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
 				aggr_data2 = prep_for_D3_aggregation(preproc_path, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
 
-
-				ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
+				ret_string = json.dumps([aggr_data1, aggr_data2, sel_hist1, sel_hist2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
+				# ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
 
 			return ret_string
 
