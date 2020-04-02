@@ -2,6 +2,14 @@
 
 // function draw_comparison(leftData,leftDen,rightDen,leftMed,rightMed,leftMean,rightMean,place, median_toggle, density_toggle, button3) {
 
+function determine_discrete(data){
+    
+
+
+
+}
+
+
 function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle) {
     // leftDen = [[0.2, 0.2833333333333333, 0.45, 0.3333333333333333, 0.31666666666666665, 0.55, 0.5833333333333334, 0.8333333333333334, 0.5, 1.0], [0.463768115942029, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.34965034965034963, 0.6083916083916084, 0.16083916083916083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14285714285714285, 0.47619047619047616, 0.2222222222222222, 0.873015873015873, 1.0, 0.5555555555555556, 0.6666666666666666, 0.4126984126984127, 0.047619047619047616, 0.4126984126984127], [0.13725490196078433, 0.35294117647058826, 0.5686274509803921, 0.9607843137254902, 1.0, 0.9019607843137255, 0.7450980392156863, 0.47058823529411764, 0.43137254901960786, 0.37254901960784315], [1.0, 0.1744186046511628, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.9671052631578947, 1.0, 0.02631578947368421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.42592592592592593, 0.2777777777777778, 0.46296296296296297, 0.4074074074074074, 0.8333333333333334, 0.8148148148148148, 1.0, 0.8148148148148148, 0.3888888888888889, 0.18518518518518517], [1.0, 0.4852941176470588, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.46987951807228917, 0.20481927710843373, 0.15060240963855423, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14788732394366197, 0.9859154929577465, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.37142857142857144, 0.21714285714285714, 0.14285714285714285, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.12048192771084337, 1.0, 0.7048192771084337, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
     // rightDen = [[0.2, 0.2833333333333333, 0.45, 0.3333333333333333, 0.31666666666666665, 0.55, 0.5833333333333334, 0.8333333333333334, 0.5, 1.0], [0.463768115942029, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.34965034965034963, 0.6083916083916084, 0.16083916083916083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14285714285714285, 0.47619047619047616, 0.2222222222222222, 0.873015873015873, 1.0, 0.5555555555555556, 0.6666666666666666, 0.4126984126984127, 0.047619047619047616, 0.4126984126984127], [0.13725490196078433, 0.35294117647058826, 0.5686274509803921, 0.9607843137254902, 1.0, 0.9019607843137255, 0.7450980392156863, 0.47058823529411764, 0.43137254901960786, 0.37254901960784315], [1.0, 0.1744186046511628, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.9671052631578947, 1.0, 0.02631578947368421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.42592592592592593, 0.2777777777777778, 0.46296296296296297, 0.4074074074074074, 0.8333333333333334, 0.8148148148148148, 1.0, 0.8148148148148148, 0.3888888888888889, 0.18518518518518517], [1.0, 0.4852941176470588, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.46987951807228917, 0.20481927710843373, 0.15060240963855423, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14788732394366197, 0.9859154929577465, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.37142857142857144, 0.21714285714285714, 0.14285714285714285, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.12048192771084337, 1.0, 0.7048192771084337, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
@@ -23,8 +31,8 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
     var the_colour = "";
     var opp_colour = "";
     
-    var separator = 0.015,
-        half_col = 27   // Single section of comparison
+    var separator = 0.4,
+        half_col = 32,   // Single section of comparison
         col_width = half_col*2;
     
     if (testData[0].dec == 0) {
@@ -53,12 +61,19 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             .domain(testData.map(function(d){return d.name;}))
             .rangeRound([0, width])
             .paddingInner(separator),
+        
         yScale = d3.scaleLinear()
             .domain([0, 1])
             .rangeRound([height, 0]);
 
 
-    var triangle_w = (xScale.bandwidth()/2)*0.6; // Single Triangle Width
+    var bandwidth = xScale.bandwidth();
+    // var bandwidth = 49;
+
+    console.log("bandwidth: ", bandwidth);
+
+
+    var triangle_w = (bandwidth/2)*0.6; // Single Triangle Width
 
 
     var svg = d3.select(place)
@@ -72,7 +87,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
     // -- Density scales --
     var buffer = 2,
-        denWidth = (xScale.bandwidth()),
+        denWidth = (bandwidth),
         den_colour = "#7570b3";
 
     var yDenScale = d3.scaleLinear()
@@ -81,7 +96,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
         xDenScale = d3.scaleLinear()
             .domain([0, 1])
-            .rangeRound([0,xScale.bandwidth()/2 - 5]);
+            .rangeRound([0,bandwidth/2 - 5]);
     
 
 
@@ -95,7 +110,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         .attr('x',function(d) {return xScale(d.name);})
         .attr('y',-padding)
         .attr("height",function(d){return yScale(0)+2*padding})
-        .attr("width",xScale.bandwidth())
+        .attr("width",bandwidth)
         .attr("fill", "None")
         .attr("stroke", "None")
         .style("opacity",0.5);
@@ -107,10 +122,10 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         .enter()
         .append("line")
         .attr("class","split_lines")
-        .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth()*0.5;})
+        .attr("x1",function(d) {return xScale(d.name)+bandwidth*0.5;})
         .attr('y1',-padding)
         .attr("y2",function(d){return yScale(0)+padding})
-        .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth()*0.5;})
+        .attr("x2",function(d) {return xScale(d.name)+bandwidth*0.5;})
         .style("stroke",den_colour)
         .style("stroke-width",1)
         .style("opacity",0);
@@ -156,7 +171,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
     for (ind=0 ; ind < features; ind++) {
         ft_name = leftData[0][ind].name;
 
-        centre_x = xScale(ft_name) + xScale.bandwidth()/2;
+        centre_x = xScale(ft_name) + bandwidth/2;
 
         for (n=0 ; n < no_bins; n++){
             var inLeftBin = xDenScale(leftDen[ind][n]);
@@ -202,36 +217,36 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
 
-        // if (median_toggle) {
-        //     var med_right = rightMed[ind],
-        //     med_left = leftMed[ind];
+        if (median_toggle) {
+            var med_right = rightMed[ind],
+            med_left = leftMed[ind];
         
-        //     var tick_size = 10,
-        //         tick_width = 2,
-        //         tick_sep = 4;
+            var tick_size = 20,
+                tick_width = 2,
+                tick_sep = 4;
            
-        //     svg.append("g")
-        //         .append("line")
-        //         .attr("class","split_lines")
-        //         .attr("x1",centre_x + tick_sep)
-        //         .attr('y1',function(d){return yScale(med_right);})
-        //         .attr("y2",function(d){return yScale(med_right);})
-        //         .attr("x2",centre_x +(tick_size-tick_sep))
-        //         .style("stroke",den_colour)
-        //         .style("stroke-opacity",1)
-        //         .style("stroke-width",tick_width);
+            svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",centre_x + tick_sep)
+                .attr('y1',function(d){return yScale(med_right);})
+                .attr("y2",function(d){return yScale(med_right);})
+                .attr("x2",centre_x +(tick_size-tick_sep))
+                .style("stroke",den_colour)
+                .style("stroke-opacity",1)
+                .style("stroke-width",tick_width);
 
-        //     svg.append("g")
-        //         .append("line")
-        //         .attr("class","split_lines")
-        //         .attr("x1",centre_x -tick_sep)
-        //         .attr('y1',function(d){return yScale(med_left);})
-        //         .attr("y2",function(d){return yScale(med_left);})
-        //         .attr("x2",centre_x -(tick_size-tick_sep))
-        //         .style("stroke",den_colour)
-        //         .style("stroke-width",tick_width)
-        //         .style("stroke-opacity",1);
-        // }
+            svg.append("g")
+                .append("line")
+                .attr("class","split_lines")
+                .attr("x1",centre_x -tick_sep)
+                .attr('y1',function(d){return yScale(med_left);})
+                .attr("y2",function(d){return yScale(med_left);})
+                .attr("x2",centre_x -(tick_size-tick_sep))
+                .style("stroke",den_colour)
+                .style("stroke-width",tick_width)
+                .style("stroke-opacity",1);
+        }
 
     }
 
@@ -328,9 +343,9 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
             // if ((d.scl_val != d.scl_change) || (!button3 && !density_toggle)){
             if (d.scl_val != d.scl_change) {
-                x1 = xScale(d.name) + xScale.bandwidth()*0.5 - triangle_w/2
-                x2 = xScale(d.name) + xScale.bandwidth()*0.5 + triangle_w/2
-                x3 = xScale(d.name) + xScale.bandwidth()*0.5
+                x1 = xScale(d.name) + bandwidth*0.5 - triangle_w/2
+                x2 = xScale(d.name) + bandwidth*0.5 + triangle_w/2
+                x3 = xScale(d.name) + bandwidth*0.5
                 y1 = yScale(d.scl_val)
                 y2 = yScale(d.scl_change)
 
@@ -409,7 +424,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .data(oneData)
                 .enter()
                 .append("circle")
-                .attr('cx',function(d) {return (xScale(d.name) + xScale.bandwidth()*0.5);})
+                .attr('cx',function(d) {return (xScale(d.name) + bandwidth*0.5);})
                 .attr("cy",function(d) {
                     return yScale(d.scl_val);})
                 .attr("r", point_size)
@@ -475,7 +490,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .data(oneData)
                 .enter()
                 .append("circle")
-                .attr('cx',function(d) {return (xScale(d.name) + xScale.bandwidth()*0.5);})
+                .attr('cx',function(d) {return (xScale(d.name) + bandwidth*0.5);})
                 .attr("cy",function(d) {
                     return yScale(d.scl_val);})
                 .attr("r", point_size)
