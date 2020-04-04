@@ -2,29 +2,80 @@
 
 // function draw_comparison(leftData,leftDen,rightDen,leftMed,rightMed,leftMean,rightMean,place, median_toggle, density_toggle, button3) {
 
-function determine_discrete(data){
-    
+// function determine_discrete(data){
+//     unique = [];
+//     for (i=0 ; i < data.length; i++) {
+//         if !(unique.includes(data[i])){
+//             unique.push(data[i]);
+//         }
+//     }
 
+//     console.log(unique);
 
-
-}
+// }
 
 
 function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle) {
     // leftDen = [[0.2, 0.2833333333333333, 0.45, 0.3333333333333333, 0.31666666666666665, 0.55, 0.5833333333333334, 0.8333333333333334, 0.5, 1.0], [0.463768115942029, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.34965034965034963, 0.6083916083916084, 0.16083916083916083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14285714285714285, 0.47619047619047616, 0.2222222222222222, 0.873015873015873, 1.0, 0.5555555555555556, 0.6666666666666666, 0.4126984126984127, 0.047619047619047616, 0.4126984126984127], [0.13725490196078433, 0.35294117647058826, 0.5686274509803921, 0.9607843137254902, 1.0, 0.9019607843137255, 0.7450980392156863, 0.47058823529411764, 0.43137254901960786, 0.37254901960784315], [1.0, 0.1744186046511628, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.9671052631578947, 1.0, 0.02631578947368421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.42592592592592593, 0.2777777777777778, 0.46296296296296297, 0.4074074074074074, 0.8333333333333334, 0.8148148148148148, 1.0, 0.8148148148148148, 0.3888888888888889, 0.18518518518518517], [1.0, 0.4852941176470588, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.46987951807228917, 0.20481927710843373, 0.15060240963855423, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14788732394366197, 0.9859154929577465, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.37142857142857144, 0.21714285714285714, 0.14285714285714285, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.12048192771084337, 1.0, 0.7048192771084337, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
     // rightDen = [[0.2, 0.2833333333333333, 0.45, 0.3333333333333333, 0.31666666666666665, 0.55, 0.5833333333333334, 0.8333333333333334, 0.5, 1.0], [0.463768115942029, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.34965034965034963, 0.6083916083916084, 0.16083916083916083, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14285714285714285, 0.47619047619047616, 0.2222222222222222, 0.873015873015873, 1.0, 0.5555555555555556, 0.6666666666666666, 0.4126984126984127, 0.047619047619047616, 0.4126984126984127], [0.13725490196078433, 0.35294117647058826, 0.5686274509803921, 0.9607843137254902, 1.0, 0.9019607843137255, 0.7450980392156863, 0.47058823529411764, 0.43137254901960786, 0.37254901960784315], [1.0, 0.1744186046511628, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.9671052631578947, 1.0, 0.02631578947368421, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.42592592592592593, 0.2777777777777778, 0.46296296296296297, 0.4074074074074074, 0.8333333333333334, 0.8148148148148148, 1.0, 0.8148148148148148, 0.3888888888888889, 0.18518518518518517], [1.0, 0.4852941176470588, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.46987951807228917, 0.20481927710843373, 0.15060240963855423, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.14788732394366197, 0.9859154929577465, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [1.0, 0.37142857142857144, 0.21714285714285714, 0.14285714285714285, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], [0.12048192771084337, 1.0, 0.7048192771084337, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]]
 
-    var features = leftData[0].length,
-        no_bins = rightDen[0].length ;   // Assumes left/right match
+
+    function determine_discrete(data,no_bins){
+        no_ft = data[0].length
+        no_samp = data.length
+        mask = []
+
+        for (col = 0; col < no_ft; col++){
+
+            unique = [];
+            for (i=0 ; i < no_samp; i++) {
+                val = data[i][col].scl_val;
+                if (unique.includes(val) == false){
+                    unique.push(val);
+                }
+            }
+
+            if (unique.length < no_bins) {mask.push(1);}
+            else {mask.push(0);}
+        }
+
+        return mask;
+    }
+
+    function stagger_val(x,y,radius){
+        // output = Math.sqrt(-2*log(Math.random()))*cos(2*Math.PI*Math.random())
+        // radius = 2;
+        angle = 2*Math.PI*Math.random();
+        r = radius*Math.sqrt(Math.random());
+        x_out = r * Math.cos(angle) + x;
+        y_out = r * Math.sin(angle) + y;
+
+        return [x_out, y_out]
+    }   
+
+
+    var discrete_mask = determine_discrete(leftData,10);
+
+    var stagger_r = 10;
+
+    var features = leftData[0].length,  // Assumes left/right match
+        no_bins = rightDen[0].length,
+        no_samp_r = rightData.length,   
+        no_samp_l = leftData.length;   
 
     var add_density = true;
+
+
+    point_opp_l = (1/no_samp_l)*25;
+    point_opp_r = (1/no_samp_r)*25;
+
 
     testData = leftData[0]
 
     var points_col = "#67a9cf",
-        point_size = 3,
-        point_opp = 0.05;
-    // points_col = "#67a9cf"
+        point_size = 3;
+
+
     var good_col = "#d95f02",
         bad_col = "#1b9e77";
 
@@ -70,7 +121,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
     var bandwidth = xScale.bandwidth();
     // var bandwidth = 49;
 
-    console.log("bandwidth: ", bandwidth);
+    // console.log("bandwidth: ", bandwidth);
 
 
     var triangle_w = (bandwidth/2)*0.6; // Single Triangle Width
@@ -417,22 +468,31 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
     // === Drawing left points ====
+
     if (point_toggle) {
         for(n=0 ; n < leftData.length; n++){
             var oneData = leftData[n]
-            svg.append("g").selectAll("circle")
-                .data(oneData)
-                .enter()
+
+            for(i=0; i < oneData.length; i++){
+                d = oneData[i];
+                x = xScale(d.name) + bandwidth*0.5;
+                y = yScale(d.scl_val);
+                xy = stagger_val(x,y,stagger_r);
+
+                svg.append("g")
                 .append("circle")
-                .attr('cx',function(d) {return (xScale(d.name) + bandwidth*0.5);})
-                .attr("cy",function(d) {
-                    return yScale(d.scl_val);})
                 .attr("r", point_size)
+                .attr("cx", function(){
+                    if (discrete_mask[i]==1){return xy[0];}
+                    else{return x;}})
+                .attr("cy", function(){
+                    if (discrete_mask[i]==1){return xy[1];}
+                    else{return y;}})
                 .style("fill", points_col)
-                .style("opacity", point_opp);
+                .style("opacity", point_opp_l);
+            }
         }
     }
-
 
 
 
@@ -481,21 +541,30 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
     .attr("stroke-opacity",0);
 
 
-
     // === Drawing right points ====
     if (point_toggle) {
         for(n=0 ; n < rightData.length; n++){
             var oneData = rightData[n]
-            svg.append("g").selectAll("circle")
-                .data(oneData)
-                .enter()
+
+            for(i=0; i < oneData.length; i++){
+                d = oneData[i];
+                x = xScale(d.name) + bandwidth*0.5;
+                y = yScale(d.scl_val);
+                xy = stagger_val(x,y,stagger_r);
+
+                svg.append("g")
                 .append("circle")
-                .attr('cx',function(d) {return (xScale(d.name) + bandwidth*0.5);})
-                .attr("cy",function(d) {
-                    return yScale(d.scl_val);})
                 .attr("r", point_size)
+                .attr("cx", function(){
+                    if (discrete_mask[i]==1){return xy[0];}
+                    else{return x;}})
+                .attr("cy", function(){
+                    if (discrete_mask[i]==1){return xy[1];}
+                    else{return y;}})
                 .style("fill", points_col)
-                .style("opacity", 0.3);
+                .style("opacity", point_opp_r);
+            }
+
         }
     }
 
