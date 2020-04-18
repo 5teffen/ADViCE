@@ -37,7 +37,7 @@
     <script type="text/javascript" src="static/js/filter_selector.js"></script>
     <script type="text/javascript" src="static/js/percentage_filter.js"></script>
     <script type="text/javascript" src="static/js/feature_selector.js"></script>
-    <script type="text/javascript" src="static/js/basic_comparison.js"></script>
+    <script type="text/javascript" src="static/js/advanced_comparison.js"></script>
 
   </head>
 
@@ -263,7 +263,9 @@
         if (curr_matrix.length > 0){
           curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
         }
-        confusion_matrix("#confusion-matrix-filter-div", conf_mat_state);
+
+        var example_data = {'tn': 109, 'fp': 29, 'tp': 148, 'fn': 17};
+        confusion_matrix("#confusion-matrix-filter-div", conf_mat_state, example_data);
 
         // Percentage Filter
         var curr_percentage = document.getElementsByClassName("percentageBar");

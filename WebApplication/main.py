@@ -163,8 +163,12 @@ def init_data(dataset):
 	metadata = 	pd.read_csv(preproc_path, index_col=False).values
 
 	# --- Percentage Filter ---
-	percentage_filter_input = prep_percentage_filter(metadata, no_bins= 20).tolist()
-
+	samples_selected = []
+	bins_used = 20
+	
+	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
+	
+	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 	
 	# --- Tests ---
 

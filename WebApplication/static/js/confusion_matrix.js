@@ -2,16 +2,10 @@
 
 // var test_input = [1,1,0,0];
 
-function confusion_matrix(elem, state) {
+function confusion_matrix(elem, state, data) {
 
     var good_col = "#1b9e77",
         bad_col = "#d95f02";
-
-
-    // Input logic 
-
-    // if(state == [1,1,1,1])
-
 
     var opp1 = 0.5,
         opp2 = 0.5,
@@ -173,7 +167,7 @@ function confusion_matrix(elem, state) {
 
 
     svg.append('g').append("text")
-        .text("TP")
+        .text(data.tp)
         .attr("x",box_w/2)
         .attr("y",yScale(box_h-8))
         .attr("text-anchor","middle")
@@ -184,7 +178,7 @@ function confusion_matrix(elem, state) {
     
         
     svg.append('g').append("text")
-        .text("FP")
+        .text(data.fp)
         .attr("x",box_w + separation + box_w/2)
         .attr("y",yScale(box_h-8))
         .attr("text-anchor","middle")
@@ -196,7 +190,7 @@ function confusion_matrix(elem, state) {
     
     
     svg.append('g').append("text")
-        .text("FN")
+        .text(data.fn)
         .attr("x",box_w/2)
         .attr("y",yScale(box_h+separation+box_h-8))
         .attr("text-anchor","middle")
@@ -207,7 +201,7 @@ function confusion_matrix(elem, state) {
     
         
     svg.append('g').append("text")
-        .text("TN")
+        .text(data.tn)
         .attr("x",box_w + separation + box_w/2)
         .attr("y",yScale(box_h+separation+box_h-8))
         .attr("text-anchor","middle")
