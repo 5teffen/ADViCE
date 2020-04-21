@@ -1,14 +1,16 @@
 
 
 
-function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle) {
+function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle, cf_toggle) {
 
     // -- Initial conversion -- 
     set1 = {data: leftData, den: leftDen, median: leftMed};
     set2 = {data: rightData, den: rightDen, median: rightMed};
     set3 = {data: leftData, den: leftDen, median: leftMed};
 
+    // complete_data = [set1];
     complete_data = [set1,set2];
+    // complete_data = [set1,set2,set1];
 
 
     function determine_discrete(data,no_bins){
@@ -43,6 +45,34 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
         return [x_out, y_out]
     }   
+
+    function draw_triangle(data) {
+        var full_string = "";
+
+        for(n=0 ; n < data.length; n++){
+
+            var d = data[n];
+
+            // if ((d.scl_val != d.scl_change) || (!button3 && !density_toggle)){
+            if (d.scl_val != d.scl_change) {
+                x1 = xScale(d.name) - triangle_w/2
+                x2 = xScale(d.name) + triangle_w/2
+                x3 = xScale(d.name) 
+                y1 = yScale(d.scl_val)
+                y2 = yScale(d.scl_change)
+
+
+                one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
+                    +"L"+x1+","+y1;
+
+                full_string += one_tri;
+            }
+
+        }
+        return full_string
+    }
+
+
 
     var discrete_mask = determine_discrete(leftData,10);
 
@@ -91,7 +121,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
     var col_width = one_width*no_sets,
         half_col = one_width, // TO REMOVE
-        separator = 0.4,
+        separator = 0.3,
         padding = 10;
 
 
@@ -123,8 +153,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
     // --- Density Variables and Scales --
-    var denWidth = (bandwidth),
-        den_colour = "#7570b3";
+    var den_colour = "#7570b3";
 
     var yDenScale = d3.scaleLinear()
             .domain([0, height])
@@ -132,9 +161,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
         xDenScale = d3.scaleLinear()
             .domain([0, 1])
-            .rangeRound([0,bandwidth/2 - 5]);
-
-
+            .rangeRound([0,bandwidth/no_sets - 5]);
 
 
 
@@ -150,16 +177,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
 
-
-
-
-
-
-
-   
-
-
-
+    // --- Creating base SVG --- 
     var svg = d3.select(place)
                 .append("svg")
                 .attr("width",width + margin.right + margin.left)
@@ -167,21 +185,6 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                 .attr("class", "main-svg")
                 .append("g")
                      .attr("transform","translate(" + margin.left + ',' + margin.top +')');
-
-
-    // -- Density scales --
-    var buffer = 2,
-        denWidth = (bandwidth),
-        den_colour = "#7570b3";
-
-    var yDenScale = d3.scaleLinear()
-            .domain([0, height])
-            .rangeRound([height,0]);
-
-        xDenScale = d3.scaleLinear()
-            .domain([0, 1])
-            .rangeRound([0,bandwidth/2 - 5]);
-    
 
 
 
@@ -198,38 +201,10 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         .attr("fill", "None")
         .attr("stroke", "None")
         .style("opacity",0.5);
-    
-    
-    // -- Drawing dividing lines -- 
-    svg.append("g").selectAll("line")
-        .data(testData)
-        .enter()
-        .append("line")
-        .attr("class","split_lines")
-        .attr("x1",function(d) {return xScale(d.name)+bandwidth*0.5;})
-        .attr('y1',-padding)
-        .attr("y2",function(d){return yScale(0)+padding})
-        .attr("x2",function(d) {return xScale(d.name)+bandwidth*0.5;})
-        .style("stroke",den_colour)
-        .style("stroke-width",1)
-        .style("opacity",0);
-    
-    // -- Drawing surrounding box -- 
         
-    // svg.append("rect")
-    //     .attr("class","border")
-    //     .attr('x',xScale(testData[0].name))
-    //     .attr('y',0)
-    //     .attr("height",function(d){return yScale(0-padding_bottom)})
-    //     .attr("width",(xScale.bandwidth()+separator)*testData.length)
-    //     .attr("fill","None")
-    //     .attr("stroke","#A9A9A9")
-    //     .attr("stroke-width",1);
 
   
-
     // -- Drawing and styling the AXIS
-    
     var xAxis = d3.axisBottom().scale(xScale);
 
     svg.append("g")
@@ -245,418 +220,151 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             .attr("class", "feature-name");
 
 
-    // var den_svg = svg.append("g")
-    //             .attr("transform","translate(" + (9) + ',0)');
 
 
     // ======= Density Distribution ======= 
-    histo_bin_h = height/no_bins;
+    var single_bw = bandwidth/no_sets,
+    start_point = single_bw/2,
 
-    for (ind=0 ; ind < features; ind++) {
-        ft_name = leftData[0][ind].name;
-
-        centre_l = xScale(ft_name) + bandwidth/4;
-        centre_r = xScale(ft_name) + bandwidth*3/4;
-
-        for (n=0 ; n < no_bins; n++){
-            var inLeftBin = xDenScale(leftDen[ind][n])/2;
-            var inRightBin = xDenScale(rightDen[ind][n])/2;
+    histo_bin_h = (height/no_bins)+1;
 
 
-            // Right density 1
-            svg.append("g")
-                .append("rect")
-                .attr('x',centre_r)
-                .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
-                .attr("height",histo_bin_h)
-                .attr("width",inRightBin)
-                .attr("fill",den_colour)
-                .attr('opacity',function(d){
-                    if (density_toggle){
-                        return 0.4;
-                    }
-                    else{return 0;}})
-                .attr("stroke-width",1)
-                .attr("stroke","white");
+    for (s=0 ; s < no_sets; s++) {
 
-            svg.append("g")
-                .append("rect")
-                .attr('x',centre_r-inRightBin)
-                .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
-                .attr("height",histo_bin_h)
-                .attr("width",inRightBin)
-                .attr("fill",den_colour)
-                .attr('opacity',function(d){
-                    if (density_toggle){
-                        return 0.4;
-                    }
-                    else{return 0;}})
-                .attr("stroke-width",1)
-                .attr("stroke","white");
+        // -- Data variables for the specific set -- 
+        this_set = complete_data[s];
+        this_data = this_set.data;
+        this_den = this_set.den;
+        this_med = this_set.median;
 
+        // === Density & Median === 
+        for (ind=0 ; ind < no_features; ind++) {
+            ft_name = this_data[0][ind].name;
+            centre = xScale(ft_name) + start_point+(s*single_bw);
 
-
-            // Left bin
-            svg.append("g")
-                .append("rect")
-                .attr('x',centre_l)
-                .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
-                .attr("height",histo_bin_h)
-                .attr("width",inLeftBin)
-                .attr("fill",den_colour)
-                .attr('opacity',function(){
-                    if (density_toggle){
-                        return 0.2;
-                    }
-                    else{return 0;}})
-                .attr("stroke-width",1)
-                .attr("stroke","white");
-
-
-            svg.append("g")
-                .append("rect")
-                .attr('x',centre_l-inLeftBin)
-                .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
-                .attr("height",histo_bin_h)
-                .attr("width",inLeftBin)
-                .attr("fill",den_colour)
-                .attr('opacity',function(d){
-                    if (density_toggle){
-                        return 0.2;
-                    }
-                    else{return 0;}})
-                .attr("stroke-width",1)
-                .attr("stroke","white");
-
-        }
-        // --- Centre Lines --- 
-        svg.append("g")
-            .append("line")
-            .attr('x1',centre_l)
-            .attr('x2',centre_l)
-            .attr('y1',yDenScale(0))
-            .attr("y2",yDenScale(height))
-            .attr("width",inRightBin)
-            .attr('opacity',function(d){
-                if (density_toggle){
-                    return 0.2;
-                }
-                else{return 0;}})
-            .attr("stroke-width",0.5)
-            .attr("stroke",den_colour);
-
-        svg.append("g")
-            .append("line")
-            .attr('x1',centre_r)
-            .attr('x2',centre_r)
-            .attr('y1',yDenScale(0))
-            .attr("y2",yDenScale(height))
-            .attr("width",inRightBin)
-            .attr('opacity',function(){
-                if (density_toggle){
-                    return 0.2;
-                }
-                else{return 0;}})
-            .attr("stroke-width",0.5)
-            .attr("stroke",den_colour);
-
-
-
-
-        // --- Median Lines --- 
-        if (median_toggle) {
-            var med_right = rightMed[ind],
-            med_left = leftMed[ind];
-        
-            var tick_size = 10,
-                tick_width = 2,
-                tick_sep = 0;
-           
+            // --- Centre Line --- 
             svg.append("g")
                 .append("line")
-                .attr("class","split_lines")
-                .attr("x1",centre_r - tick_size/2)
-                .attr('y1',function(d){return yScale(med_right);})
-                .attr("y2",function(d){return yScale(med_right);})
-                .attr("x2",centre_r + tick_size/2)
-                .style("stroke",den_colour)
-                .style("stroke-opacity",1)
-                .style("stroke-width",tick_width);
+                .attr('x1',centre)
+                .attr('x2',centre)
+                .attr('y1',yDenScale(0))
+                .attr("y2",yDenScale(height))
+                .attr("width",3)
+                .attr('opacity',0.2)
+                .attr("stroke-width",0.5)
+                .attr("stroke",den_colour);
 
-            svg.append("g")
-                .append("line")
-                .attr("class","split_lines")
-                .attr("x1",centre_l - tick_size/2)
-                .attr('y1',function(d){return yScale(med_left);})
-                .attr("y2",function(d){return yScale(med_left);})
-                .attr("x2",centre_l + tick_size/2)
-                .style("stroke",den_colour)
-                .style("stroke-width",tick_width)
-                .style("stroke-opacity",1);
+            // --- Drawing the Density --- 
+            for (n=0 ; n < no_bins; n++){
+                var inBin = xDenScale(this_den[ind][n]);
+                svg.append("g")
+                    .append("rect")
+                    .attr('x',centre-inBin/2)
+                    .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
+                    .attr("height",histo_bin_h)
+                    .attr("width",inBin)
+                    .attr("fill",den_colour)
+                    .attr('opacity',function(d){
+                        if (density_toggle){
+                            return 0.4;
+                        }
+                        else{return 0;}})
+                    .attr("stroke-width",1)
+                    .attr("stroke","white");
+
+            }
+
+            // --- Median Line --- 
+            if (median_toggle) {   
+                var tick_size = 10,
+                    tick_width = 3;
+               
+                svg.append("g")
+                    .append("line")
+                    .attr("class","split_lines")
+                    .attr("x1",centre - tick_size/2)
+                    .attr('y1',function(d){return yScale(this_med[ind]);})
+                    .attr("y2",function(d){return yScale(this_med[ind]);})
+                    .attr("x2",centre + tick_size/2)
+                    .style("stroke",den_colour)
+                    .style("stroke-opacity",1)
+                    .style("stroke-width",tick_width);
+            }
         }
 
-    }
 
-    //     var den_svg = svg.append("g");
-
-
-
-
-    //     // -- Allign SVG canvas -- 
-    //     den_svg = den_svg.append("g")
-    //             .attr("transform","translate(" + (xScale(right_name)) + ',0)'); 
-
-
-    //     // -- Drawing left density distribution --
-    //     den_svg.append('g').append('path').datum(left)
-    //     .attr('d',left_line)
-    //     .attr('stroke',den_colour)
-    //     .attr('fill',den_colour)
-    //     .attr('opacity',function(d){
-    //         if (density_toggle){
-    //             return 0.15;
-    //         }
-    //         else{
-    //             return 0;
-    //         }});
-
-
-    //      // -- Centre the image -- 
-    //     den_svg = den_svg.append("g")
-    //             .attr("transform","translate(" + (xDenScale(1)) + ',0)'); 
-
-    //     // ==== Drawing median lines ====
-
-    //     if (median_toggle) {
-    //         var med_right = rightMed[ind],
-    //         med_left = leftMed[ind];
+        shift_svg = svg.append("g")
+            .attr("transform","translate(" + (start_point+(s*single_bw)) + ',0)'); 
         
-    //         var tick_size = xDenScaleRight(1),
-    //             tick_width = 2,
-    //             tick_sep = 4;
-           
-    //         den_svg.append("g")
-    //             .append("line")
-    //             .attr("class","split_lines")
-    //             .attr("x1",tick_sep)
-    //             .attr('y1',function(d){return yScale(med_right);})
-    //             .attr("y2",function(d){return yScale(med_right);})
-    //             .attr("x2",(tick_size-tick_sep))
-    //             .style("stroke",den_colour)
-    //             .style("stroke-opacity",1)
-    //             .style("stroke-width",tick_width);
+        // === Counter Factuals === 
+        if (cf_toggle){
 
-    //         den_svg.append("g")
-    //             .append("line")
-    //             .attr("class","split_lines")
-    //             .attr("x1",-tick_sep)
-    //             .attr('y1',function(d){return yScale(med_left);})
-    //             .attr("y2",function(d){return yScale(med_left);})
-    //             .attr("x2",-(tick_size-tick_sep))
-    //             .style("stroke",den_colour)
-    //             .style("stroke-width",tick_width)
-    //             .style("stroke-opacity",1);
-    //     }
+            shift_svg.append('g').selectAll("path")
+                .data(this_data)
+                .enter()
+                .append("path")
+                .on('mouseover',function(){
+                    d3.selectAll(".arrows").attr("fill-opacity",0);
+                    d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
+                })
 
-
-    // // -- Drawing right density distribution --
-    // den_svg.append('path').datum(right)
-    //     .attr('d',right_line)
-    //     .attr('stroke', den_colour)
-    //     .attr('fill',den_colour)
-    //     .attr('opacity',function(d){
-    //         if (density_toggle){
-    //             return 0.3;
-    //         }
-    //         else{
-    //             return 0;
-    //         }});
-    // }
-
-
-
-    function draw_triangle(data) {
-        var full_string = "";
-
-        for(n=0 ; n < data.length; n++){
-
-            var d = data[n];
-
-            // if ((d.scl_val != d.scl_change) || (!button3 && !density_toggle)){
-            if (d.scl_val != d.scl_change) {
-                x1 = xScale(d.name) + bandwidth*0.5 - triangle_w/2
-                x2 = xScale(d.name) + bandwidth*0.5 + triangle_w/2
-                x3 = xScale(d.name) + bandwidth*0.5
-                y1 = yScale(d.scl_val)
-                y2 = yScale(d.scl_change)
-
-
-                one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
-                    +"L"+x1+","+y1;
-
-                full_string += one_tri;
-            }
-
+                .on('mouseout',function(){
+                    d3.selectAll(".arrows").attr("fill-opacity",0.7);
+                    d3.select(this).attr("stroke-opacity",0)
+                })
+                .on('click',function(d){
+                    var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
+                    window.location.href = reloc;
+                })
+                .attr('d',function(d){
+                    return draw_triangle(d);})
+                .attr("class","arrows")
+                .attr("fill-opacity",0.7)
+                .attr("fill",function(d){
+                    if (d[0].dec == 0) {
+                        return bad_col;}
+                    else {
+                        return good_col;}
+                })
+                .attr("stroke-width", 2)
+                .attr("stroke",function(d){
+                    if (d[0].dec == 0) {
+                        return bad_col;}
+                    else {
+                        return good_col;}
+                })
+                .attr("stroke-opacity",0);
         }
-        return full_string
-    }
 
+        // === Individual Points === 
+        if (point_toggle) {
+            for(n=0 ; n < this_data.length; n++){
+                var oneData = this_data[n]
 
+                for(i=0; i < oneData.length; i++){
+                    d = oneData[i];
+                    x = xScale(d.name);
+                    y = yScale(d.scl_val);
+                    xy = stagger_val(x,y,stagger_r);
 
-
-    // Deselect other triangles when clicking instead of border. 
-    // Remove levels when hovering over 
-    // Parallel coordinates test
-    // Add data sheet in the bottom.
-    // Highlight concurrently 
-
-    // OSCAR: remember that linking now needs to account for which of the two is shown
-
-
-    // -- Centre the image (LEFT) -- 
-    svg = svg.append("g")
-        .attr("transform","translate(" + (-xDenScaleRight(1)/2) + ',0)'); 
-
-    svg.append('g').selectAll("path")
-    .data(leftData)
-    .enter()
-    .append("path")
-    .on('mouseover',function(){
-        d3.selectAll(".arrows").attr("fill-opacity",0);
-        // d3.select(".arrows").attr("fill","black");
-        d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
-    })
-    .on('mouseout',function(){
-        d3.selectAll(".arrows").attr("fill-opacity",0.7);
-        d3.select(this).attr("stroke-opacity",0)
-    })
-    .on('click',function(d){
-        // console.log(d[0].sample);
-        var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
-        window.location.href = reloc;
-    })
-    // .attr("data-id", function(d) {return d.orig_ft_pos; })
-    .attr('d',function(d){
-        return draw_triangle(d);})
-    .attr("class","arrows")
-    .attr("fill-opacity",0.7)
-    .attr("fill",function(d){
-        if (d[0].dec == 0) {
-            return bad_col;}
-        else {
-            return good_col;}
-    })
-    .attr("stroke-width", 2)
-    .attr("stroke",function(d){
-        if (d[0].dec == 0) {
-            return bad_col;}
-        else {
-            return good_col;}
-    })
-    .attr("stroke-opacity",0);
-
-
-
-    // === Drawing left points ====
-
-    if (point_toggle) {
-        for(n=0 ; n < leftData.length; n++){
-            var oneData = leftData[n]
-
-            for(i=0; i < oneData.length; i++){
-                d = oneData[i];
-                x = xScale(d.name) + bandwidth*0.5;
-                y = yScale(d.scl_val);
-                xy = stagger_val(x,y,stagger_r);
-
-                svg.append("g")
-                .append("circle")
-                .attr("r", point_size)
-                .attr("cx", function(){
-                    if (discrete_mask[i]==1){return xy[0];}
-                    else{return x;}})
-                .attr("cy", function(){
-                    if (discrete_mask[i]==1){return xy[1];}
-                    else{return y;}})
-                .style("fill", points_col)
-                .style("opacity", point_opp_l);
+                    shift_svg.append("g")
+                    .append("circle")
+                    .attr("r", point_size)
+                    .attr("cx", function(){
+                        if (discrete_mask[i]==1){return xy[0];}
+                        else{return x;}})
+                    .attr("cy", function(){
+                        if (discrete_mask[i]==1){return xy[1];}
+                        else{return y;}})
+                    .style("fill", points_col)
+                    .style("opacity", pt_opp_lst[s]);
+                }
             }
         }
+
+
     }
 
-
-
-    // -- Centre the image (RIGHT) -- 
-    svg = svg.append("g")
-        .attr("transform","translate(" + (xDenScaleRight(1)) + ',0)'); 
-
-
-
-    svg.append('g').selectAll("path")
-    .data(rightData)
-    .enter()
-    .append("path")
-    .on('mouseover',function(){
-        d3.selectAll(".arrows").attr("fill-opacity",0);
-        // d3.select(".arrows").attr("fill","black");
-        d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
-    })
-    .on('mouseout',function(){
-        d3.selectAll(".arrows").attr("fill-opacity",0.7);
-        d3.select(this).attr("stroke-opacity",0)
-    })
-    .on('click',function(d){
-        // console.log(d[0].sample);
-        var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
-        window.location.href = reloc;
-    })
-    // .attr("data-id", function(d) {return d.orig_ft_pos; })
-    .attr('d',function(d){
-        return draw_triangle(d);})
-    .attr("class","arrows")
-    .attr("fill-opacity",0.7)
-    .attr("fill",function(d){
-        if (d[0].dec == 0) {
-            return bad_col;}
-        else {
-            return good_col;}
-    })
-    .attr("stroke-width", 2)
-    .attr("stroke",function(d){
-        if (d[0].dec == 0) {
-            return bad_col;}
-        else {
-            return good_col;}
-    })
-    .attr("stroke-opacity",0);
-
-
-    // === Drawing right points ====
-    if (point_toggle) {
-        for(n=0 ; n < rightData.length; n++){
-            var oneData = rightData[n]
-
-            for(i=0; i < oneData.length; i++){
-                d = oneData[i];
-                x = xScale(d.name) + bandwidth*0.5;
-                y = yScale(d.scl_val);
-                xy = stagger_val(x,y,stagger_r);
-
-                svg.append("g")
-                .append("circle")
-                .attr("r", point_size)
-                .attr("cx", function(){
-                    if (discrete_mask[i]==1){return xy[0];}
-                    else{return x;}})
-                .attr("cy", function(){
-                    if (discrete_mask[i]==1){return xy[1];}
-                    else{return y;}})
-                .style("fill", points_col)
-                .style("opacity", point_opp_r);
-            }
-
-        }
-    }
 
 }
 
