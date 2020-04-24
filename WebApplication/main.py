@@ -571,7 +571,7 @@ def violin_site_req():
 				sel_hist2,sel_median2 = prep_histo_data(aggr_data2)
 
 				# print(len(sel_hist1)
-
+				example_dict = {"data":aggr_data1, "den":sel_hist1, "med":sel_median1};
 
 				ret_string = json.dumps([aggr_data1, aggr_data2, sel_hist1, sel_hist2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
 				# ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])

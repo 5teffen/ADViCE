@@ -12,7 +12,7 @@
 
 function feature_selector(place, aFeature) {
 
-	var section_h = 50,
+	var section_h = 30,
 		section_w = 150,
 		section_sep = 10;
 
@@ -58,7 +58,7 @@ function feature_selector(place, aFeature) {
         },
 
         width = 190 - margin.right - margin.left,
-        height = 80 - margin.top - margin.bottom;
+        height = 70 - margin.top - margin.bottom;
 
 
     // --- Scales for Entire SVG --- 
@@ -73,7 +73,6 @@ function feature_selector(place, aFeature) {
 
 
     // --- Scales for Section SVG --- 
-
     var yHisto = d3.scaleLinear()
         .domain([0, 1])
         .rangeRound([0, histo_h]);
@@ -149,7 +148,7 @@ function feature_selector(place, aFeature) {
         .attr("stroke","None");
 
     // -- Center the Density -- 
-    svg = svg.append("g").attr("transform","translate(" + 5 + ',' + (section_h/2-section_h/6) +')');
+    svg = svg.append("g").attr("transform","translate(" + 5 + ',' + (section_h/2+5) +')');
 
     // // -- Drawing Density -- 
     
@@ -258,7 +257,7 @@ function feature_selector(place, aFeature) {
 		});
 
 
-
+    svg = svg.append("g").attr("transform","translate(" + 0 + ',' + (-10) +')');
 	// -- Slider section --
 	var lstart = xScale(Math.round((init_start-start)/full_range));
     var rstart = xScale(Math.round((init_end-start)/full_range));
@@ -352,14 +351,6 @@ function feature_selector(place, aFeature) {
 		.attr("fill",'black')
 		.attr("text-anchor",'middle');
 
-
-
-
-
-
-
-
-    // svg = svg.append("g").attr("transform","translate(" + x_shift + ',' + y_shift +')');
     
 	var grad = svg.append("defs")
 			.append("linearGradient")
