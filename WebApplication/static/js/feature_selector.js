@@ -16,6 +16,9 @@ function feature_selector(place, aFeature) {
 		section_w = 150,
 		section_sep = 10;
 
+
+    aFeature.den = [0.2,0.3,0.4,0.5,0.6,0.7,0.2,0.3,0.4]
+
 	var fineness = aFeature.den.length;
 
     var good_col = "#d95f02",
@@ -23,17 +26,20 @@ function feature_selector(place, aFeature) {
 
     var separator = 0.015;
 
-    // --- Slider Parameters --- 
 
+    // --- Histogram Parameters --- 
+    var histo_h = 40,
+        histo_col = "#7570b3",
+        no_bins = aFeature.den.length,
+        histo_bin_w = section_w/no_bins;
+
+    // --- Slider Parameters --- 
     var slide_w = 8,
     	slide_h = 20,
     	slide_curv = 1,
     	slide_col = "lightgrey",
     	fill_col = "#7570b3"
     	fill_light = "#dcdef2";
-
-
-    	// slide_col = "#666666",
 
 
     // --- Label Parameters --- 
@@ -56,19 +62,29 @@ function feature_selector(place, aFeature) {
 
 
     // --- Scales for Entire SVG --- 
+    var xScale = d3.scaleLinear()
+            .domain([0, 1])
+            .rangeRound([0, section_w]);
+
+
     var yScale = d3.scaleLinear()
             .domain([0, height])
             .rangeRound([height, 0]);
 
 
     // --- Scales for Section SVG --- 
-	var xDenScale = d3.scaleLinear()
-	    .domain([0, fineness-1])
-	    .rangeRound([0,section_w]);
 
-	var yDenScale = d3.scaleLinear()
-	    .domain([0, 1])
-	    .rangeRound([section_h/3,0]);
+    var yHisto = d3.scaleLinear()
+        .domain([0, 1])
+        .rangeRound([0, histo_h]);
+
+	// var xDenScale = d3.scaleLinear()
+	//     .domain([0, fineness-1])
+	//     .rangeRound([0,section_w]);
+
+	// var yDenScale = d3.scaleLinear()
+	//     .domain([0, 1])
+	//     .rangeRound([section_h/3,0]);
 
 
     var svg = d3.select(place)
@@ -80,13 +96,7 @@ function feature_selector(place, aFeature) {
                  .attr("transform","translate(" + margin.left + ',' + margin.top +')');
 
 
-    // -- Density Line Functions -- 
-    var line = d3.line()
-            .y(function(d) {return yDenScale(d);})
-            .x(function(d,i) {return xDenScale(i);});
-
-
-    // -- Drawing background rectangles -- 
+    // -- Drawing background rectangle -- 
     svg.append("g")
         .append("rect")
         .attr("class","bg")
@@ -107,12 +117,6 @@ function feature_selector(place, aFeature) {
     var x_shift = 0,
     	y_shift = section_h+section_sep;
 
-    // var start = aFeature.range[0],
-		 	// end = aFeature.range[1],
-		 	// full_range = end-start,
-		 	// m1 = 0,   // Ranges
-		 	// m2 = 100,
-
 
 	var start = aFeature.range[0],
 	 	end = aFeature.range[1],
@@ -120,9 +124,14 @@ function feature_selector(place, aFeature) {
 	 	init_start = aFeature.current[0],
 	 	init_end = aFeature.current[1],
 	 	m1 = Math.round(100*(init_start-start)/full_range),   // Percentages for density
-	 	m2 = Math.round(100*(init_end-start)/full_range)
+	 	m2 = Math.round(100*(init_end-start)/full_range),
 	 	out_min = init_start,
 	 	out_max = init_end;
+
+
+    var xRangeScale = d3.scaleLinear()
+        .domain([0, full_range])
+        .rangeRound([0, section_w]);
 
 
 	var start_arr = aFeature.den.slice();
@@ -143,51 +152,26 @@ function feature_selector(place, aFeature) {
     svg = svg.append("g").attr("transform","translate(" + 5 + ',' + (section_h/2-section_h/6) +')');
 
     // // -- Drawing Density -- 
-    // var cur_arr = start_arr.splice(100,100)
-    // cur_arr.push(0);
     
-	svg.append('g').append('path').datum(start_arr)
-	.attr('id',"curve")
-    .attr('d',line)
-    .attr('stroke',fill_col)
-    .attr('fill',fill_col)
-    .attr('opacity',1);
+    for (n=0 ; n < no_bins; n++){
+        var inBin = aFeature.den[n];
 
+         svg.append("g")
+            .append("rect")
+            .attr("id","bar_selected")
+            .attr('x',(n)*histo_bin_w)
+            .attr('y',-yHisto(inBin)-1)
+            .attr("height",yHisto(inBin))
+            .attr("width",histo_bin_w)
+            .attr("fill",histo_col)
+            .attr("opacity",0.4)
+            .attr("stroke-width",1)
+            .attr("stroke","white");
 
-    // svg.append('g').append('path').datum(cur_arr)
-    //     .attr('d',line)
-    //     .attr('stroke',"blue")
-    //     .attr('fill',"black")
-    //     .attr('opacity',0.2);
-
-    // -- Adding Ranges -- 
-    // svg.append("g")
-   	// 	.append('text')
-    // 	.text(start)
-    // 	.attr("x", -2)
-   	//  	.attr("y", yDenScale(0)+15)
-    // 	.attr("font-family",'"Open Sans", sans-serif')
-    // 	.attr("font-size", '11px')
-    // 	.attr("font-weight", 'bold')
-    // 	.attr("fill",'black')
-    // 	.attr("text-anchor",'left');
-
-   	// svg.append("g")
-   	// 	.append('text')
-    // 	.text(end)
-    // 	.attr("x", section_w-8)
-   	//  	.attr("y", yDenScale(0)+15)
-    // 	.attr("font-family",'"Open Sans", sans-serif')
-    // 	.attr("font-size", '11px')
-    // 	.attr("font-weight", 'bold')
-    // 	.attr("fill",'black')
-    // 	.attr("text-anchor",'left');
-
+    }
 
 
 	// -- Define Drag Functionality -- 
-
-
 	x_div = 6,
 	slider_col = '#b3c1d6'
 	min_x = 0,    // RISKY
@@ -208,7 +192,6 @@ function feature_selector(place, aFeature) {
 	        else {x = new_x;}
 
 	        var selection = d3.select(this)
-	        selection.attr('x',x);
 	        
 	    	var id = selection.attr("id");
 
@@ -217,15 +200,20 @@ function feature_selector(place, aFeature) {
 	    		var percentage = x/section_w;
 	    		// m1 = Math.round(percentage*fineness);
 	    		m1 = Math.round(percentage*100);
-	    		density_curve(m1,m2);
+	    		// density_curve(m1,m2);
+
+                var avg_x = xRangeScale(Math.round(percentage*full_range));
 
 	    		out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
-	    	
-	    		d3.select("#llab").attr('x',x-lab_shift);
+	    	  
+	    		d3.select("#llab").attr('x',avg_x-lab_shift);
 
 	    		d3.select("#lt-label")
 	    			.text(out_min.toString())
-	    			.attr('x',x+text_shift)
+	    			.attr('x',avg_x+text_shift)
+
+                selection.attr('x',avg_x);
+
 
 	    	}
 
@@ -233,18 +221,26 @@ function feature_selector(place, aFeature) {
 	    		var percentage = x/section_w;
 	    		// m2 = Math.round(percentage*fineness);
 	    		m2 = Math.round(percentage*100);
-	    		density_curve(m1,m2);
+	    		// density_curve(m1,m2);
+
+
+                var avg_x = xRangeScale(Math.round(percentage*full_range));
 
 	    		out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    	
 
-	    		d3.select("#rlab").attr('x',x-lab_shift);
+	    		d3.select("#rlab").attr('x',avg_x-lab_shift);
 
 	    		d3.select("#rt-label")
 		    		.text(out_max.toString())
-		    		.attr('x',x+text_shift);
+		    		.attr('x',avg_x+text_shift);
 
-	    	}
+                selection.attr('x',avg_x);
+
+	    	} 
+
+            // selection.attr('x',x);
+
 
 	    	// console.log(out_min, out_max);
 	    	// selection.attr("fill", "blue")
@@ -264,8 +260,8 @@ function feature_selector(place, aFeature) {
 
 
 	// -- Slider section --
-	var lstart = xDenScale(Math.round(fineness*(init_start-start)/full_range));
-    var rstart = xDenScale(Math.round(fineness*(init_end-start)/full_range));
+	var lstart = xScale(Math.round((init_start-start)/full_range));
+    var rstart = xScale(Math.round((init_end-start)/full_range));
 
     svg.append("g")
         .append("rect")
@@ -389,194 +385,13 @@ function feature_selector(place, aFeature) {
 		grad.append("stop").attr("offset", (per2).toString()+"%").attr("stop-color", fill_col);
 		grad.append("stop").attr("offset", (per2+1).toString()+"%").attr("stop-color", fill_light);
 		grad.append("stop").attr("offset", "100%").attr("stop-color", fill_light);
-	   
-
-    	// svg.append('g').append('path').datum(start_arr)
-    	// 	.attr('id',"curve")
-	    //     .attr('d',line)
-	    //     .attr('stroke',"blue")
-	    //     .attr('fill',"url(#grad)")
-	    //     .attr('opacity',1);
-
 
 	   	var sel = d3.select("#curve");
 	   	sel.attr('fill',"url(#grad)");
 
-
 	}
 
 
-	// -- Add the feature name --
-    svg = svg.append("g").attr("transform","translate(" + 0 + ',' + 45 +')');
-
-	svg.append("g")
-		.append('text')
-		.text("Feature: " + aFeature.name)
-		.attr("x", 0)
-		.attr("y", 0)
-		.attr("font-family",'"Open Sans", sans-serif')
-		.attr("font-size", '12px')
-		.attr("fill",'black')
-		.attr("text-anchor",'centre'); 
-
-
-
-
- 
-    
-    // -- Drawing surrounding box -- 
-        
-    // svg.append("rect")
-    //     .attr("class","border")
-    //     .attr('x',xScale(testData[0].name))
-    //     .attr('y',0)
-    //     .attr("height",function(d){return yScale(0-padding_bottom)})
-    //     .attr("width",(xScale.bandwidth()+separator)*testData.length)
-    //     .attr("fill","None")
-    //     .attr("stroke","#A9A9A9")
-    //     .attr("stroke-width",1);
-
-  
-
-    // // -- Drawing and styling the AXIS
-    
-    // var xAxis = d3.axisBottom().scale(xScale);
-
-    // svg.append("g")
-    //     .attr("class", "axis")
-    //     .attr("transform", "translate(0," + height + ")")
-    //     .call(xAxis)
-    //     .selectAll("text")  
-    //         .style("fill","black")
-    //         .style("text-anchor", "end")
-    //         .attr("dy", "-0.5em")
-    //         .attr("dx", "-0.5em")
-    //         .attr("transform","rotate(-70)")
-    //         .attr("class", "feature-name");
-
-
-    // var den_svg = svg;
-    // for (ind=0 ; ind < rightList.length; ind++) {
-    //     right = rightList[ind]
-    //     left = leftList[ind]
-
-    //     med_right = rightMid[ind]
-    //     med_left = leftMid[ind]
-
-
-    //     // -- Drawing left density distribution --
-    //     den_svg.append('g').append('path').datum(left)
-    //     .attr('d',left_line)
-    //     .attr('stroke',den_colour)
-    //     .attr('fill',den_colour)
-    //     .attr('opacity',0.2);
-
-
-    //      // -- Centre the image -- 
-    //     den_svg = den_svg.append("g")
-    //             .attr("transform","translate(" + (xDenScaleRight(1)) + ',0)'); 
-
-
-
-    //     // -- Drawing median lines -- 
-    //     var tick_size = 4;
-       
-    //     den_svg.append("g")
-    //         .append("line")
-    //         .attr("class","split_lines")
-    //         .attr("x1",0)
-    //         .attr('y1',function(d){return yScale(med_right);})
-    //         .attr("y2",function(d){return yScale(med_right);})
-    //         .attr("x2",tick_size)
-    //         .style("stroke",den_colour)
-    //         .style("stroke-width",3);
-
-    //     den_svg.append("g")
-    //         .append("line")
-    //         .attr("class","split_lines")
-    //         .attr("x1",0)
-    //         .attr('y1',function(d){return yScale(med_left);})
-    //         .attr("y2",function(d){return yScale(med_left);})
-    //         .attr("x2",-tick_size)
-    //         .style("stroke",den_colour)
-    //         .style("stroke-width",3);
-
-
-    //     // -- Drawing right density distribution --
-    //     den_svg.append('path').datum(right)
-    //     .attr('d',right_line)
-    //     .attr('stroke', den_colour)
-    //     .attr('fill',den_colour)
-    //     .attr('opacity',0.4);
-  
-
-    //     // -- Centre the image -- 
-    //     den_svg = den_svg.append("g")
-    //             .attr("transform","translate(" + (xDenScaleRight(1)) + ',0)');
-    // }
-
-    // function draw_triangle(data) {
-    //     var full_string = "";
-
-    //     for(n=0 ; n < data.length; n++){
-    //         var d = data[n];
-
-    //         x1 = xScale(d.name) + xScale.bandwidth()*0.30
-    //         x2 = xScale(d.name) + xScale.bandwidth()*0.70
-    //         x3 = xScale(d.name) + xScale.bandwidth()*0.5
-    //         y1 = yScale(d.scl_val)
-    //         y2 = yScale(d.scl_change)
-
-
-    //         one_tri = "M"+x1+","+y1+"L"+x2+","+y1+"L"+x3+","+y2
-    //             +"L"+x1+","+y1;
-
-
-    //         full_string += one_tri
-    //     }
-    //     return full_string
-    // }
-
-
-    // svg.append('g').selectAll("path")
-    // .data(allData)
-    // .enter()
-    // .append("path")
-    // .on('mouseover',function(){
-    //     d3.select(this)
-    //     .attr('stroke','black')
-    // })
-    // .on('mouseout',function(){
-    //     d3.select(this)
-    //     .attr("stroke",'none')
-    // })
-    // .attr('d',function(d){return draw_triangle(d);})
-    // .attr("fill-opacity",0.7)
-    // .attr("fill",function(d){
-    //     if (d[0].dec == 0) {
-    //         return bad_col;}
-    //     else {
-    //         return good_col;}
-    // })
-    // .attr("stroke-width", 1.5);
-
-
-
-
-    // // -- Drawing median -- 
-    // svg.append("g").selectAll("line")
-    //     .data(testData)
-    //     .enter()
-    //     .append("line")
-    //     .attr("class","split_lines")
-    //     .attr("x1",function(d) {return xScale(d.name)+xScale.bandwidth();})
-    //     .attr('y',0)
-    //     .attr("y2",function(d){return yScale(0-padding_bottom)})
-    //     .attr("x2",function(d) {return xScale(d.name)+xScale.bandwidth();})
-    //     .style("stroke",function(d,i){
-    //         if (i == testData.length-1) {return "None";}
-    //         else {return "#A9A9A9";}})
-    //     .style("stroke-width",0.7);
 
 }
 

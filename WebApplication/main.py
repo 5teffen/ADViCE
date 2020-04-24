@@ -120,9 +120,10 @@ def init_data(dataset):
 
 	# ==== FEATURE SELECTOR ====
 	# init_vals = [0,10]
+	samples4test = []
 	feature_selector_input = []
 	for i in range(no_features):
-		feature_selector_input.append(prep_feature_selector(i, feature_names, all_den, col_ranges) )# 0 indexed
+		feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges,no_bins, samples4test))# 0 indexed
 	# If no init vals known then leave blank.
 	
 	dict_array = all_den
