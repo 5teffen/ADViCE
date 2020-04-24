@@ -8,7 +8,6 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <link href="static/css/projection-style.css" rel="stylesheet" type="text/css">
-    <link href="static/css/rSlider.min.css" rel="stylesheet" type="text/css">
 
     <!-- D3.js and jQuery source -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -52,59 +51,45 @@
             <li><a href="projection"> GLOBAL </a></li>
             <li><a href="individual"> LOCAL </a></li>
           </ul>
-
-
         </nav>
       </div>
       
       <div class="right-side-proj" id="demo">
 
         <div id="middle-panel-proj">
-          <table class="proj-table">
-            <tr>
-              <th colspan="1">
-                <div class="btn-group">
-                  <!--button id="key-button" class="algo-button"> Key Features </button>-->
-                  <!--<button id="chg-button" class="algo-button"> Changes </button> -->
-                  <button id="pca-button" class="dimred-button"> PCA </button>
-                  <button id="tsne-button" class="dimred-button"> tSNE </button>
-                  <!--<button id="direction-button" class="dimred-button"> Direct. </button> -->
-                </div>
-              </th>
-            </tr>
-            <tr>
-              <td colspan="1">
-                <div id="bokeh-div">
-                  <!-- <iframe id="bokeh-iframe" src="static/html/projection_file_raw.html" scrolling="no" frameborder="no"></iframe> -->
-                  <div id="d3-proj">
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="1">
-                <button id="reset-button-proj">
-                  Reset
+          <table class="proj-table" id="filter-sets-table">
+                 <!-- <tr>
+                   <td colspan="1">
+                     <div id="filter-div-1" class="filter-set">
+                       Filter Set 1
+                       <button class="reset-button-proj">
+                         Reset
+                       </button>
+                       <div id="percentage-filter-div">
+                       </div>
+                       <div id="confusion-matrix-filter-div">
+                       </div>
+                       <div id="feature-range-filter-div">
+                         <select id="feature-dropdown">
+                           <option value="init" selected disabled>Choose feature</option>
+                         </select>
+                         <div id="feature-range-slider-div">
+                          Feature range slider
+                         </div>
+                       </div>  
+                     </div>
+                   </td>
+                   <td colspan="1">
+                     <div id="summary-div">
+                       Summary
+                     </div>
+                   </td>
+                 </tr> -->
+            <tr id="tr-new-filter-set-button">
+              <td colspan="2">
+                <button onclick="addFilterSet()">
+                  +
                 </button>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="1">
-                <div id="filter-div">
-                  Filters
-                  <div id="percentage-filter-div">
-                  </div>
-                  <div id="confusion-matrix-filter-div">
-                  </div>
-                  <div id="feature-range-filter-div">
-                    <select id="feature-dropdown">
-                      <option value="init" selected disabled>Choose feature</option>
-                    </select>
-                    <div id="feature-range-slider-div">
-                      Feature range slider
-                    </div>
-                  </div>  
-                </div>
               </td>
             </tr>
           </table>
@@ -113,7 +98,7 @@
         <div id="right-panel-proj">
           <table class="proj-table">
             <tr>
-              <th colspan="1" style="border-radius: 1px; width: 280px">
+              <th style="border-radius: 1px; width: 280px">
                 <div class="btn-group-proj" >
                   <button id="median-button" class="proj-button"> Median </button>
                   <button id="points-button" class="proj-button"> Points </button>
@@ -121,21 +106,9 @@
                   <button id="cf-button" class="proj-button"> CF </button>
                 </div>
               </th>
-              <th colspan="1" style="border-radius: 1px;">
-                <div class="btn-group-proj" >
-                  <select id="compare-dropdown" onchange="compareTrigger(this)">
-                    <option value="init" selected disabled>Compare with</option>
-                    <option value="none" > No comparison </option>
-                    <option value="complement" > Complement </option>
-                    <option value="0" > Filter set 1 </option>
-                    <option value="1" > Filter set 2 </option>
-                    <option value="2" > Filter set 3 </option>
-                  </select>
-                </div>
-              </th>
             </tr>
             <tr>
-              <td colspan="2">
+              <td>
                 <div id="distribution-div">
                   Distribution
                 </div>
@@ -143,25 +116,8 @@
             </tr>
             <tr>
               <td>
-                <div style="display: inline-block;">
-                  <div id="summary-div" style="display: inline-block;">
-                    Summary
-                  </div>
-              </td>
-              <td rowspan="2">
                 <div id="table-div" class="ag-theme-balham">
                   Table
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div id="filter-select-div" style="display: inline-block;">
-                  <div class="pagination">
-                    <a id='filter-button-0' href="#" class="active" onclick="changeFilterSet(0)">1</a>
-                    <a id='filter-button-1' href="#" onclick="changeFilterSet(1)">2</a>
-                    <a id='filter-button-2' href="#" onclick="changeFilterSet(2)">3</a>
-                  </div>
                 </div>
               </td>
             </tr>
@@ -209,6 +165,7 @@
       var doing_comparison = 0;
       var left_mask = [];
       var right_mask = [];
+      var n_filter_sets = 0;
 
       feature_selector_input = JSON.parse(feature_selector_input);
       for (i=0; i<ft_names.length; i++){
@@ -257,28 +214,90 @@
         return state;
       }
 
+      function create_filter_set (idx){
+
+        var tr = document.createElement("tr");
+        var td_fil = document.createElement("td");
+        var filter_div = document.createElement("div");
+
+        filter_div.innerHTML = "Filter Set " + idx.toString();
+        filter_div.id = "filter-div-" + idx.toString();
+        filter_div.className = "filter-set";
+
+        var reset_btn = document.createElement("button");
+        reset_btn.id = "reset-button-proj-" + idx.toString();
+        reset_btn.className = "reset-button-proj"
+        reset_btn.innerHTML = "Reset";
+        reset_btn.onclick = function(){resetFeatures();}
+
+        var percent_filt_div = document.createElement("div");
+        percent_filt_div.id = "percentage-filter-div-" + idx.toString();
+
+        var confmat_filt_div = document.createElement("div");
+        confmat_filt_div.id = "confusion-matrix-filter-div-" + idx.toString();
+
+        var ftrang_filt_div = document.createElement("div");
+        ftrang_filt_div.id = "feature-range-filter-div-" + idx.toString();
+
+        var ft_dropdown = document.createElement("select");
+        ft_dropdown.id = "feature-dropdown-" + idx.toString();
+
+        var init_option = document.createElement("option");
+        init_option.value = "init" + idx.toString();
+        init_option.innerHTML = "Choose feature";
+        init_option.disabled = true;
+        init_option.selected = true;
+        ft_dropdown.appendChild(init_option);
+        ft_dropdown.value = "init";
+
+        var ftrang_slider = document.createElement("div");
+        ftrang_slider.id = "feature-range-slider-div-" + idx.toString();
+        ftrang_slider.style.height = "60px";
+
+        ftrang_filt_div.appendChild(ft_dropdown);
+        ftrang_filt_div.appendChild(ftrang_slider);
+
+        filter_div.appendChild(reset_btn);
+        filter_div.appendChild(percent_filt_div);
+        filter_div.appendChild(confmat_filt_div);
+        filter_div.appendChild(ftrang_filt_div);
+
+        td_fil.appendChild(filter_div);
+
+        var td_sum = document.createElement("td");
+        var sum_div = document.createElement("div");
+
+        sum_div.id = "summary-div-" + idx.toString();
+        td_sum.appendChild(sum_div);
+
+        tr.appendChild(td_fil);
+        tr.appendChild(td_sum);
+
+        return tr;
+      }
+
       // wrapper to avoid duplicates
-      function draw_filters(conf_mat_state){
+      function draw_filters(conf_mat_state, idx){
         // Confusion Matrix Order: [TP, FP, FN, TN]
-        var curr_matrix = document.getElementsByClassName("confusionMat");
+        var curr_matrix = document.getElementById("confusion-matrix-filter-div-"+idx.toString()).getElementsByClassName("confusionMat");
         if (curr_matrix.length > 0){
           curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
         }
 
         var example_data = {'tn': 109, 'fp': 29, 'tp': 148, 'fn': 17};
-        confusion_matrix("#confusion-matrix-filter-div", conf_mat_state, example_data);
+        confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data);
 
         // Percentage Filter
-        var curr_percentage = document.getElementsByClassName("percentageBar");
+        var curr_percentage = document.getElementById("percentage-filter-div-"+idx.toString()).getElementsByClassName("percentageBar");
         if (curr_percentage.length > 0){
           curr_percentage[0].parentNode.removeChild(curr_percentage[0]);
         }
-        percentage_bar("#percentage-filter-div", pred_range[filter_set_idx], percentage_filter_input);
+        percentage_bar("#percentage-filter-div-"+idx.toString(), pred_range[filter_set_idx], percentage_filter_input);
 
         // Feature selector dropdown
-        var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option");
+        var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option-"+idx.toString());
         if (ft_dropdown_opts.length <= 1){
-          var ft_dropdown = document.getElementById("feature-dropdown");
+          var ft_dropdown = document.getElementById("feature-dropdown-"+idx.toString());
           ft_dropdown.onchange = function () {draw_feature_selector(this);};
           for (i=0; i<ft_names.length; i++){
             var option = document.createElement("option");
@@ -286,6 +305,7 @@
             option.value = i;
             option.ftid = i;
             option.className = "ft-dropdown-option";
+            option.parent_idx = idx;
             option.onclick = function () {draw_feature_selector(this);};
             ft_dropdown.add(option);
           }
@@ -298,8 +318,8 @@
         var aFeature = feature_selector_input[ft_option.value];
         aFeature['current'] = ft_curr_range[filter_set_idx][ft_option.value];
         console.log("Drawing range slider", aFeature);
-        document.getElementById("feature-range-slider-div").innerHTML = "";
-        feature_selector("#feature-range-slider-div", aFeature);
+        document.getElementById("feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", "")).innerHTML = "";
+        feature_selector("#feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", ""), aFeature);
       }
 
       // Get preprocessed csv file
@@ -353,7 +373,6 @@
         }
 
         // If not doing comparison
-
         if (doing_comparison == 0){
 
           // Check the features that have been moved from their original range and pass those indexes to the backend
@@ -374,7 +393,6 @@
 
         // If doing comparison
         // Repeat for both filter sets filter_set_idx and filter_set_idx_cmp
-
         else {
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx_1 = [];
@@ -402,28 +420,20 @@
 
         if (httpRequest.readyState === XMLHttpRequest.OPENED){
           document.getElementById("middle-panel-proj").style.display = "inline-block";
-          document.getElementById("bokeh-div").innerHTML = "";
-          document.getElementById("summary-div").innerHTML = "";
-          // document.getElementById("middle-panel-proj").innerHTML = "";
-          // document.getElementById("right-panel-proj").innerHTML = "";
+          document.getElementById("summary-div-1").innerHTML = "";
           // add_loader(document.getElementById("middle-panel-proj"));    
-          // add_loader2(document.getElementById("bokeh-div"));
-    
         }
 
         else if (httpRequest.readyState === XMLHttpRequest.DONE) {
           if (httpRequest.status === 200) {
             //Do stuff with the response
 
-            var bokeh_div = document.getElementById("bokeh-div");
             var resp_arr = httpRequest.responseText;
-            // console.log(resp_arr);
-            // document.getElementById('bokeh-iframe').contentWindow.location.reload();
-            // document.getElementById('bokeh-iframe').style.display = "none";
+
             var allData = JSON.parse(resp_arr);
             console.log(allData);
-            draw_scatter(allData[0], '#bokeh-div');
-            draw_summary(allData[2],  allData[3], '#summary-div');
+            // draw_scatter(allData[0], '#bokeh-div');
+            draw_summary(allData[2],  allData[3], '#summary-div-1');
             //console.log(allData[1]);
             left_mask = allData[1];
             right_mask = allData[4];
@@ -446,33 +456,15 @@
       // Style and send request for PCA and tSNE buttons
       function buttonRequest(elem) {
 
-        // if (elem.id == "key-button") {
+        // if (elem.id == "pca-button") {
         //   elem.style.backgroundColor = dark_shade;
-        //   var c_but = document.getElementById('chg-button');
+        //   var c_but = document.getElementById('tsne-button');
         //   c_but.style.backgroundColor = light_shade;
         // }
-        // else if (elem.id == "chg-button") {
+        // else if (elem.id == "tsne-button") {
         //   elem.style.backgroundColor = dark_shade;
-        //   var c_but = document.getElementById('key-button');
+        //   var c_but = document.getElementById('pca-button');
         //   c_but.style.backgroundColor = light_shade;
-        // }
-        if (elem.id == "pca-button") {
-          elem.style.backgroundColor = dark_shade;
-          var c_but = document.getElementById('tsne-button');
-          c_but.style.backgroundColor = light_shade;
-        }
-        else if (elem.id == "tsne-button") {
-          elem.style.backgroundColor = dark_shade;
-          var c_but = document.getElementById('pca-button');
-          c_but.style.backgroundColor = light_shade;
-        }
-        // else if (elem.id == "direction-button") {
-        //   if (elem.style.backgroundColor == dark_shade){
-        //     elem.style.backgroundColor = light_shade;
-        //   }
-        //   else{
-        //     elem.style.backgroundColor = dark_shade;
-        //   }   
         // }
 
         resetFeatures();
@@ -763,32 +755,17 @@
       // Reset button
       function resetFeatures() {
 
-        selected_fts = [-1];
-        curr_alg = "True";
-        dim_red = "TSNE";
-        directionality = "True";
-        
-
+        selected_fts = [-1];        
         confusion_mat[filter_set_idx] = ["TP", "FP", "TN", "FN"];
         pred_range[filter_set_idx] = [0,100];
         doing_comparison = 0;
         reset_ft_curr_ranges(filter_set_idx);
 
-        document.getElementById("feature-dropdown").value = "init";
-        document.getElementById("feature-range-slider-div").innerHTML = "Feature range slider";
-        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
+        document.getElementById("feature-dropdown-1").value = "init";
+        document.getElementById("feature-range-slider-div-1").innerHTML = "Feature range slider";
+        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), 1);
 
         // confusion_restart[filter_set_idx] = true;
-
-        // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
-        //   curr_alg = "False";
-        // }
-        if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
-          dim_red = "PCA";
-        }
-        // if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
-        //   directionality = "True";
-        // }
         
         if (!cold_start){
           for (i=0; i<no_features; i++){
@@ -806,16 +783,6 @@
         directionality = "True";
 
         // console.log(elemn.attributes.id.nodeValue.toString().substring(5));
-
-        // if (document.getElementById("chg-button").style.backgroundColor == dark_shade) {
-        //   curr_alg = "False";
-        // }
-        if (document.getElementById("pca-button").style.backgroundColor == dark_shade) {
-          dim_red = "PCA";
-        }
-        // if (document.getElementById("direction-button").style.backgroundColor == dark_shade) {
-        //   directionality = "True";
-        // }
 
         var index = selected_fts.indexOf(-1);
         if (index > -1) {
@@ -855,31 +822,6 @@
       function begin_glob(){
 
         var right = document.getElementById("demo");
-        var k_btn = document.createElement("button");
-        var c_btn = document.createElement("button");
-        var pca_btn = document.createElement("button");
-        var tsne_btn = document.createElement("button");
-        var dir_btn = document.createElement("button");
-
-        // k_btn = document.getElementById("key-button");
-        // k_btn.onclick = function(){buttonRequest(this);};
-        // k_btn.style.backgroundColor = light_shade;
-
-        // c_btn = document.getElementById("chg-button");
-        // c_btn.onclick = function(){buttonRequest(this);};
-        // c_btn.style.backgroundColor = dark_shade;
-
-        pca_btn = document.getElementById("pca-button");
-        pca_btn.onclick = function(){buttonRequest(this);};
-        pca_btn.style.backgroundColor = dark_shade;
-
-        tsne_btn = document.getElementById("tsne-button");
-        tsne_btn.onclick = function(){buttonRequest(this);};
-        tsne_btn.style.backgroundColor = light_shade;
-
-        // dir_btn = document.getElementById("direction-button");
-        // dir_btn.onclick = function(){buttonRequest(this);};
-        // dir_btn.style.backgroundColor = dark_shade;
 
         median_btn = document.getElementById("median-button");
         median_btn.onclick = function(){projButtonRequest(this);};
@@ -897,34 +839,12 @@
         cf_btn.onclick = function(){projButtonRequest(this);};
         cf_btn.style.backgroundColor = dark_shade;
 
-        // var reset = document.createElement("button");
-        // reset.innerHTML = "Reset";
-        // reset.id = "reset-button";
-        reset = document.getElementById("reset-button-proj");
-        reset.onclick = function(){ resetFeatures(); };
-        // document.getElementById("middle-panel-proj").append(reset);
+        // reset = document.getElementById("reset-button-proj");
+        // reset.onclick = function(){ resetFeatures(); };
 
-        // ft_list();
+        addFilterSet();
 
-        // var mySlider = new rSlider({
-        //   target: '#pred-range-slider',
-        //   width: 200,
-        //   values: {min: 0, max: 100},
-        //   range: true,
-        //   tooltip: true,
-        //   scale: false,
-        //   labels: false,
-        //   step: 1,
-        //   set: [0, 100],
-        //   onChange: function (vals) {
-        //     console.log(vals);
-        //     pred_range[filter_set_idx]=[vals];
-        //     makeScatterRequest();
-        //   }
-        // });
-
-        // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
-        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
+        // draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
       }
 
       function checkTrigger(elem) {
@@ -945,23 +865,21 @@
 
       function matrixTrigger(checked, text){
         // when restarted, all boxes are checked, click selects ONLY one
-        if (confusion_restart() == true){
-          // confusion_restart[filter_set_idx] = false;
-          console.log("AAA", confusion_mat[filter_set_idx]);
-          confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
-          console.log("AAA", confusion_mat[filter_set_idx]);
-          var local = ["TP", "FP", "TN", "FN"];
-          local.splice(local.indexOf(text), 1);
-          for (var k=0; k<local.length; k++){
-            var button_id = "#" + local[k] + "-button";
-            console.log(button_id);
-            d3.select(button_id).dispatch('click');
-            // document.getElementById(button_id).onclick();
-          }
-          d3.select("#" + text + "-button").dispatch('click');
-          return;
+        // if (confusion_restart() == true){
+        //   // confusion_restart[filter_set_idx] = false;
+        //   confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
+        //   var local = ["TP", "FP", "TN", "FN"];
+        //   local.splice(local.indexOf(text), 1);
+        //   for (var k=0; k<local.length; k++){
+        //     var button_id = "#" + local[k] + "-button";
+        //     console.log(button_id);
+        //     d3.select(button_id).dispatch('click');
+        //     // document.getElementById(button_id).onclick();
+        //   }
+        //   d3.select("#" + text + "-button").dispatch('click');
+        //   return;
           
-        }
+        // }
         if (checked == true){
           console.log(checked);
           confusion_mat[filter_set_idx].push(text);
@@ -984,12 +902,23 @@
           document.getElementById("compare-dropdown").value = "init";
           doing_comparison = 0;
           // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
-          document.getElementById("feature-dropdown").value = "init";
+          document.getElementById("feature-dropdown-1").value = "init";
           document.getElementById("feature-range-slider-div").innerHTML = "Feature range slider";
           draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
           makeScatterRequest();
           // displayCachedFilterResults(idx);
         }
+      }
+
+      function addFilterSet(idx){
+
+        n_filter_sets+=1;
+
+        document.getElementById("filter-sets-table").getElementsByTagName("tbody")[0].insertBefore(create_filter_set(n_filter_sets), 
+          document.getElementById("tr-new-filter-set-button"));
+
+        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), n_filter_sets);
+      
       }
 
       function compareTrigger(trigger_dropdown){

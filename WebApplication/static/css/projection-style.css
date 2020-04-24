@@ -1267,7 +1267,7 @@ table #model-display {
   width: 400px;
 }
 
-#reset-button-proj {
+.reset-button-proj {
     border: 1px solid black;
     color: black;
     padding: 4px 15px;
@@ -1289,7 +1289,7 @@ table #model-display {
     font-family: Open Sans, sans-serif;
 }
 
-#reset-button-proj:focus {
+.reset-button-proj:focus {
     /*background-color: gray;*/
     outline: none;
 }
@@ -1403,13 +1403,13 @@ table #model-display {
 
 #table-div {
   margin-top: 0px;
-  width: 600px;
+  width: 700px;
   height: 300px;
   padding-top: 0px;
   display: inline-block;
-  float: right;
+  /*float: right;*/
   border: 0px solid lightgray;
-  margin-left: 15px;
+  /*margin-left: 15px;*/
 }
 
 
