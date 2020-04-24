@@ -6,86 +6,45 @@ from utils import *
 from global_explanations import *
 
 
-def prep_histo_data(data,ranges, samples = []):
+def prep_histo_data(data_dict, no_bins = 10):
+  no_ft = len(data_dict[0])
+  col_bins =  [list(np.zeros((no_bins,))) for i in range(no_ft)]
+  med_lsts = empty_lists = [[] for i in range(no_ft)]  # Add up the values for each column
 
-  no_samp, no_feat = data.shape
-  no_bins = ranges.shape[1]
+  for sample in data_dict:
+    for c in range(len(sample)):
+      one_ft = sample[c]
+      scl_val = one_ft["scl_val"]
+      med_lsts[c].append(scl_val)
+      
+      for b in range(no_bins):
+        floor = round((0 + b*0.1),2)
+        ceil = round((0.1 + b*0.1),2)
 
-  result = []
-
-  for c in range(no_feat):
-    col = data[:,c]
-    col_range = ranges[c]
-
-    col_bins =  list(np.zeros((no_bins,)))
-
-
-    # ---- OPTION 1: Generate histogram for all datapoints ----
-    if samples == []:   # OPTION 1: Generate histogram for all datapoints
-
-      for s in range(no_samp):
-        sample = col[s]
-
-        for b in range(no_bins):
-          
-          floor = ranges[c][b][0]
-          ceil = ranges[c][b][1]
-
-          if (b == 0 and sample < ceil): #Edge case first bin
-            col_bins[0] += 1
-            break
-
-          elif (b == (no_bins-1)):  #Edge case last bin
-            col_bins[no_bins-1] += 1
-            break
-
-          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
-            col_bins[b] += 1
-            break
-
-          elif ((sample >= floor) and (sample < ceil)):
-            col_bins[b] += 1
-            break
+        if (scl_val < ceil) and (scl_val >= floor):
+          # print(scl_val, floor, ceil, b)
+          col_bins[c][b] += 1
+          break
 
 
-    # ---- OPTION 2: Generate histogram for specific datapoints ----
-    else:
-      for s in samples:
-        sample = col[s]
-
-        for b in range(no_bins):
-          
-          floor = ranges[c][b][0]
-          ceil = ranges[c][b][1]
-
-          if (b == 0 and sample < ceil): #Edge case first bin
-            col_bins[0] += 1
-            break
-
-          elif (b == (no_bins-1)):  #Edge case last bin
-            col_bins[no_bins-1] += 1
-            break
-
-          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
-            col_bins[b] += 1
-            break
-
-          elif ((sample >= floor) and (sample < ceil)):
-            col_bins[b] += 1
-            break
+  # --- Normalize Histogram ---
+  for cb in range(len(col_bins)):
+    highest_count = np.amax(col_bins[cb])
+    col_bins[cb] = list(np.round(col_bins[cb]/highest_count, 3))
 
 
-      # --- Normalize Histogram ---
+  # --- Calculate Median  ---
+  med_result = []
 
-    highest_count = np.amax(col_bins) 
-    col_bins = list(col_bins/highest_count)
-    result.append(col_bins)
+  for med_col in med_lsts:
+    med = np.median(med_col)
+    med_result.append(med)
+  #   highest_count = np.amax(col_bins) 
+  #   col_bins = list(col_bins/highest_count)
+  #   result.append(col_bins)
+  # print(col_bins)
+  return col_bins, med_result
 
-  return result
-
-
-
-# def prep_feature_selector_w_hist(feature_no, names, all_den, ranges, init = None):
 
 
 def prep_percentage_filter(metadata, no_bins, samples = []):
@@ -175,6 +134,7 @@ def prep_confusion_matrix(metadata, samples = []):
       elif val == "FN":
         fn += 1
 
+
   # ---- OPTION 2: Select datapoints ----
   else:
     for s in samples:
@@ -191,10 +151,6 @@ def prep_confusion_matrix(metadata, samples = []):
 
   result = {"tp":tp, "fp":fp, "tn":tn, "fn":fn}
   return result
-
-
-
-
 
 
 
@@ -224,6 +180,7 @@ def prep_filter_summary(points, no_samples):
   return result
 
 
+
 def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
   out_dict = {}
   # out_dict["name"] = '\"' + names[feature_no] + '\"'
@@ -250,6 +207,7 @@ def prep_feature_selector(feature_no, names, all_den, ranges, init = None):
     out_dict["current"] = init
 
   return out_dict
+
 
 
 def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, percent, names, apply_monot, monot_array, locked_fts=[]):
@@ -339,7 +297,8 @@ def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, per
     return data
 
 
-def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions,sort = False):
+
+def prep_for_D3_aggregation(metadata,X,names,samples,bins_centred,positions,sort = False):
 
   # --- Hardcoded Parameters --- 
   no_anchs = 4
@@ -349,8 +308,6 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
   # --- Constants --- 
   no_samp = X.shape[0]
   no_feat = X.shape[1]
-
-  pre_data = pd.read_csv(pre_proc_file, index_col=False).values
 
   final_data = []
 
@@ -363,7 +320,7 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
       result["sample"] = str(s+1)
       result["incr"] = 0 
 
-      if pre_data[s][1] > 0.5:
+      if metadata[s][1] > 0.5:
         result["dec"] = 1
       else:
         result["dec"] = 0
@@ -373,16 +330,16 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
 
       # -- Identify Anchors --
       for an in range(start_col,start_col+no_anchs):
-        col = pre_data[s][an]
+        col = metadata[s][an]
         if (i == col):
           result["anch"] = 1
 
       # -- Find Change -- 
       for a in range(start_col+no_anchs,start_col+no_anchs+no_changes):
-        col = pre_data[s][a]
+        col = metadata[s][a]
         if (i == col):
           idx = positions[s][col]
-          increments = pre_data[s][a+no_changes]
+          increments = metadata[s][a+no_changes]
           change = bins_centred[i][int(idx+increments)]
 
 
@@ -448,5 +405,88 @@ def prep_for_D3_aggregation(pre_proc_file,X,names,samples,bins_centred,positions
 
   else:
     return final_data.tolist()
+
+
+
+def prep_histo_data_old(data,ranges, samples = []):
+
+  no_samp, no_feat = data.shape
+  no_bins = ranges.shape[1]
+
+  result = []
+
+  for c in range(no_feat):
+    col = data[:,c]
+    col_range = ranges[c]
+
+    col_bins =  list(np.zeros((no_bins,)))
+
+
+    # ---- OPTION 1: Generate histogram for all datapoints ----
+    if samples == []:   # OPTION 1: Generate histogram for all datapoints
+
+      for s in range(no_samp):
+        sample = col[s]
+
+        for b in range(no_bins):
+          
+          floor = ranges[c][b][0]
+          ceil = ranges[c][b][1]
+
+          if (b == 0 and sample < ceil): #Edge case first bin
+            col_bins[0] += 1
+            break
+
+          elif (b == (no_bins-1)):  #Edge case last bin
+            col_bins[no_bins-1] += 1
+            break
+
+          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
+            col_bins[b] += 1
+            break
+
+          elif ((sample >= floor) and (sample < ceil)):
+            col_bins[b] += 1
+            break
+
+
+    # ---- OPTION 2: Generate histogram for specific datapoints ----
+    else:
+      for s in samples:
+        sample = col[s]
+
+        for b in range(no_bins):
+          
+          floor = ranges[c][b][0]
+          ceil = ranges[c][b][1]
+
+          if (b == 0 and sample < ceil): #Edge case first bin
+            col_bins[0] += 1
+            break
+
+          elif (b == (no_bins-1)):  #Edge case last bin
+            col_bins[no_bins-1] += 1
+            break
+
+          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
+            col_bins[b] += 1
+            break
+
+          elif ((sample >= floor) and (sample < ceil)):
+            col_bins[b] += 1
+            break
+
+
+      # --- Normalize Histogram ---
+
+    highest_count = np.amax(col_bins) 
+    col_bins = list(col_bins/highest_count)
+    result.append(col_bins)
+
+  return result
+
+
+
+
 
 

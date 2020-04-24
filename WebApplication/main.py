@@ -171,16 +171,16 @@ def init_data(dataset):
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 	
 	# --- Tests ---
-
+	test_samp = [x for x in range(100)]
+	aggr_tests = prep_for_D3_aggregation(metadata, data, feature_names, test_samp , bins_centred, X_pos_array, False)
+	histz, medz = prep_histo_data(aggr_tests)
+	# print(aggr_tests)
+	# histz, medz = prep_histo_data(data, col_ranges, test_samp)
 	# prep_histo_data(data,col_ranges)
 
 
 
 	all_params = {
-		# data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, projection_anchs_path, no_bins, df, model_path, density_fineness,
-		# categorical_cols, monotonicity_arr, feature_names, all_data, data, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals,
-		# col_ranges, all_den, all_median, all_mean, dict_array, dict_array_orig
-
 		'data_name': data_name,
 		'lock': lock,
 		'folder_path': folder_path,
@@ -436,8 +436,8 @@ def scatter_request():
 				else:
 					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
 
-			print ("FILTER DICT")
-			print(filter_dict)
+			# print ("FILTER DICT")
+			# print(filter_dict)
 			# if (len(filter_dict["3"]) == 0):
 			# 	filter_dict["3"]
 				
@@ -464,7 +464,7 @@ def scatter_request():
 					filter_lst.append(single_filter)
 
 
-			print("FILTER LIST", filter_lst) # This needs to go to D3 filter selector as input
+			# print("FILTER LIST", filter_lst) # This needs to go to D3 filter selector as input
 
 
 
@@ -544,7 +544,7 @@ def violin_site_req():
 				print("NOT DOING COMP")
 				# -- One Example Version --
 				select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples_1, feature_names, density_fineness)
-				aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples_1, bins_centred, X_pos_array, sort_toggle)
+				aggr_data = prep_for_D3_aggregation(metadata, data, feature_names, proj_samples_1, bins_centred, X_pos_array, sort_toggle)
 				ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
 
 
@@ -560,14 +560,17 @@ def violin_site_req():
 				first_samples = proj_samples_1
 				second_samples = proj_samples_2 
 
-				sel_den1, sel_median1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
-				sel_den2, sel_median2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
+				sel_den1, sel_medz1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
+				sel_den2, sel_medz2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
 
-				sel_hist1 = prep_histo_data(data,col_ranges,first_samples)
-				sel_hist2 = prep_histo_data(data,col_ranges,second_samples)
+				aggr_data1 = prep_for_D3_aggregation(metadata, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
+				aggr_data2 = prep_for_D3_aggregation(metadata, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
 
-				aggr_data1 = prep_for_D3_aggregation(preproc_path, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
-				aggr_data2 = prep_for_D3_aggregation(preproc_path, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
+				sel_hist1,sel_median1 = prep_histo_data(aggr_data1)
+				sel_hist2,sel_median2 = prep_histo_data(aggr_data2)
+
+				# print(len(sel_hist1)
+
 
 				ret_string = json.dumps([aggr_data1, aggr_data2, sel_hist1, sel_hist2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
 				# ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])

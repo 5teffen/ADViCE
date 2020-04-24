@@ -35,7 +35,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         return mask;
     }
 
-    function stagger_val(x,y,radius){
+    function stagger_val2(x,y,radius){
         // output = Math.sqrt(-2*log(Math.random()))*cos(2*Math.PI*Math.random())
         // radius = 2;
         angle = 2*Math.PI*Math.random();
@@ -45,6 +45,17 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
         return [x_out, y_out]
     }   
+
+    function stagger_val(x,y,radius){
+            dx = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());
+            dy = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());angle = 2*Math.PI*Math.random();
+            x_out = x + dx;
+            y_out = y + dy;
+
+            return [x_out, y_out]
+    }
+
+    
 
     function draw_triangle(data) {
         var full_string = "";
@@ -82,21 +93,23 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
     // --- Metadata about the sets --- 
     var no_features = complete_data[0].data[0].length, // Assumes they all match
-        no_bins = complete_data[0].den.length,  // Assumes they all match
+        no_bins = complete_data[0].den[0].length,  // Assumes they all match
         no_samples_lst = [],
         pt_opp_lst = [];
+
+    console.log(no_bins);
 
     for (i=0; i<no_sets;i++){
         no_samp = complete_data[0].data.length;
         no_samples_lst.push(no_samp);
-        pt_opp_lst.push((1/no_samp)*30);
+        pt_opp_lst.push((1/no_samp)*50);
     }
 
 
     // --- Point related variables --- 
     var points_col = "#67a9cf",
         point_size = 2,
-        stagger_r = 5;
+        stagger_r = 3;
 
 
     // --- Color related variables ---
@@ -139,7 +152,7 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
     // --- Creating Scales based on canvas --- 
     var xScale = d3.scaleBand()
-            .domain(testData.map(function(d){return d.name;}))
+            .domain(single_data_point.map(function(d){return d.name;}))
             .rangeRound([0, width])
             .paddingInner(separator),
         
@@ -162,19 +175,6 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         xDenScale = d3.scaleLinear()
             .domain([0, 1])
             .rangeRound([0,bandwidth/no_sets - 5]);
-
-
-
-    // TO REMOVE!
-    var features = leftData[0].length,  // Assumes left/right match
-        no_bins = rightDen[0].length,
-        no_samp_r = rightData.length,   
-        no_samp_l = leftData.length;   
-
-    var point_opp_l = (1/no_samp_l)*30;
-    point_opp_r = (1/no_samp_r)*30;
-
-
 
 
     // --- Creating base SVG --- 
@@ -221,13 +221,13 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
 
-
     // ======= Density Distribution ======= 
     var single_bw = bandwidth/no_sets,
     start_point = single_bw/2,
 
-    histo_bin_h = (height/no_bins)+1;
+    histo_bin_h = (height/no_bins);
 
+    var point_shift = histo_bin_h/2;
 
     for (s=0 ; s < no_sets; s++) {
 
@@ -283,8 +283,12 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                     .append("line")
                     .attr("class","split_lines")
                     .attr("x1",centre - tick_size/2)
-                    .attr('y1',function(d){return yScale(this_med[ind]);})
-                    .attr("y2",function(d){return yScale(this_med[ind]);})
+                    .attr('y1',function(){
+                        if (discrete_mask[ind]==1) {return yScale(this_med[ind])-point_shift}
+                        else {return yScale(this_med[ind]);}})
+                    .attr('y2',function(){
+                        if (discrete_mask[ind]==1) {return yScale(this_med[ind])-point_shift}
+                        else {return yScale(this_med[ind]);}})
                     .attr("x2",centre + tick_size/2)
                     .style("stroke",den_colour)
                     .style("stroke-opacity",1)
@@ -345,14 +349,15 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
                     d = oneData[i];
                     x = xScale(d.name);
                     y = yScale(d.scl_val);
-                    xy = stagger_val(x,y,stagger_r);
+                    y_shift = yScale(d.scl_val)-point_shift;
+                    xy = stagger_val(x,y_shift,stagger_r);
 
                     shift_svg.append("g")
                     .append("circle")
                     .attr("r", point_size)
                     .attr("cx", function(){
                         if (discrete_mask[i]==1){return xy[0];}
-                        else{return x;}})
+                        else{return xy[0];}})
                     .attr("cy", function(){
                         if (discrete_mask[i]==1){return xy[1];}
                         else{return y;}})
