@@ -37,7 +37,7 @@
     <script type="text/javascript" src="static/js/filter_selector.js"></script>
     <script type="text/javascript" src="static/js/percentage_filter.js"></script>
     <script type="text/javascript" src="static/js/feature_selector.js"></script>
-    <script type="text/javascript" src="static/js/basic_comparison.js"></script>
+    <script type="text/javascript" src="static/js/advanced_comparison.js"></script>
 
   </head>
 
@@ -113,11 +113,12 @@
         <div id="right-panel-proj">
           <table class="proj-table">
             <tr>
-              <th colspan="1" style="border-radius: 1px; width: 227px">
+              <th colspan="1" style="border-radius: 1px; width: 280px">
                 <div class="btn-group-proj" >
                   <button id="median-button" class="proj-button"> Median </button>
-                  <button id="mean-button" class="proj-button"> Mean </button>
+                  <button id="points-button" class="proj-button"> Points </button>
                   <button id="density-button" class="proj-button"> Density </button>
+                  <button id="cf-button" class="proj-button"> CF </button>
                 </div>
               </th>
               <th colspan="1" style="border-radius: 1px;">
@@ -219,10 +220,10 @@
       reset_ft_curr_ranges(1);
       reset_ft_curr_ranges(2);
 
-      console.log("FT names:", ft_names);
-      console.log("FT selector input:", feature_selector_input);
-      console.log("FT current ranges:", ft_curr_range);
-      console.log("Percentage filter input:", percentage_filter_input);
+      // console.log("FT names:", ft_names);
+      // console.log("FT selector input:", feature_selector_input);
+      // console.log("FT current ranges:", ft_curr_range);
+      // console.log("Percentage filter input:", percentage_filter_input);
       
       function reset_ft_curr_ranges (idx){
         // Generalize to many filter sets later
@@ -263,7 +264,9 @@
         if (curr_matrix.length > 0){
           curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
         }
-        confusion_matrix("#confusion-matrix-filter-div", conf_mat_state);
+
+        var example_data = {'tn': 109, 'fp': 29, 'tp': 148, 'fn': 17};
+        confusion_matrix("#confusion-matrix-filter-div", conf_mat_state, example_data);
 
         // Percentage Filter
         var curr_percentage = document.getElementsByClassName("percentageBar");
@@ -555,11 +558,14 @@
             // --- Toggle Median Marker ---
             var median_toggle = (document.getElementById("median-button").style.backgroundColor == dark_shade);
 
-            // --- Toggle Mean Marker ---
-            var mean_toggle = (document.getElementById("mean-button").style.backgroundColor == dark_shade);
+            // --- Toggle Points ---
+            var points_toggle = (document.getElementById("points-button").style.backgroundColor == dark_shade);
 
             // --- Toggle Density --- 
             var density_toggle = (document.getElementById("density-button").style.backgroundColor == dark_shade);
+
+            // --- Toggle Density --- 
+            var cf_toggle = (document.getElementById("cf-button").style.backgroundColor == dark_shade);
 
             // --- Sort Features --- 
 
@@ -572,19 +578,17 @@
 
 
             if (doing_comparison == 0){
-              console.log("drawing violin aggr");
               draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
-                median_toggle, mean_toggle, density_toggle);
+                median_toggle, points_toggle, density_toggle,cf_toggle);
               
             }
 
 
             else{
               // OSCAR: This is the comparison call
-              console.log("drawing violin comparison");
               draw_comparison(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5]
                 , "#distribution-div",
-                median_toggle, density_toggle, mean_toggle);
+                median_toggle, density_toggle, points_toggle,cf_toggle);
               
             }
 
@@ -881,13 +885,17 @@
         median_btn.onclick = function(){projButtonRequest(this);};
         median_btn.style.backgroundColor = dark_shade;
 
-        mean_btn = document.getElementById("mean-button");
-        mean_btn.onclick = function(){projButtonRequest(this);};
-        mean_btn.style.backgroundColor = dark_shade;
+        points_btn = document.getElementById("points-button");
+        points_btn.onclick = function(){projButtonRequest(this);};
+        points_btn.style.backgroundColor = dark_shade;
 
         density_btn = document.getElementById("density-button");
         density_btn.onclick = function(){projButtonRequest(this);};
         density_btn.style.backgroundColor = dark_shade;
+
+        cf_btn = document.getElementById("cf-button");
+        cf_btn.onclick = function(){projButtonRequest(this);};
+        cf_btn.style.backgroundColor = dark_shade;
 
         // var reset = document.createElement("button");
         // reset.innerHTML = "Reset";

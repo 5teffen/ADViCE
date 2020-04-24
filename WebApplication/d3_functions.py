@@ -88,37 +88,114 @@ def prep_histo_data(data,ranges, samples = []):
 # def prep_feature_selector_w_hist(feature_no, names, all_den, ranges, init = None):
 
 
-def prep_percentage_filter(metadata, no_bins):
+def prep_percentage_filter(metadata, no_bins, samples = []):
   result = np.zeros((no_bins,))
   one_bin = 100/no_bins
 
-  for i in range(metadata.shape[0]):
-    perc = metadata[i][1]*100
+  # ---- OPTION 1: Generate histogram for all datapoints ----
+  if samples == []:  
+    for i in range(metadata.shape[0]):
+      perc = metadata[i][1]*100
 
-    floor = 0
-    ceil = one_bin
+      floor = 0
+      ceil = one_bin
 
-    for b in range(no_bins):
-      # -- Edge Cases -- 
-      if (b == 0 and perc < one_bin):
-        result[0] += 1
-        break
+      for b in range(no_bins):
+        # -- Edge Cases -- 
+        if (b == 0 and perc < one_bin):
+          result[0] += 1
+          break
 
-      elif (b == (no_bins-1)):
-        result[no_bins-1] += 1
-        break
+        elif (b == (no_bins-1)):
+          result[no_bins-1] += 1
+          break
 
-      elif ((perc >= floor) and (perc < ceil)):
-         result[b] += 1
-         break
-     
-      floor += one_bin
-      ceil += one_bin
+        elif ((perc >= floor) and (perc < ceil)):
+           result[b] += 1
+           break
+       
+        floor += one_bin
+        ceil += one_bin
 
-  # -- Scale the bins --
-  highest_count = np.amax(result) 
-  result = result/highest_count
+    # -- Scale the bins --
+    highest_count = np.amax(result)      
+    result = (result/highest_count).tolist()
+    return result
+
+
+  # ---- OPTION 2: Generate histogram for specific datapoints ----
+  else:
+    for s in samples:
+      perc = metadata[s][1]*100
+
+      floor = 0
+      ceil = one_bin
+
+      for b in range(no_bins):
+        # -- Edge Cases -- 
+        if (b == 0 and perc < one_bin):
+          result[0] += 1
+          break
+
+        elif (b == (no_bins-1)):
+          result[no_bins-1] += 1
+          break
+
+        elif ((perc >= floor) and (perc < ceil)):
+           result[b] += 1
+           break
+       
+        floor += one_bin
+        ceil += one_bin
+
+    # -- Scale the bins --
+    highest_count = np.amax(result)      
+    result = (result/highest_count).tolist()
+    return result
+
+
+
+def prep_confusion_matrix(metadata, samples = []):
+
+  tp = 0
+  fp = 0 
+  tn = 0
+  fn = 0
+
+  # ---- OPTION 1: All datapoints ----
+  if samples == []:
+    for s in range(metadata.shape[0]):
+      val = metadata[s][2]
+      if val == "TP":
+        tp += 1
+      elif val == "FP":
+        fp += 1 
+      elif val == "TN":
+        tn += 1 
+      elif val == "FN":
+        fn += 1
+
+  # ---- OPTION 2: Select datapoints ----
+  else:
+    for s in samples:
+      val = metadata[s][2]
+      if val == "TP":
+        tp += 1
+      elif val == "FP":
+        fp += 1 
+      elif val == "TN":
+        tn += 1 
+      elif val == "FN":
+        fn += 1
+
+
+  result = {"tp":tp, "fp":fp, "tn":tn, "fn":fn}
   return result
+
+
+
+
+
 
 
 def prep_filter_summary(points, no_samples):
