@@ -5,7 +5,7 @@
 
 
 
-function percentage_bar(elem, state, histoData) {
+function percentage_bar(elem, state, histoData, idx) {
 
 	// var histoData = [0.2,0.3,0.5,0.6,0.9,0.9,0.8,0.3,0.2,0.2,0.5,0.5,0.6,0.1,0.3,0.7]
 
@@ -179,6 +179,8 @@ function percentage_bar(elem, state, histoData) {
 	        else {x = new_x;}
 
 	        var selection = d3.select(this)
+
+	        // console.log("CALLING DRAG:", this);
 	        
 	    	var id = selection.attr("id");
 	    	// console.log(cur_high);
@@ -254,10 +256,12 @@ function percentage_bar(elem, state, histoData) {
 			out_high = cur_high;
 			out_low = cur_low;
 			console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
+			filter_set_idx = this.dataset.filteridx;
 			pred_range[filter_set_idx]=[out_low,out_high];
     		makeScatterRequest();
     		console.log("LOW:",	out_low);
     		console.log("HIGH:", out_high);
+    		// console.log(this);
 
 
 		});
@@ -270,6 +274,7 @@ function percentage_bar(elem, state, histoData) {
 	    .append("rect")
 	    .attr("class","slider")
 	    .attr("id", "slide1")
+	    .attr("data-filteridx", idx.toString())
 	    .attr('x',xScale(start))
 	    .attr('y',-2.5)
 	    .attr("height",slide_h)
@@ -287,6 +292,7 @@ function percentage_bar(elem, state, histoData) {
 	    .append("rect")
 	    .attr("class","slider")
 	    .attr("id", "slide2")
+	    .attr("data-filteridx", idx.toString())
 	    .attr('x',xScale(end))
 	    .attr('y',-2.5)
 	    .attr("height",slide_h)

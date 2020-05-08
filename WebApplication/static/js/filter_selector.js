@@ -26,6 +26,10 @@ filter_data = [[1,{low: 10, high:50}], [2,{tp:1, fp:0 ,fn:0 ,tn:1}],
 
 function draw_summary(data, filData, place) {
 
+    // console.log("DRAW SUMMARY");
+    // console.log(data);
+    // console.log(filData);
+    // console.log(place);
 
     // --- Colour parameters --- 
     var bad_col = "#d95f02",

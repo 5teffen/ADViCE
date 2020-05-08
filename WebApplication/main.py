@@ -490,7 +490,7 @@ def scatter_request():
 			jsmask1.extend(jsmask2)
 
 			if idx_k == 0:
-				ret_string = [result, jsmask1, summary, filter_lst, "null"]
+				ret_string = [result, jsmask1, summary, filter_lst, "null", "null", "null"]
 				if doing_comparison:
 					confusion_mat = confusion_mat_2
 					pred_range = pred_range_2
@@ -498,7 +498,9 @@ def scatter_request():
 					modified_range_idx = modified_range_idx_2
 					ft_curr_range = ft_curr_range_2
 			else:
-				ret_string[-1] = jsmask1
+				ret_string[4] = jsmask1
+				ret_string[5] = summary
+				ret_string[6] = filter_lst
 				
 
 		return json.dumps(ret_string)

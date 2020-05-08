@@ -296,7 +296,7 @@
         if (curr_percentage.length > 0){
           curr_percentage[0].parentNode.removeChild(curr_percentage[0]);
         }
-        percentage_bar("#percentage-filter-div-"+idx.toString(), pred_range[filter_set_idx], percentage_filter_input);
+        percentage_bar("#percentage-filter-div-"+idx.toString(), pred_range[filter_set_idx], percentage_filter_input, idx);
 
         // Feature selector dropdown
         var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option-"+idx.toString());
@@ -356,28 +356,18 @@
           return false;
         }
         
+        // selected features
         req_arr = [];
-        //console.log(selected_fts);
-        //console.log(ft_names);
 
+        if (n_filter_sets > 1){
+          doing_comparison = 1;
 
-        if (selected_fts[0] == -1){
-          req_arr.push(-1);
         }
-        else {
-          for (i=0; i<selected_fts.length; i++) {
-            ft_nm = document.getElementById("feat-" + selected_fts[i].toString()).innerHTML;
-            console.log(ft_nm);
-            // req_arr.push(ft_names.indexOf(selected_fts[i].innerHTML));
-            console.log((ft_names.indexOf(ft_nm)));
-            req_arr.push(ft_names.indexOf(ft_nm));
-            // selected_fts[i].style.fontSize = "15px";
-            document.getElementById("feat-" + selected_fts[i].toString()).style.fontWeight = "bold"; 
-          }
-        }
-
+        
         // If not doing comparison
         if (doing_comparison == 0){
+          // TODO: make sure indexes are correct
+          filter_set_idx = 1;
 
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx = [];
@@ -398,6 +388,9 @@
         // If doing comparison
         // Repeat for both filter sets filter_set_idx and filter_set_idx_cmp
         else {
+          filter_set_idx = 1;
+          filter_set_idx_cmp = 2;
+
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx_1 = [];
           var modified_range_idx_2 = [];
@@ -425,6 +418,7 @@
         if (httpRequest.readyState === XMLHttpRequest.OPENED){
           document.getElementById("middle-panel-proj").style.display = "inline-block";
           document.getElementById("summary-div-1").innerHTML = "";
+          if (n_filter_sets>1){ document.getElementById("summary-div-2").innerHTML = "";}
           // add_loader(document.getElementById("middle-panel-proj"));    
         }
 
@@ -437,7 +431,15 @@
             var allData = JSON.parse(resp_arr);
             console.log(allData);
             // draw_scatter(allData[0], '#bokeh-div');
-            draw_summary(allData[2],  allData[3], '#summary-div-1');
+            // TODO: Do summary for matrix in place, and in correct index for the rest
+            if (doing_comparison==0){
+              draw_summary(allData[2],  allData[3], '#summary-div-1');
+            }
+            else if (doing_comparison==1){
+              draw_summary(allData[2],  allData[3], '#summary-div-1');
+              draw_summary(allData[5],  allData[6], '#summary-div-2');
+            }
+            
             //console.log(allData[1]);
             left_mask = allData[1];
             right_mask = allData[4];
