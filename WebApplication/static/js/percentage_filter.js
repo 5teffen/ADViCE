@@ -5,21 +5,21 @@
 
 
 
-function percentage_bar(place, data, histoData) {
+function percentage_bar(elem, state, histoData) {
 
 	// var histoData = [0.2,0.3,0.5,0.6,0.9,0.9,0.8,0.3,0.2,0.2,0.5,0.5,0.6,0.1,0.3,0.7]
 
 
 	//  --- Main Variables --- 
-	var start = data[0],
-		end = data[1],
+	var start = state[0],
+		end = state[1],
 
-		cur_low = data[0],    
-		cur_high = data[1],
+		cur_low = state[0],    
+		cur_high = state[1],
 
 
-		out_low = data[0],		// OSCAR: these two are the outputs. Current bar points
-		out_high = data[1];
+		out_low = state[0],		// OSCAR: these two are the outputs. Current bar points
+		out_high = state[1];
 
     // --- Establishing margins and canvas bounds --- 
     var margin = {
@@ -82,7 +82,7 @@ function percentage_bar(place, data, histoData) {
             .rangeRound([0, histo_h]);
 
 
-    var svg = d3.select(place)
+    var svg = d3.select(elem)
             .append("svg")
             .attr("width",width + margin.right + margin.left)
             .attr("height",height + margin.top + margin.bottom)
