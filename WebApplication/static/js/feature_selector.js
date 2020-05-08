@@ -17,7 +17,7 @@ function feature_selector(place, aFeature) {
 		section_sep = 10;
 
 
-    aFeature.den = [0.2,0.3,0.4,0.5,0.6,0.7,0.2,0.3,0.4]
+    aFeature.den = [0.2,0.3,0.4]
 
 	var fineness = aFeature.den.length;
 
@@ -34,7 +34,7 @@ function feature_selector(place, aFeature) {
         histo_bin_w = section_w/no_bins;
 
     // --- Slider Parameters --- 
-    var slide_w = 8,
+    var slide_w = 7,
     	slide_h = 20,
     	slide_curv = 1,
     	slide_col = "lightgrey",
@@ -47,6 +47,12 @@ function feature_selector(place, aFeature) {
     	lab_h = 17,
     	lab_col = "white",
     	lab_border = "black";
+
+    // --- Bar Parameters --- 
+    var bar_w = 150,
+        bar_h = 7,
+        select_col = "#7570b3",
+        base_col = "#cac7eb";
 
     
     // --- Establishing margins and canvas bounds --- 
@@ -107,6 +113,8 @@ function feature_selector(place, aFeature) {
         .attr("stroke-width",2)
         .attr("stroke","None");
 
+
+
 	    
 
 /* =================================================
@@ -134,6 +142,7 @@ function feature_selector(place, aFeature) {
 
 
 	var start_arr = aFeature.den.slice();
+
 
     // -- Section Boundary -- 
     svg.append("g")
@@ -176,7 +185,7 @@ function feature_selector(place, aFeature) {
 	min_x = 0,    // RISKY
 	max_x = section_w;
 
-	svg = svg.append("g").attr("transform","translate(" + (-slide_w/2) + ',' + 0 +')');
+    slide_shift = slide_w/2;
 
 	var drag = d3.drag()
 	    .on('drag', function() {
@@ -204,12 +213,20 @@ function feature_selector(place, aFeature) {
                 var avg_x = xRangeScale(Math.round(percentage*full_range));
 
 	    		out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
+
+                cur_l = avg_x;
 	    	  
 	    		d3.select("#llab").attr('x',avg_x-lab_shift);
 
 	    		d3.select("#lt-label")
 	    			.text(out_min.toString())
 	    			.attr('x',avg_x+text_shift)
+
+
+                d3.select("#ft_bar_selected")
+                    .attr("width", cur_r-cur_l)
+                    .attr("x", cur_l+slide_shift);
+
 
                 selection.attr('x',avg_x);
 
@@ -222,8 +239,9 @@ function feature_selector(place, aFeature) {
 	    		m2 = Math.round(percentage*100);
 	    		// density_curve(m1,m2);
 
-
                 var avg_x = xRangeScale(Math.round(percentage*full_range));
+
+                cur_r = avg_x;
 
 	    		out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    	
@@ -233,6 +251,9 @@ function feature_selector(place, aFeature) {
 	    		d3.select("#rt-label")
 		    		.text(out_max.toString())
 		    		.attr('x',avg_x+text_shift);
+
+                d3.select("#ft_bar_selected")
+                    .attr("width", cur_r-cur_l)
 
                 selection.attr('x',avg_x);
 
@@ -256,12 +277,46 @@ function feature_selector(place, aFeature) {
 
 		});
 
-
+    // svg_orig =svg;
     svg = svg.append("g").attr("transform","translate(" + 0 + ',' + (-10) +')');
-	// -- Slider section --
+
+    svg = svg.append("g").attr("transform","translate(" + (-slide_shift) + ',' + 0 +')');
+	
+
+    // -- Start/End coordinates --
 	var lstart = xScale(Math.round((init_start-start)/full_range));
     var rstart = xScale(Math.round((init_end-start)/full_range));
 
+    var cur_l = lstart;
+    var cur_r = rstart;
+
+
+
+    // === Bar Base === 
+    svg.append("g")
+        .append("rect")
+        .attr("class","bg")
+        .attr('x',slide_shift)
+        .attr('y',slide_h-bar_h-3)
+        .attr("height",bar_h)
+        .attr("width",bar_w)
+        .attr("fill",base_col)
+        .attr("stroke-width",0)
+        .attr("stroke","black");
+
+    svg.append("g")
+        .append("rect")
+        .attr("id","ft_bar_selected")
+        .attr('x',lstart+slide_shift)
+        .attr('y',slide_h-bar_h-3)
+        .attr("height",bar_h)
+        .attr("width",rstart-lstart)
+        .attr("fill",select_col)
+        .attr("stroke-width",0)
+        .attr("stroke","black");
+
+
+    // === Slider ===
     svg.append("g")
         .append("rect")
         .attr("class","slider")
