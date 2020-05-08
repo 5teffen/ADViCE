@@ -339,11 +339,6 @@ def scatter_request():
 			ft_list = [int(x) for x in ft_list]
 			ft_list.sort()
 			ret_arr = ids_with_combination(preproc_path,ft_list,anchs=False)
-
-		# False = changes, True = keyfts
-		algorithm = (request.args.get('algorithm') == "True")
-		dim_red = request.args.get('dim_red')
-		directionality = (request.args.get('directionality') == "True")
 		
 		confusion_mat_1 = request.args.get('confusion_mat_1').split(',')
 		pred_range_1 = request.args.get('pred_range_1').split(',')
@@ -362,7 +357,7 @@ def scatter_request():
 			temp_curr_range.append((ft_curr_range_1[idx], ft_curr_range_1[idx+1]))
 			idx += 2
 		ft_curr_range_1 = temp_curr_range
-		print ("FT CURR RANGE", ft_curr_range_1)
+		print ("FT CURR RANGES", ft_curr_range_1)
 
 		if doing_comparison:
 			confusion_mat_2 = request.args.get('confusion_mat_2').split(',')
@@ -372,7 +367,7 @@ def scatter_request():
 
 			if modified_range_idx_2[0]!='': modified_range_idx_2 = [int(x) for x in modified_range_idx_2] 
 			else: modified_range_idx_2 = []
-			print ("MODIFIED RANGE INDEXES", modified_range_idx_2)
+			print ("MODIFIED RANGE INDEXES CMP", modified_range_idx_2)
 			
 			ft_curr_range_2 = request.args.get('ft_curr_range_2').split(',')
 			ft_curr_range_2 = [int(x) for x in ft_curr_range_2]
@@ -382,18 +377,17 @@ def scatter_request():
 				temp_curr_range.append((ft_curr_range_2[idx], ft_curr_range_2[idx+1]))
 				idx += 2
 			ft_curr_range_2 = temp_curr_range
-			print ("FT CURR RANGE", ft_curr_range_2)
+			print ("FT CURR RANGE CMP", ft_curr_range_2)
 
 
 		# Feature Selector Pre-Logic
 		# ft_range = [50,85]
 		# ft_idx = 1   # Zero-indexed
 
-
 		#show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 		#ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
 
-		all_points = full_projection(reduced_data_path+"_"+dim_red+".csv",preproc_path)
+		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)
 
 		idx_range = range(2) if doing_comparison else range(1)
 

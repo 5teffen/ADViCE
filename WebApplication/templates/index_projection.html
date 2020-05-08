@@ -228,7 +228,8 @@
         reset_btn.id = "reset-button-proj-" + idx.toString();
         reset_btn.className = "reset-button-proj"
         reset_btn.innerHTML = "Reset";
-        reset_btn.onclick = function(){resetFeatures();}
+        reset_btn.dataset.filtersetidx = idx.toString();
+        reset_btn.onclick = function(){resetFeatures(this);}
 
         var percent_filt_div = document.createElement("div");
         percent_filt_div.id = "percentage-filter-div-" + idx.toString();
@@ -238,6 +239,7 @@
 
         var ftrang_filt_div = document.createElement("div");
         ftrang_filt_div.id = "feature-range-filter-div-" + idx.toString();
+        ftrang_filt_div.innerHTML = "Feature range slider";
 
         var ft_dropdown = document.createElement("select");
         ft_dropdown.id = "feature-dropdown-" + idx.toString();
@@ -252,8 +254,9 @@
 
         var ftrang_slider = document.createElement("div");
         ftrang_slider.id = "feature-range-slider-div-" + idx.toString();
-        ftrang_slider.style.height = "60px";
+        ftrang_slider.style.height = "80px";
 
+        ftrang_filt_div.appendChild(document.createElement("br"));
         ftrang_filt_div.appendChild(ft_dropdown);
         ftrang_filt_div.appendChild(ftrang_slider);
 
@@ -284,8 +287,9 @@
           curr_matrix[0].parentNode.removeChild(curr_matrix[0]);
         }
 
+        // TODO: Feedback the data that is in the conf_matrix at the moment
         var example_data = {'tn': 109, 'fp': 29, 'tp': 148, 'fn': 17};
-        confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data);
+        confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data, idx);
 
         // Percentage Filter
         var curr_percentage = document.getElementById("percentage-filter-div-"+idx.toString()).getElementsByClassName("percentageBar");
@@ -304,7 +308,7 @@
             option.text = ft_names[i];
             option.value = i;
             option.ftid = i;
-            option.className = "ft-dropdown-option";
+            option.className = "ft-dropdown-option-"+idx.toString();
             option.parent_idx = idx;
             option.onclick = function () {draw_feature_selector(this);};
             ft_dropdown.add(option);
@@ -451,23 +455,6 @@
       }
 
       function displayCachedFilterResults(idx){
-      }
-
-      // Style and send request for PCA and tSNE buttons
-      function buttonRequest(elem) {
-
-        // if (elem.id == "pca-button") {
-        //   elem.style.backgroundColor = dark_shade;
-        //   var c_but = document.getElementById('tsne-button');
-        //   c_but.style.backgroundColor = light_shade;
-        // }
-        // else if (elem.id == "tsne-button") {
-        //   elem.style.backgroundColor = dark_shade;
-        //   var c_but = document.getElementById('pca-button');
-        //   c_but.style.backgroundColor = light_shade;
-        // }
-
-        resetFeatures();
       }
       
       // Request from bokeh plot to right panel aggregation
@@ -753,25 +740,19 @@
       }
 
       // Reset button
-      function resetFeatures() {
+      function resetFeatures(elem) {
 
+        filter_set_idx = parseInt(elem.dataset.filtersetidx);
         selected_fts = [-1];        
         confusion_mat[filter_set_idx] = ["TP", "FP", "TN", "FN"];
         pred_range[filter_set_idx] = [0,100];
         doing_comparison = 0;
         reset_ft_curr_ranges(filter_set_idx);
 
-        document.getElementById("feature-dropdown-1").value = "init";
-        document.getElementById("feature-range-slider-div-1").innerHTML = "Feature range slider";
-        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), 1);
+        document.getElementById("feature-dropdown-"+filter_set_idx.toString()).value = "init";
+        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), filter_set_idx);
 
         // confusion_restart[filter_set_idx] = true;
-        
-        if (!cold_start){
-          for (i=0; i<no_features; i++){
-            document.getElementById("feat-" + i.toString()).style.fontWeight = "normal";
-          }
-        }
         makeScatterRequest();
       }
 
@@ -863,53 +844,22 @@
         makeScatterRequest();
       }
 
-      function matrixTrigger(checked, text){
-        // when restarted, all boxes are checked, click selects ONLY one
-        // if (confusion_restart() == true){
-        //   // confusion_restart[filter_set_idx] = false;
-        //   confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
-        //   var local = ["TP", "FP", "TN", "FN"];
-        //   local.splice(local.indexOf(text), 1);
-        //   for (var k=0; k<local.length; k++){
-        //     var button_id = "#" + local[k] + "-button";
-        //     console.log(button_id);
-        //     d3.select(button_id).dispatch('click');
-        //     // document.getElementById(button_id).onclick();
-        //   }
-        //   d3.select("#" + text + "-button").dispatch('click');
-        //   return;
-          
-        // }
+      function matrixTrigger(checked, text, elem){
+        console.log("elem calling matrix trigger:", elem.dataset.filteridx);
+        var filtersetidx = parseInt(elem.dataset.filteridx);
         if (checked == true){
           console.log(checked);
-          confusion_mat[filter_set_idx].push(text);
-          console.log(confusion_mat[filter_set_idx]);
+          confusion_mat[filtersetidx].push(text);
+          console.log(confusion_mat[filtersetidx]);
         } else {
            console.log(checked);
-           confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
-           console.log(confusion_mat[filter_set_idx]);
+           confusion_mat[filtersetidx].splice(confusion_mat[filtersetidx].indexOf(text), 1);
+           console.log(confusion_mat[filtersetidx]);
         }
+        filter_set_idx = filtersetidx;
         makeScatterRequest();
       }
-
-      function changeFilterSet(idx){
-        if (document.getElementById('filter-select-div').innerHTML != ''){
-          for (var j=0; j<3; j++){
-            document.getElementById('filter-button-'+ j.toString()).classList.remove('active');
-          }
-          document.getElementById('filter-button-'+idx.toString()).classList.add('active');
-          filter_set_idx = idx;
-          document.getElementById("compare-dropdown").value = "init";
-          doing_comparison = 0;
-          // draw_confusion_matrix("#filter-div", confusion_mat_2_state(confusion_mat[filter_set_idx]));
-          document.getElementById("feature-dropdown-1").value = "init";
-          document.getElementById("feature-range-slider-div").innerHTML = "Feature range slider";
-          draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
-          makeScatterRequest();
-          // displayCachedFilterResults(idx);
-        }
-      }
-
+  
       function addFilterSet(idx){
 
         n_filter_sets+=1;
@@ -917,8 +867,7 @@
         document.getElementById("filter-sets-table").getElementsByTagName("tbody")[0].insertBefore(create_filter_set(n_filter_sets), 
           document.getElementById("tr-new-filter-set-button"));
 
-        draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), n_filter_sets);
-      
+        draw_filters(confusion_mat_2_state(confusion_mat[n_filter_sets]), n_filter_sets);
       }
 
       function compareTrigger(trigger_dropdown){
@@ -942,7 +891,6 @@
 
       fetch_csv();
       begin_glob();
-      resetFeatures();
 
 
     </script>
