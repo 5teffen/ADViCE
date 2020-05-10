@@ -127,7 +127,7 @@ function percentage_bar(elem, state, histoData, idx) {
 
    	svg.append("g")
         .append("rect")
-        .attr("id","bar_selected")
+        .attr("id","bar_selected"+idx.toString())
         .attr('x',xScale(start))
         .attr('y',0)
         .attr("height",bar_h)
@@ -144,7 +144,6 @@ function percentage_bar(elem, state, histoData, idx) {
 
     	 svg.append("g")
 	        .append("rect")
-	        .attr("id","bar_selected")
 	        .attr('x',(n)*histo_bin_w)
 	        .attr('y',-yHisto(inBin)-1)
 	        .attr("height",yHisto(inBin))
@@ -185,7 +184,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	    	var id = selection.attr("id");
 	    	// console.log(cur_high);
 
-	    	if (id == "slide1"){
+	    	if (id == "slide1"+idx.toString()){
 
 
 
@@ -196,14 +195,14 @@ function percentage_bar(elem, state, histoData, idx) {
 	    			cur_low = cur_high; 
 	    		}   		
 
-	    		d3.select("#bar_selected")
+	    		d3.select("#bar_selected"+idx.toString())
 	    			.attr("x", x)
 	    			.attr("width", xScale(cur_high)-x);
 
 
-	    		d3.select("#l-lab").attr('x',x-lab_shift);
+	    		d3.select("#l-lab"+idx.toString()).attr('x',x-lab_shift);
 
-	    		d3.select("#lt-lab")
+	    		d3.select("#lt-lab"+idx.toString())
 	    			.text(cur_low.toString())
 	    			.attr('x',x+text_shift);
 
@@ -221,7 +220,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	    		
 	    	}
 
-	    	else if (id == "slide2"){
+	    	else if (id == "slide2"+idx.toString()){
 	    		cur_high = xScaleInv(x);
 
 	    		if 	(cur_low > cur_high){
@@ -229,13 +228,13 @@ function percentage_bar(elem, state, histoData, idx) {
 	    			cur_high =	cur_low; 
 	    		}   	
 	    		
-	    		d3.select("#bar_selected")
+	    		d3.select("#bar_selected"+idx.toString())
 	    			.attr("width", xScale(cur_high)-xScale(cur_low));
 
 
-	    		d3.select("#r-lab").attr('x',x-lab_shift);
+	    		d3.select("#r-lab"+idx.toString()).attr('x',x-lab_shift);
 
-	    		d3.select("#rt-lab")
+	    		d3.select("#rt-lab"+idx.toString())
 		    		.text(cur_high.toString())
 		    		.attr('x',x+text_shift);
 
@@ -273,7 +272,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 	    .append("rect")
 	    .attr("class","slider")
-	    .attr("id", "slide1")
+	    .attr("id", "slide1"+idx.toString())
 	    .attr("data-filteridx", idx.toString())
 	    .attr('x',xScale(start))
 	    .attr('y',-2.5)
@@ -291,7 +290,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 	    .append("rect")
 	    .attr("class","slider")
-	    .attr("id", "slide2")
+	    .attr("id", "slide2"+idx.toString())
 	    .attr("data-filteridx", idx.toString())
 	    .attr('x',xScale(end))
 	    .attr('y',-2.5)
@@ -313,7 +312,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 	    .append("rect")
 	    // .attr("class","left-label")
-	    .attr("id", "l-lab")
+	    .attr("id", "l-lab"+idx.toString())
 	    .attr('x',xScale(start)-lab_shift)
 	    .attr('y',-30)
 	    .attr("height",lab_h)
@@ -328,7 +327,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 	    .append("rect")
 	    .attr("class","right-label")
-	    .attr("id", "r-lab")
+	    .attr("id", "r-lab"+idx.toString())
 	    .attr('x',xScale(end)-lab_shift)
 	    .attr('y',-30)
 	    .attr("height",lab_h)
@@ -343,7 +342,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 		.append('text')
 		.text(start.toString())
-		.attr("id", "lt-lab")
+		.attr("id", "lt-lab"+idx.toString())
 		.attr('x',xScale(start)+text_shift)
 		.attr('y',-16)
 		.attr("font-family",'"Open Sans", sans-serif')
@@ -355,7 +354,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 		.append('text')
 		.text(end.toString())
-		.attr("id", "rt-lab")
+		.attr("id", "rt-lab"+idx.toString())
 		.attr('x',xScale(end)+text_shift)
 		.attr('y',-16)
 		.attr("font-family",'"Open Sans", sans-serif')
