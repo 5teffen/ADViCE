@@ -1,17 +1,20 @@
 
 
 
-function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle, cf_toggle) {
+// function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,place, median_toggle, density_toggle, point_toggle, cf_toggle) {
 
     // -- Initial conversion -- 
-    set1 = {data: leftData, den: leftDen, median: leftMed};
-    set2 = {data: rightData, den: rightDen, median: rightMed};
-    set3 = {data: leftData, den: leftDen, median: leftMed};
+    // set1 = {data: leftData, den: leftDen, median: leftMed};
+    // set2 = {data: rightData, den: rightDen, median: rightMed};
+    // set3 = {data: leftData, den: leftDen, median: leftMed};
 
     // complete_data = [set1];
-    complete_data = [set1,set2];
+    // complete_data = [set1,set2];
     // complete_data = [set1,set2,set1];
+    // complete_data = [set1,set2,set1,set2,set1];
 
+
+function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle) {
 
     function determine_discrete(data,no_bins){
         no_ft = data[0].length
@@ -84,8 +87,8 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
     }
 
 
-
-    var discrete_mask = determine_discrete(leftData,10);
+    // --- Mask the discrete features --- 
+    var discrete_mask = determine_discrete(complete_data[0].data,10);
 
 
     // --- Identify the number of sets to visualize --- 
@@ -97,7 +100,6 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
         no_samples_lst = [],
         pt_opp_lst = [];
 
-    console.log(no_bins);
 
     for (i=0; i<no_sets;i++){
         no_samp = complete_data[0].data.length;
@@ -189,18 +191,18 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
 
 
     // -- Drawing background rectangles -- 
-    svg.selectAll("rect")
-        .data(testData)
-        .enter()
-        .append("rect")
-        .attr("class","bg_bar")
-        .attr('x',function(d) {return xScale(d.name);})
-        .attr('y',-padding)
-        .attr("height",function(d){return yScale(0)+2*padding})
-        .attr("width",bandwidth)
-        .attr("fill", "None")
-        .attr("stroke", "None")
-        .style("opacity",0.5);
+    // svg.selectAll("rect")
+    //     .data(testData)
+    //     .enter()
+    //     .append("rect")
+    //     .attr("class","bg_bar")
+    //     .attr('x',function(d) {return xScale(d.name);})
+    //     .attr('y',-padding)
+    //     .attr("height",function(d){return yScale(0)+2*padding})
+    //     .attr("width",bandwidth)
+    //     .attr("fill", "None")
+    //     .attr("stroke", "None")
+    //     .style("opacity",0.5);
         
 
   
