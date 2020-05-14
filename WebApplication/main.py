@@ -123,7 +123,7 @@ def init_data(dataset):
 	samples4test = []
 	feature_selector_input = []
 	for i in range(no_features):
-		feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges,no_bins, samples4test))# 0 indexed
+		feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges, no_bins, samples4test))# 0 indexed
 	# If no init vals known then leave blank.
 	
 	dict_array = all_den
@@ -469,10 +469,10 @@ def scatter_request():
 
 			mask1 = query_pred_range(metadata, pred_range)
 			mask2 = query_confusion_mat(metadata, confusion_mat)
-			mask3 = query_feature_combs(metadata, [15,19])
+			# mask3 = query_feature_combs(metadata, [15,19])
 			# mask4 = query_value_range(data, 0, 60, 70)
-			mask5 = query_similar_points(data,metadata,10,0.5)
-			mask6 = query_sampled_data(data, 30)
+			# mask5 = query_similar_points(data,metadata,10,0.5)
+			# mask6 = query_sampled_data(data, 30)
 
 			mask4 = np.copy(start_mask)
 			for idx in modified_range_idx:
@@ -520,59 +520,40 @@ def violin_site_req():
 			# --- Sort Features ---
 			sort_toggle = False
 
-			# sample_cap = min(len(proj_samples), 30)
 			doing_comparison = 1 if proj_samples_2[0]!="null" else 0
+
+			# --- Converting to 0 indexed --- 
 			proj_samples_1 = np.array([int(x)-1 for x in proj_samples_1])#[:sample_cap])
 			if doing_comparison:
 				proj_samples_2 = np.array([int(x)-1 for x in proj_samples_2])#[:sample_cap])
-			# print(proj_samples)
-			# print(data[proj_samples])
-			# violin_arr = populate_violin_plot(X_pos_array, proj_samples, trans_dict)
-			# select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples, feature_names, density_fineness)
-			# all_den, select_den, all_median , select_median = kernel_density(X_no_9, proj_samples, trans_dict)
-			# ret_string = json.dumps([np.array(all_den).tolist(), np.array(select_den).tolist(), np.array(all_median).tolist() , np.array(select_median).tolist()])
-			# aggr_data = prep_for_D3_aggregation(preproc_path, data, feature_names, proj_samples, bins_centred, X_pos_array, sort_toggle)
-			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
-			# ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median])
 
 
+			# --- Potential logic for scaling up --- 
+			if doing_comparison:
+				no_comparisons = 2
+				samples_lst = [proj_samples_1, proj_samples_2]
 
 			if not doing_comparison:
-				print("NOT DOING COMP")
-				# -- One Example Version --
-				select_den, select_median, select_mean = specific_kernel_densities(data, proj_samples_1, feature_names, density_fineness)
-				aggr_data = prep_for_D3_aggregation(metadata, data, feature_names, proj_samples_1, bins_centred, X_pos_array, sort_toggle)
-				ret_string = json.dumps([aggr_data, all_den, select_den, all_median , select_median, all_mean, select_mean])
+				no_comparisons = 1
+				samples_lst = [proj_samples_1]
 
+			complete_data = []
 
-			if doing_comparison:
-				print("DOING COMP")
-				# OSCAR: Comparison part. Example of how it would work
-				# Get the two sets of selected indices
-				# half_ft = int(proj_samples.shape[0]/2)
-				
-				# first_samples = proj_samples[:half_ft]
-				# second_samples = proj_samples[half_ft:]
+			for i in range(no_comparisons):
+				samples = samples_lst[i]
 
-				first_samples = proj_samples_1
-				second_samples = proj_samples_2 
+				aggr_data = prep_for_D3_aggregation(metadata, data, feature_names, samples, bins_centred, X_pos_array, sort_toggle)
+				hist_data, median_data = prep_histo_data(aggr_data)
+				# sel_den, sel_med, sel_mean = specific_kernel_densities(data, samples, feature_names, density_fineness) # FIX DENSITY CURVE 
 
-				sel_den1, sel_medz1, sel_mean1 = specific_kernel_densities(data, first_samples, feature_names, density_fineness) # FIX DENSITY CURVE 
-				sel_den2, sel_medz2, sel_mean2 = specific_kernel_densities(data, second_samples, feature_names, density_fineness)
+				one_set = {"data":aggr_data, "den":hist_data, "median":median_data}
 
-				aggr_data1 = prep_for_D3_aggregation(metadata, data, feature_names, first_samples, bins_centred, X_pos_array, sort_toggle)
-				aggr_data2 = prep_for_D3_aggregation(metadata, data, feature_names, second_samples, bins_centred, X_pos_array, sort_toggle)
+				complete_data.append(one_set)
 
-				sel_hist1,sel_median1 = prep_histo_data(aggr_data1)
-				sel_hist2,sel_median2 = prep_histo_data(aggr_data2)
-
-				# print(len(sel_hist1)
-
-
-				ret_string = json.dumps([aggr_data1, aggr_data2, sel_hist1, sel_hist2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
-				# ret_string = json.dumps([aggr_data1, aggr_data2, sel_den1, sel_den2, sel_median1 , sel_median2, sel_mean1, sel_mean2])
+			ret_string = json.dumps(complete_data)
 
 			return ret_string
+
 
 @app.route('/table_req')
 def table_site_req():

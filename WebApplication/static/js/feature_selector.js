@@ -10,14 +10,16 @@
 
 // var aFeature = [oneFeature, oneFeature,oneFeature, oneFeature]
 
-function feature_selector(place, aFeature) {
+function feature_selector(place, aFeature, idx) {
 
 	var section_h = 30,
 		section_w = 150,
 		section_sep = 10;
 
+    console.log(aFeature.den[0]);
 
-    aFeature.den = [0.2,0.3,0.4]
+
+    // aFeature.den = [0.2,0.3,0.4]
 
 	var fineness = aFeature.den.length;
 
@@ -28,7 +30,7 @@ function feature_selector(place, aFeature) {
 
 
     // --- Histogram Parameters --- 
-    var histo_h = 40,
+    var histo_h = 25,
         histo_col = "#7570b3",
         no_bins = aFeature.den.length,
         histo_bin_w = section_w/no_bins;
@@ -166,7 +168,7 @@ function feature_selector(place, aFeature) {
 
          svg.append("g")
             .append("rect")
-            .attr("id","bar_selected")
+            // .attr("id","bar_selected")
             .attr('x',(n)*histo_bin_w)
             .attr('y',-yHisto(inBin)-1)
             .attr("height",yHisto(inBin))
@@ -204,7 +206,7 @@ function feature_selector(place, aFeature) {
 	    	var id = selection.attr("id");
 
 
-	    	if (id == "slide1"){
+	    	if (id == "slide1"+idx.toString()){
 	    		var percentage = x/section_w;
 	    		// m1 = Math.round(percentage*fineness);
 	    		m1 = Math.round(percentage*100);
@@ -216,14 +218,14 @@ function feature_selector(place, aFeature) {
 
                 cur_l = avg_x;
 	    	  
-	    		d3.select("#llab").attr('x',avg_x-lab_shift);
+	    		d3.select("#llab"+idx.toString()).attr('x',avg_x-lab_shift);
 
-	    		d3.select("#lt-label")
+	    		d3.select("#lt-label"+idx.toString())
 	    			.text(out_min.toString())
 	    			.attr('x',avg_x+text_shift)
 
 
-                d3.select("#ft_bar_selected")
+                d3.select("#ft_bar_selected"+idx.toString())
                     .attr("width", cur_r-cur_l)
                     .attr("x", cur_l+slide_shift);
 
@@ -233,7 +235,7 @@ function feature_selector(place, aFeature) {
 
 	    	}
 
-	    	else if (id == "slide2"){
+	    	else if (id == "slide2"+idx.toString()){
 	    		var percentage = x/section_w;
 	    		// m2 = Math.round(percentage*fineness);
 	    		m2 = Math.round(percentage*100);
@@ -246,13 +248,13 @@ function feature_selector(place, aFeature) {
 	    		out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    	
 
-	    		d3.select("#rlab").attr('x',avg_x-lab_shift);
+	    		d3.select("#rlab"+idx.toString()).attr('x',avg_x-lab_shift);
 
-	    		d3.select("#rt-label")
+	    		d3.select("#rt-label"+idx.toString())
 		    		.text(out_max.toString())
 		    		.attr('x',avg_x+text_shift);
 
-                d3.select("#ft_bar_selected")
+                d3.select("#ft_bar_selected"+idx.toString())
                     .attr("width", cur_r-cur_l)
 
                 selection.attr('x',avg_x);
@@ -306,7 +308,7 @@ function feature_selector(place, aFeature) {
 
     svg.append("g")
         .append("rect")
-        .attr("id","ft_bar_selected")
+        .attr("id","ft_bar_selected"+idx.toString())
         .attr('x',lstart+slide_shift)
         .attr('y',slide_h-bar_h-3)
         .attr("height",bar_h)
@@ -320,7 +322,7 @@ function feature_selector(place, aFeature) {
     svg.append("g")
         .append("rect")
         .attr("class","slider")
-        .attr("id", "slide1")
+        .attr("id", "slide1"+idx.toString())
         .attr('x',lstart)
         .attr('y',0)
         .attr("height",slide_h)
@@ -337,7 +339,7 @@ function feature_selector(place, aFeature) {
     svg.append("g")
         .append("rect")
         .attr("class","slider")
-        .attr("id", "slide2")
+        .attr("id", "slide2"+idx.toString())
         .attr('x',rstart)
         .attr('y',0)
         .attr("height",slide_h)
@@ -359,7 +361,7 @@ function feature_selector(place, aFeature) {
 	svg.append("g")
 	    .append("rect")
 	    // .attr("class","left-label")
-	    .attr("id", "llab")
+	    .attr("id", "llab"+idx.toString())
         .attr('x',lstart - lab_shift)
 	    .attr('y',-lab_h-5)
 	    .attr("height",lab_h)
@@ -372,7 +374,7 @@ function feature_selector(place, aFeature) {
 	svg.append("g")
 	    .append("rect")
 	    // .attr("class","r-label")
-	    .attr("id", "rlab")
+	    .attr("id", "rlab"+idx.toString())
         .attr('x',rstart - lab_shift)
 	    .attr('y',-lab_h-5)
 	    .attr("height",lab_h)
@@ -385,7 +387,7 @@ function feature_selector(place, aFeature) {
 	svg.append("g")
 		.append('text')
 		.text(start.toString())
-		.attr("id", "lt-label")
+		.attr("id", "lt-label"+idx.toString())
         .attr('x',lstart  + text_shift)
 		.attr('y',-10)
 		.attr("font-family",'"Open Sans", sans-serif')
@@ -397,7 +399,7 @@ function feature_selector(place, aFeature) {
 	svg.append("g")
 		.append('text')
 		.text(end.toString())
-		.attr("id", "rt-label")
+		.attr("id", "rt-label"+idx.toString())
 		.attr('x',rstart + text_shift)
 		.attr('y',-10)
 		.attr("font-family",'"Open Sans", sans-serif')

@@ -288,7 +288,7 @@
         }
 
         // TODO: Feedback the data that is in the conf_matrix at the moment
-        var example_data = {'tn': 109, 'fp': 29, 'tp': 148, 'fn': 17};
+        var example_data = {'tn': 1, 'fp': 1, 'tp': 1, 'fn': 1};
         confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data, idx);
 
         // Percentage Filter
@@ -302,7 +302,7 @@
         var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option-"+idx.toString());
         if (ft_dropdown_opts.length <= 1){
           var ft_dropdown = document.getElementById("feature-dropdown-"+idx.toString());
-          ft_dropdown.onchange = function () {draw_feature_selector(this);};
+          ft_dropdown.onchange = function () {draw_feature_selector(this,idx);};
           for (i=0; i<ft_names.length; i++){
             var option = document.createElement("option");
             option.text = ft_names[i];
@@ -310,20 +310,20 @@
             option.ftid = i;
             option.className = "ft-dropdown-option-"+idx.toString();
             option.parent_idx = idx;
-            option.onclick = function () {draw_feature_selector(this);};
+            option.onclick = function () {draw_feature_selector(this,idx);};
             ft_dropdown.add(option);
           }
         }     
       }
 
       // wrapper to avoid duplicates
-      function draw_feature_selector(ft_option){
+      function draw_feature_selector(ft_option,idx){
         console.log("Feature selector idx:", ft_option.value);
         var aFeature = feature_selector_input[ft_option.value];
         aFeature['current'] = ft_curr_range[filter_set_idx][ft_option.value];
         console.log("Drawing range slider", aFeature);
         document.getElementById("feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", "")).innerHTML = "";
-        feature_selector("#feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", ""), aFeature);
+        feature_selector("#feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", ""), aFeature,idx);
       }
 
       // Get preprocessed csv file
@@ -557,23 +557,9 @@
               resp_list = JSON.parse(resp_arr);
             }
 
-
-            if (doing_comparison == 0){
-              draw_aggregation_graph(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5],resp_list[6], "#distribution-div",
-                median_toggle, points_toggle, density_toggle,cf_toggle);
-              
-            }
-
-
-            else{
-              // OSCAR: This is the comparison call
-              draw_comparison(resp_list[0],resp_list[1],resp_list[2],resp_list[3],resp_list[4],resp_list[5]
-                , "#distribution-div",
-                median_toggle, density_toggle, points_toggle,cf_toggle);
-              
-            }
-
-
+            draw_comparison(resp_list, "#distribution-div",
+              median_toggle, density_toggle, points_toggle,cf_toggle);
+       
             ft_list();
             highlight_features();
             cold_start = false;
