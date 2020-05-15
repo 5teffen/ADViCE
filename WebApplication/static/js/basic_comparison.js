@@ -210,8 +210,8 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
     for (ind=0 ; ind < features; ind++) {
         ft_name = leftData[0][ind].name;
 
-        centre_r = xScale(ft_name) + bandwidth/4;
-        centre_l = xScale(ft_name) + bandwidth*3/4;
+        centre_l = xScale(ft_name) + bandwidth/4;
+        centre_r = xScale(ft_name) + bandwidth*3/4;
 
         for (n=0 ; n < no_bins; n++){
             var inLeftBin = xDenScale(leftDen[ind][n])/2;
@@ -294,10 +294,10 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             .attr("width",inRightBin)
             .attr('opacity',function(d){
                 if (density_toggle){
-                    return 0.4;
+                    return 0.2;
                 }
                 else{return 0;}})
-            .attr("stroke-width",1)
+            .attr("stroke-width",0.5)
             .attr("stroke",den_colour);
 
         svg.append("g")
@@ -309,10 +309,10 @@ function draw_comparison(leftData,rightData,leftDen,rightDen,leftMed,rightMed,pl
             .attr("width",inRightBin)
             .attr('opacity',function(){
                 if (density_toggle){
-                    return 0.4;
+                    return 0.2;
                 }
                 else{return 0;}})
-            .attr("stroke-width",1)
+            .attr("stroke-width",0.5)
             .attr("stroke",den_colour);
 
 
