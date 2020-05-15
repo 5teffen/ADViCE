@@ -206,7 +206,7 @@ function feature_selector(place, aFeature, idx) {
 	    	var id = selection.attr("id");
 
 
-	    	if (id == "slide1"+idx.toString()){
+	    	if (id == "slide1-"+idx.toString()){
 	    		var percentage = x/section_w;
 	    		// m1 = Math.round(percentage*fineness);
 	    		m1 = Math.round(percentage*100);
@@ -235,7 +235,7 @@ function feature_selector(place, aFeature, idx) {
 
 	    	}
 
-	    	else if (id == "slide2"+idx.toString()){
+	    	else if (id == "slide2-"+idx.toString()){
 	    		var percentage = x/section_w;
 	    		// m2 = Math.round(percentage*fineness);
 	    		m2 = Math.round(percentage*100);
@@ -272,9 +272,12 @@ function feature_selector(place, aFeature, idx) {
 			out_high = out_max;
 			out_low = out_min;
 			console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
+            console.log(this);
+            filter_set_idx = this.dataset.filteridx;
 			ft_curr_range[filter_set_idx][aFeature.id] = [out_low,out_high];
+            console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
     		makeScatterRequest();
-    		console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
+    		
 
 
 		});
@@ -322,7 +325,8 @@ function feature_selector(place, aFeature, idx) {
     svg.append("g")
         .append("rect")
         .attr("class","slider")
-        .attr("id", "slide1"+idx.toString())
+        .attr("id", "slide1-"+idx.toString())
+        .attr("data-filteridx", idx.toString())
         .attr('x',lstart)
         .attr('y',0)
         .attr("height",slide_h)
@@ -339,7 +343,8 @@ function feature_selector(place, aFeature, idx) {
     svg.append("g")
         .append("rect")
         .attr("class","slider")
-        .attr("id", "slide2"+idx.toString())
+        .attr("id", "slide2-"+idx.toString())
+        .attr("data-filteridx", idx.toString())
         .attr('x',rstart)
         .attr('y',0)
         .attr("height",slide_h)
