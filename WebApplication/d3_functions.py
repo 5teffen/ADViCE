@@ -256,10 +256,10 @@ def prep_feature_selector(data, feature_no, names, ranges, no_bins, samples, ini
     # --- Normalize Histogram ---
     highest_count = np.amax(col_bins) 
     col_bins = list(col_bins/highest_count)
-    result.append(col_bins)
+    # result.append(col_bins)
 
 
-  out_dict["den"] = result
+  out_dict["den"] = col_bins
   
   feat_range = ranges[feature_no]
   min_val = feat_range[0][0]
