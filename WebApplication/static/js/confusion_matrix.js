@@ -175,7 +175,8 @@ function confusion_matrix(elem, state, data, idx) {
 
 
     svg.append('g').append("text")
-        .text(data.tp)
+        // .text(data.tp)
+        .text("TP")
         .attr("x",box_w/2)
         .attr("y",yScale(box_h-8))
         .attr("text-anchor","middle")
@@ -186,7 +187,8 @@ function confusion_matrix(elem, state, data, idx) {
     
         
     svg.append('g').append("text")
-        .text(data.fp)
+        // .text(data.fp)
+        .text("FP")
         .attr("x",box_w + separation + box_w/2)
         .attr("y",yScale(box_h-8))
         .attr("text-anchor","middle")
@@ -198,7 +200,8 @@ function confusion_matrix(elem, state, data, idx) {
     
     
     svg.append('g').append("text")
-        .text(data.fn)
+        // .text(data.fn)
+        .text("FN")
         .attr("x",box_w/2)
         .attr("y",yScale(box_h+separation+box_h-8))
         .attr("text-anchor","middle")
@@ -209,7 +212,8 @@ function confusion_matrix(elem, state, data, idx) {
     
         
     svg.append('g').append("text")
-        .text(data.tn)
+        // .text(data.tn)
+        .text("TN")
         .attr("x",box_w + separation + box_w/2)
         .attr("y",yScale(box_h+separation+box_h-8))
         .attr("text-anchor","middle")
