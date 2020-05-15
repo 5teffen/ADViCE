@@ -14,8 +14,6 @@
     <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script> -->
-    <!-- rSlider source -->
-    <script type="text/javascript" src="static/js/rSlider.min.js"></script>
     <!-- AG Grid source -->
     <script src="https://unpkg.com/@ag-grid-community/all-modules/dist/ag-grid-community.min.js"></script>
     <!-- SVG scripts -->
@@ -58,38 +56,9 @@
 
         <div id="middle-panel-proj">
           <table class="proj-table" id="filter-sets-table">
-                 <!-- <tr>
-                   <td colspan="1">
-                     <div id="filter-div-1" class="filter-set">
-                       Filter Set 1
-                       <button class="reset-button-proj">
-                         Reset
-                       </button>
-                       <div id="percentage-filter-div">
-                       </div>
-                       <div id="confusion-matrix-filter-div">
-                       </div>
-                       <div id="feature-range-filter-div">
-                         <select id="feature-dropdown">
-                           <option value="init" selected disabled>Choose feature</option>
-                         </select>
-                         <div id="feature-range-slider-div">
-                          Feature range slider
-                         </div>
-                       </div>  
-                     </div>
-                   </td>
-                   <td colspan="1">
-                     <div id="summary-div">
-                       Summary
-                     </div>
-                   </td>
-                 </tr> -->
             <tr id="tr-new-filter-set-button">
               <td colspan="2">
-                <button onclick="addFilterSet()">
-                  +
-                </button>
+                <button onclick="addFilterSet()"> + </button>
               </td>
             </tr>
           </table>
@@ -152,7 +121,6 @@
       var httpRequest;
       var hhtpRequestViolin;
       var httpRequestTable;
-      var cold_start = true;
       var curr_aggr_ids = [];
       var selected_fts = [-1];
       var curr_alg = "True";
@@ -184,20 +152,12 @@
       
       function reset_ft_curr_ranges (idx){
         // Generalize to many filter sets later
-        console.log("Reseting ranges at idx", idx);
+        console.log("Reseting ranges at idx: ", idx);
         var rangs = [];
         for (i=0; i<ft_names.length; i++){
           rangs.push (feature_selector_input[i]['range']); 
         }
         ft_curr_range[idx] = rangs;
-      }
-    
-      // Check if currently all filters are selected to handle logic of click dispatches
-      function confusion_restart(){
-        if (confusion_mat[filter_set_idx].length == 4){
-          return true;
-        }
-        else return false;
       }
 
       function confusion_mat_2_state(curr_conf_mat){
@@ -281,6 +241,7 @@
 
       // wrapper to avoid duplicates
       function draw_filters(conf_mat_state, idx){
+
         // Confusion Matrix Order: [TP, FP, FN, TN]
         var curr_matrix = document.getElementById("confusion-matrix-filter-div-"+idx.toString()).getElementsByClassName("confusionMat");
         if (curr_matrix.length > 0){
@@ -302,6 +263,7 @@
         var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option-"+idx.toString());
         if (ft_dropdown_opts.length <= 1){
           var ft_dropdown = document.getElementById("feature-dropdown-"+idx.toString());
+          ft_dropdown.dataset.filteridx = idx;
           ft_dropdown.onchange = function () {draw_feature_selector(this,idx);};
           for (i=0; i<ft_names.length; i++){
             var option = document.createElement("option");
@@ -310,42 +272,21 @@
             option.ftid = i;
             option.className = "ft-dropdown-option-"+idx.toString();
             option.parent_idx = idx;
-            option.onclick = function () {draw_feature_selector(this,idx);};
+            option.onclick = function () {draw_feature_selector(this);};
             ft_dropdown.add(option);
           }
         }     
       }
 
       // wrapper to avoid duplicates
-      function draw_feature_selector(ft_option,idx){
+      function draw_feature_selector(ft_option){
+        filter_set_idx = ft_option.dataset.filteridx;
         console.log("Feature selector idx:", ft_option.value);
         var aFeature = feature_selector_input[ft_option.value];
         aFeature['current'] = ft_curr_range[filter_set_idx][ft_option.value];
         console.log("Drawing range slider", aFeature);
-        document.getElementById("feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", "")).innerHTML = "";
-        feature_selector("#feature-range-slider-div-"+ft_option.id.replace("feature-dropdown-", ""), aFeature,idx);
-      }
-
-      // Get preprocessed csv file
-      function fetch_csv(){
-        txtFile = new XMLHttpRequest();
-        txtFile.onreadystatechange = initContents;
-        txtFile.open("GET", preproc_path);
-        txtFile.send()
-      }
-      
-      // Parse csv
-      var pre_array = [];
-      function initContents() {
-        if (txtFile.readyState === XMLHttpRequest.DONE) {
-          if (txtFile.status === 200) {
-            var rows = txtFile.responseText.split("\n");
-            for (var i = 0; i < rows.length; i++) {
-              var cells = rows[i].split(",");
-              pre_array.push(cells);
-            }
-          }
-        }
+        document.getElementById("feature-range-slider-div-"+filter_set_idx).innerHTML = "";
+        feature_selector("#feature-range-slider-div-"+filter_set_idx, aFeature, filter_set_idx);
       }
 
       // Request to send feature list
@@ -455,9 +396,6 @@
           }
         }
       }
-
-      function displayCachedFilterResults(idx){
-      }
       
       // Request from bokeh plot to right panel aggregation
       function makeAggregationRequest(id_list) {
@@ -484,9 +422,6 @@
               // console.log("right panel aggregation");
               document.getElementById("aggregation-div").innerHTML = "";
               draw_aggregation_graph(allData,"#aggregation-div");
-              ft_list();
-              highlight_features();
-              cold_start = false;
             }
             // makeViolinRequest(id_list);
 
@@ -560,10 +495,6 @@
             draw_comparison(resp_list, "#distribution-div",
               median_toggle, density_toggle, points_toggle,cf_toggle);
        
-            ft_list();
-            highlight_features();
-            cold_start = false;
-
           }
           else {
               alert('HttpRequest Error');
@@ -667,8 +598,8 @@
         }
       }
 
-      // Proj buttons
-      function projButtonRequest(elem){
+      // Aggregation parameters buttons
+      function aggrButtonRequest(elem){
         if (elem.style.backgroundColor == dark_shade) {
           elem.style.backgroundColor = light_shade;
         }
@@ -678,59 +609,15 @@
         makeViolinRequest(left_mask, right_mask);
       }
 
-      // Hovering over left panel elements
-      function hoverStyleEnter(elem){
-        elem.style.fontWeight = "bold";
-        elem.style.cursor = "pointer";
-      }
-
-      function hoverStyleLeave(elem){
-        if (selected_fts.includes(elem.attributes.id.nodeValue.toString().substring(5))){
-        }
-        else{
-          elem.style.fontWeight = "normal";
-          elem.style.cursor = "normal";
-        }
-      }
-
-      // Add loading animation
-      function add_loader(elem) {
-        elem.innerHTML="";
-        var load_wrap = document.createElement("div");
-        load_wrap.className = "loader_wrap";
-        var loader = document.createElement("div");
-        loader.className = "lds-dual-ring";
-        load_wrap.append(loader);
-        elem.append(load_wrap);
-      }
-
-      // Loader for projection
-      function add_loader2(elem) {
-        // document.getElementById("bokeh-iframe").style.display = "none";
-        var load_wrap = document.createElement("div");
-        load_wrap.className = "loader_wrap";
-        var loader = document.createElement("div");
-        loader.className = "lds-dual-ring";
-        load_wrap.append(loader);
-        elem.append(load_wrap);
-      }
-
-      // Initialize feature list for global
-      function ft_list() {
-        for (i = 0; i < no_features; i++) {
-          var feature_name = document.getElementsByClassName("feature-name")[i];
-          feature_name.id =  "feat-" + i.toString();
-          feature_name.style.fontWeight = "normal";
-          feature_name.onclick = function () {flip_feature(this);};
-          feature_name.onmouseover = function(){hoverStyleEnter(this);};
-          feature_name.onmouseleave = function(){hoverStyleLeave(this);};
-        }
-      }
-
       // Reset button
-      function resetFeatures(elem) {
+      function resetFeatures(elem, idx="null") {
 
-        filter_set_idx = parseInt(elem.dataset.filtersetidx);
+        if (idx=="null"){
+          filter_set_idx = parseInt(elem.dataset.filtersetidx);
+        }
+        else {
+          filter_set_idx = idx;
+        }
         selected_fts = [-1];        
         confusion_mat[filter_set_idx] = ["TP", "FP", "TN", "FN"];
         pred_range[filter_set_idx] = [0,100];
@@ -739,96 +626,8 @@
 
         document.getElementById("feature-dropdown-"+filter_set_idx.toString()).value = "init";
         draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), filter_set_idx);
-
+        document.getElementById("feature-range-slider-div-"+filter_set_idx).innerHTML = "";
         // confusion_restart[filter_set_idx] = true;
-        makeScatterRequest();
-      }
-
-      // Select/deselect features
-      function flip_feature(elemn) {
-
-        curr_alg = "True";
-        dim_red = "TSNE";
-        directionality = "True";
-
-        // console.log(elemn.attributes.id.nodeValue.toString().substring(5));
-
-        var index = selected_fts.indexOf(-1);
-        if (index > -1) {
-          selected_fts.splice(index, 1);
-        }
-        if (selected_fts.includes(elemn.attributes.id.nodeValue.toString().substring(5))) {
-          index = selected_fts.indexOf(elemn.attributes.id.nodeValue.toString().substring(5));
-          selected_fts.splice(index, 1);
-          // elemn.style.fontSize = "12px";
-          elemn.style.fontWeight = "normal";
-        }
-        else if (selected_fts.length < 5){
-          selected_fts.push(elemn.attributes.id.nodeValue.toString().substring(5));
-        }
-        makeScatterRequest();
-      }
-
-      // Select previously selected features
-      function highlight_features() {
-
-        // console.log(selected_fts);
-        var index = selected_fts.indexOf(-1);
-        if (index > -1) {
-          return;
-        }
-        for (i=0; i < selected_fts.length; i++){
-          // elemn = selected_fts[i];
-          // var ft_id = elemn.attributes.id.nodeValue.toString();//.substring(5);
-          // console.log(ft_id);
-          // console.log(selected_fts[i]);
-          // document.getElementById(ft_id).style.fontWeight = "bold";
-          document.getElementById("feat-" + selected_fts[i].toString()).style.fontWeight = "bold";
-        }
-      }
-
-      // Start global screen after instructions
-      function begin_glob(){
-
-        var right = document.getElementById("demo");
-
-        median_btn = document.getElementById("median-button");
-        median_btn.onclick = function(){projButtonRequest(this);};
-        median_btn.style.backgroundColor = dark_shade;
-
-        points_btn = document.getElementById("points-button");
-        points_btn.onclick = function(){projButtonRequest(this);};
-        points_btn.style.backgroundColor = dark_shade;
-
-        density_btn = document.getElementById("density-button");
-        density_btn.onclick = function(){projButtonRequest(this);};
-        density_btn.style.backgroundColor = dark_shade;
-
-        cf_btn = document.getElementById("cf-button");
-        cf_btn.onclick = function(){projButtonRequest(this);};
-        cf_btn.style.backgroundColor = dark_shade;
-
-        // reset = document.getElementById("reset-button-proj");
-        // reset.onclick = function(){ resetFeatures(); };
-
-        addFilterSet();
-
-        // draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
-      }
-
-      function checkTrigger(elem) {
-        var text = elem.value;
-        console.log(text);
-        if (elem.checked == true){
-          console.log("Checked");
-          confusion_mat[filter_set_idx].push(text);
-          //console.log(confusion_mat);
-
-        } else {
-           console.log("Unchecked");
-           confusion_mat[filter_set_idx].splice(confusion_mat[filter_set_idx].indexOf(text), 1);
-           //console.log(confusion_mat);
-        }
         makeScatterRequest();
       }
 
@@ -836,11 +635,9 @@
         console.log("elem calling matrix trigger:", elem.dataset.filteridx);
         var filtersetidx = parseInt(elem.dataset.filteridx);
         if (checked == true){
-          console.log(checked);
           confusion_mat[filtersetidx].push(text);
           console.log(confusion_mat[filtersetidx]);
         } else {
-           console.log(checked);
            confusion_mat[filtersetidx].splice(confusion_mat[filtersetidx].indexOf(text), 1);
            console.log(confusion_mat[filtersetidx]);
         }
@@ -856,26 +653,61 @@
           document.getElementById("tr-new-filter-set-button"));
 
         draw_filters(confusion_mat_2_state(confusion_mat[n_filter_sets]), n_filter_sets);
+
+        resetFeatures("null", n_filter_sets);
       }
 
-      function compareTrigger(trigger_dropdown){
-        idx = trigger_dropdown.value;
-        console.log("Compare trigger", idx);
-        if (idx == "none" || idx == "init" ){
-          doing_comparison = 0;
-          
-        }
-
-        else if (idx == "complement"){
-          // do later
-          doing_comparison = 0;
-        }
-        else {
-          doing_comparison = 1;
-          filter_set_idx_cmp = parseInt(idx);
-        }
-        makeScatterRequest();
+       // Get preprocessed csv file
+      function fetch_csv(){
+        txtFile = new XMLHttpRequest();
+        txtFile.onreadystatechange = initContents;
+        txtFile.open("GET", preproc_path);
+        txtFile.send()
       }
+      
+      // Parse csv
+      var pre_array = [];
+      function initContents() {
+        if (txtFile.readyState === XMLHttpRequest.DONE) {
+          if (txtFile.status === 200) {
+            var rows = txtFile.responseText.split("\n");
+            for (var i = 0; i < rows.length; i++) {
+              var cells = rows[i].split(",");
+              pre_array.push(cells);
+            }
+          }
+        }
+      }
+
+      // Start global screen after instructions
+      function begin_glob(){
+
+        var right = document.getElementById("demo");
+
+        median_btn = document.getElementById("median-button");
+        median_btn.onclick = function(){aggrButtonRequest(this);};
+        median_btn.style.backgroundColor = dark_shade;
+
+        points_btn = document.getElementById("points-button");
+        points_btn.onclick = function(){aggrButtonRequest(this);};
+        points_btn.style.backgroundColor = dark_shade;
+
+        density_btn = document.getElementById("density-button");
+        density_btn.onclick = function(){aggrButtonRequest(this);};
+        density_btn.style.backgroundColor = dark_shade;
+
+        cf_btn = document.getElementById("cf-button");
+        cf_btn.onclick = function(){aggrButtonRequest(this);};
+        cf_btn.style.backgroundColor = dark_shade;
+
+        // reset = document.getElementById("reset-button-proj");
+        // reset.onclick = function(){ resetFeatures(); };
+
+        addFilterSet();
+
+        // draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
+      }
+
 
       fetch_csv();
       begin_glob();

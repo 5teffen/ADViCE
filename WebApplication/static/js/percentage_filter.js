@@ -184,7 +184,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	    	var id = selection.attr("id");
 	    	// console.log(cur_high);
 
-	    	if (id == "slide1"+idx.toString()){
+	    	if (id == "slide1-"+idx.toString()){
 
 
 
@@ -210,7 +210,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	    		
 	    	}
 
-	    	else if (id == "slide2"+idx.toString()){
+	    	else if (id == "slide2-"+idx.toString()){
 	    		cur_high = xScaleInv(x);
 
 	    		if 	(cur_low > cur_high){
@@ -254,7 +254,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 	    .append("rect")
 	    .attr("class","slider")
-	    .attr("id", "slide1"+idx.toString())
+	    .attr("id", "slide1-"+idx.toString())
 	    .attr("data-filteridx", idx.toString())
 	    .attr('x',xScale(start))
 	    .attr('y',-2.5)
@@ -272,7 +272,7 @@ function percentage_bar(elem, state, histoData, idx) {
 	svg.append("g")
 	    .append("rect")
 	    .attr("class","slider")
-	    .attr("id", "slide2"+idx.toString())
+	    .attr("id", "slide2-"+idx.toString())
 	    .attr("data-filteridx", idx.toString())
 	    .attr('x',xScale(end))
 	    .attr('y',-2.5)
