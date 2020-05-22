@@ -49,12 +49,22 @@ def prep_histo_data(data_dict, no_bins = 10):
 
 def prep_percentage_filter(metadata, no_bins, samples = []):
   result = np.zeros((no_bins,))
+  pos_result = np.zeros((no_bins,))
+  neg_result = np.zeros((no_bins,))
   one_bin = 100/no_bins
 
   # ---- OPTION 1: Generate histogram for all datapoints ----
   if samples == []:  
     for i in range(metadata.shape[0]):
       perc = metadata[i][1]*100
+      lab = metadata[i][2]
+
+      # Identify ground truth 
+      if lab == "TP" or lab == "FN":
+        pos = True  
+      else:
+        pos = False 
+
 
       floor = 0
       ceil = one_bin
@@ -63,15 +73,30 @@ def prep_percentage_filter(metadata, no_bins, samples = []):
         # -- Edge Cases -- 
         if (b == 0 and perc < one_bin):
           result[0] += 1
+
+          if pos:
+            pos_result[0] += 1
+          else:
+            neg_result[0] += 1
           break
 
         elif (b == (no_bins-1)):
           result[no_bins-1] += 1
+
+          if pos:
+            pos_result[no_bins-1] += 1
+          else:
+            neg_result[no_bins-1] += 1
           break
 
         elif ((perc >= floor) and (perc < ceil)):
-           result[b] += 1
-           break
+          result[b] += 1
+
+          if pos:
+            pos_result[b] += 1
+          else:
+            neg_result[b] += 1
+          break
        
         floor += one_bin
         ceil += one_bin
@@ -79,7 +104,9 @@ def prep_percentage_filter(metadata, no_bins, samples = []):
     # -- Scale the bins --
     highest_count = np.amax(result)      
     result = (result/highest_count).tolist()
-    return result
+    pos_result = (pos_result/highest_count).tolist()
+    neg_result = (neg_result/highest_count).tolist()
+    return [result,pos_result,neg_result]
 
 
   # ---- OPTION 2: Generate histogram for specific datapoints ----
@@ -195,7 +222,7 @@ def prep_feature_selector(data, feature_no, names, ranges, no_bins, samples, ini
   col = data[:,feature_no]
   col_range = ranges[feature_no]
 
-  print(col_range)
+  # print(col_range)
   col_bins = [0 for x in range(no_bins) if not isinstance(ranges[feature_no][x], str)]
 
 
@@ -636,14 +663,6 @@ def prep_feature_selector_simple(data, feature_no, names, ranges, no_bins, sampl
     highest_count = np.amax(col_bins) 
     col_bins = list(col_bins/highest_count)
     result.append(col_bins)
-
-
-
-  print(result)
-
-
-
-
 
   
   feat_range = ranges[feature_no]

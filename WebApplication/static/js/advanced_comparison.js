@@ -50,15 +50,15 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     }   
 
     function stagger_val(x,y,radius){
+
             dx = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());
-            dy = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());angle = 2*Math.PI*Math.random();
+            dy = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());
+            angle = 2*Math.PI*Math.random();
             x_out = x + dx;
             y_out = y + dy;
 
             return [x_out, y_out]
     }
-
-    
 
     function draw_triangle(data) {
         var full_string = "";
@@ -363,7 +363,11 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .attr("cy", function(){
                         if (discrete_mask[i]==1){return xy[1];}
                         else{return y;}})
-                    .style("fill", points_col)
+                    .style("fill", function(){
+                        if (d.dec == 0) {
+                            return good_col;}
+                        else {
+                            return bad_col;}})
                     .style("opacity", pt_opp_lst[s]);
                 }
             }

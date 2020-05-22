@@ -5,10 +5,13 @@
 
 
 
-function percentage_bar(elem, state, histoData, idx) {
+function percentage_bar(elem, state, allHistoData, idx) {
 
 	// var histoData = [0.2,0.3,0.5,0.6,0.9,0.9,0.8,0.3,0.2,0.2,0.5,0.5,0.6,0.1,0.3,0.7]
 
+	histoData = allHistoData[0];
+	posHisto = allHistoData[1];
+	negHisto = allHistoData[2];
 
 	//  --- Main Variables --- 
 	var start = state[0],
@@ -32,6 +35,11 @@ function percentage_bar(elem, state, histoData, idx) {
         width = 230 - margin.right - margin.left,
         height = 100 - margin.top - margin.bottom;
 
+
+
+    // --- Color variables ---
+    var bad_col = "#d95f02",
+        good_col = "#1b9e77";
 
 
     // --- Bar Parameters --- 
@@ -138,22 +146,34 @@ function percentage_bar(elem, state, histoData, idx) {
 
 
     // === Histogram Base === 
-
     for (n=0 ; n < no_bins; n++){
     	var inBin = histoData[n];
+    	var posBin = posHisto[n];
+    	var negBin = negHisto[n];
 
-    	 svg.append("g")
+    	svg.append("g")
 	        .append("rect")
 	        .attr('x',(n)*histo_bin_w)
 	        .attr('y',-yHisto(inBin)-1)
 	        .attr("height",yHisto(inBin))
-	        .attr("width",histo_bin_w)
-	        .attr("fill",histo_col)
-	        .attr("opacity",0.4)
-	        .attr("stroke-width",1)
+	        .attr("width",histo_bin_w-1)
+	        .attr("fill",bad_col)
+	        .attr("opacity",1)
+	        .attr("stroke-width",0)
 	        .attr("stroke","white");
 
+    	svg.append("g")
+	        .append("rect")
+	        .attr('x',(n)*histo_bin_w)
+	        .attr('y',-yHisto(posBin)-1)
+	        .attr("height",yHisto(posBin))
+	        .attr("width",histo_bin_w-1)
+	        .attr("fill",good_col)
+	        .attr("opacity",1)
+	        .attr("stroke-width",0)
+	        .attr("stroke","white");
     }
+
 
 
 
