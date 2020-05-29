@@ -347,6 +347,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             for(n=0 ; n < this_data.length; n++){
                 var oneData = this_data[n]
 
+                line_str = "M"
+
                 for(i=0; i < oneData.length; i++){
                     d = oneData[i];
                     x = xScale(d.name);
@@ -354,22 +356,90 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     y_shift = yScale(d.scl_val)-point_shift;
                     xy = stagger_val(x,y_shift,stagger_r);
 
+                    // Identify discrete features to jagger
+                    if (discrete_mask[i]==1){
+                        y = xy[1];
+                        // x = xy[0];
+                    }
+                    x = xy[0]; // Jaggers all point in x-plane
+
                     shift_svg.append("g")
-                    .append("circle")
-                    .attr("r", point_size)
-                    .attr("cx", function(){
-                        if (discrete_mask[i]==1){return xy[0];}
-                        else{return xy[0];}})
-                    .attr("cy", function(){
-                        if (discrete_mask[i]==1){return xy[1];}
-                        else{return y;}})
-                    .style("fill", function(){
-                        if (d.dec == 0) {
-                            return good_col;}
-                        else {
-                            return bad_col;}})
-                    .style("opacity", pt_opp_lst[s]);
+                        .append("circle")
+                        .attr("class",s.toString()+'-'+n.toString())
+                        .attr("r", point_size)
+                        .attr("cx",x)
+                        .attr("cy",y)
+                        .style("fill", function(){
+                            if (d.dec == 0) {
+                                return good_col;}
+                            else {
+                                return bad_col;}})
+                        .style("opacity", pt_opp_lst[s])
+                        .on("mouseover",function(){
+                            id_code = d3.select(this).attr("class");
+                            d3.select('#line-'+id_code.toString()).attr("stroke-opacity",1);
+                        })
+                        .on('mouseout',function(){
+                            id_code = d3.select(this).attr("class");
+                            d3.select('#line-'+id_code.toString()).attr("stroke-opacity",0);
+                        });
+
+        
+
+                    // Add to line path
+                    line_str = line_str + x.toString() + ',' + y.toString();
+                    if (i != oneData.length-1){line_str += ",L";}
                 }
+                
+                // ==== Draw line connecting points ==== 
+                shift_svg.append('g')
+                    .append("path")
+                    .attr('d',line_str)
+                    .attr('id',"line-"+s.toString()+'-'+n.toString())
+                    .attr('fill',"None")
+                    .attr("stroke-width", 0.5)
+                    .attr("stroke","gray")
+                    .attr("stroke-opacity",0);
+                    // .on('mouseover',function(){
+                    //     d3.select(this).attr("stroke-opacity",1);
+                    // })
+                    // .on('mouseout',function(){
+                    //     d3.select(this).attr("stroke-opacity",0);
+                    // });
+
+
+                        // .on('mouseover',function(){
+                        //     d3.selectAll(".arrows").attr("fill-opacity",0);
+                        //     d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
+                        // })
+
+                        // .on('mouseout',function(){
+                        //     d3.selectAll(".arrows").attr("fill-opacity",0.7);
+                        //     d3.select(this).attr("stroke-opacity",0)
+                        // })
+                        // .on('click',function(d){
+                        //     var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
+                        //     window.location.href = reloc;
+                        // })
+                        // .attr('d',line_str)
+                        // .attr("class","arrows")
+                        // .attr("fill-opacity",0.7)
+                        // .attr("fill",function(d){
+                        //     if (d[0].dec == 0) {
+                        //         return bad_col;}
+                        //     else {
+                        //         return good_col;}
+                        // })
+                        // .attr("stroke-width", 2)
+                        // .attr("stroke",function(d){
+                        //     if (d[0].dec == 0) {
+                        //         return bad_col;}
+                        //     else {
+                        //         return good_col;}
+                        // })
+                        // .attr("stroke-opacity",0)
+
+
             }
         }
 
