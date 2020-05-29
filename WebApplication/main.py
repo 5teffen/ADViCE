@@ -172,9 +172,17 @@ def init_data(dataset):
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 	
 	# --- Tests ---
-	test_samp = [x for x in range(100)]
-	aggr_tests = prep_for_D3_aggregation(metadata, data, feature_names, test_samp , bins_centred, X_pos_array, False)
-	histz, medz = prep_histo_data(aggr_tests)
+	test_samp1 = [x for x in range(100)]
+	aggr_tests1 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp1 , bins_centred, X_pos_array, False)
+	test_samp2 = [x for x in range(100,200)]
+	aggr_tests2 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp2 , bins_centred, X_pos_array, False)
+
+	histz1, medz1 = prep_histo_data(aggr_tests1)
+	histz2, medz2 = prep_histo_data(aggr_tests2)
+	sort_by_div(medz1, medz2)
+
+
+
 	# print(aggr_tests)
 	# histz, medz = prep_histo_data(data, col_ranges, test_samp)
 	# prep_histo_data(data,col_ranges)
@@ -517,8 +525,10 @@ def violin_site_req():
 			return "-1"
 
 		else:
-			# --- Sort Features ---
-			sort_toggle = False
+			# --- Sort Features --- OSCAR!
+			sort_toggle = True
+
+
 
 			doing_comparison = 1 if proj_samples_2[0]!="null" else 0
 
@@ -549,6 +559,10 @@ def violin_site_req():
 				one_set = {"data":aggr_data, "den":hist_data, "median":median_data}
 
 				complete_data.append(one_set)
+
+			# if sort_toggle and no_comparisons > 1:
+			# 	sort_lst = sort_by_div(complete_data[0]["median"], complete_data[1]["median"])
+			# 	complete_data = apply_sort(sort_lst, complete_data)
 
 			ret_string = json.dumps(complete_data)
 

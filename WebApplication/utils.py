@@ -11,6 +11,65 @@ class dataset():
 		self.name = name
 		self.lock = lock
 
+def apply_sort(sl, complete_data): # Apply sort list (sl) to complete data input
+	print("MY SORT LIST: ----- " ,sl)
+	new_complete = copy.deepcopy(complete_data)
+
+	for s in range(len(complete_data)):
+		data_set = complete_data[s]
+		
+		for i in range(len(sl)):
+			idx = sl[i]
+			# -- Median -- 
+			new_med = data_set["median"][idx]
+			new_complete[s]["median"][i] = new_med
+
+
+			# -- Histo -- 
+			new_hist = data_set["den"][idx]
+			new_complete[s]["den"][i] = new_hist
+
+
+			# -- Aggregation --
+			new_aggr = data_set["data"][idx]
+			new_complete[s]["data"][i] = new_aggr
+
+
+
+		# # -- Median -- 
+		# cur_med = data_set["median"]
+		# new_med = [cur_med for _,cur_med in sorted(zip(sl,cur_med))]
+		# complete_data[s]["median"] = new_med
+
+		# # -- Histo -- 
+		# cur_hist = data_set["den"]
+		# new_hist = [cur_hist for _,cur_hist in sorted(zip(sl,cur_hist))]
+		# complete_data[s]["den"] = new_hist
+
+		# # -- Aggregation -- 
+		# cur_aggr = data_set["data"]
+		# new_aggr = [cur_aggr for _,cur_aggr in sorted(zip(sl,cur_aggr))]
+		# complete_data[s]["data"] = new_aggr
+
+	# print(new_complete[0])
+	# print(complete_data[0])
+
+	return new_complete
+
+
+def sort_by_div(medians1, medians2): # Sort aggregation by divergence of medians
+	diff_lst = []
+	idx_lst = []
+
+	for i in range(len(medians1)):
+		diff_lst.append(-1*abs(medians2[i] - medians1[i]))
+		idx_lst.append(i)
+
+	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(diff_lst,idx_lst))]
+	return sort_lst
+
+def sort_by_cf(): # Sort aggregation by number of counter factuals
+	pass
 
 def mono_finder(model,data, ranges):
 	"""
@@ -58,6 +117,7 @@ def find_feature_range(feat_range):
 			max_val = feat_range[i][1]
 			break
 	return (min_val,max_val)
+
 
 def model_overview(pre_proc_file):
 	pre_data = pd.read_csv(pre_proc_file).values
@@ -107,6 +167,7 @@ def model_overview(pre_proc_file):
 	# print("Key Features:",key_count)
 	# print("Changes",changes_count)
 
+
 def display_data (X,y,model,sample,row=0):
 	# Data point not in original dataset
 	if sample == -1:
@@ -143,6 +204,7 @@ def display_data (X,y,model,sample,row=0):
 		elif (predicted, model_correct) == (1,1):
 			category = "TP"
 		return sample, good_percent, model_correct, category, predicted
+
 
 def separate_bins_feature(feat_column, no_bins):
 
@@ -211,6 +273,7 @@ def separate_bins_feature(feat_column, no_bins):
 
 	return bins, new_col, new_col_vals, ranges
 
+
 def divide_data_bins(data,no_bins):
     no_feat = data.shape[1]
     bins_centred = []
@@ -234,6 +297,7 @@ def divide_data_bins(data,no_bins):
     col_ranges = np.array(col_ranges)
 
     return bins_centred, X_pos_array, in_vals, col_ranges
+
 
 def bin_single_sample(sample, col_ranges):
 	# -- Extract Basic Parameters -- 
@@ -274,6 +338,7 @@ def bin_single_sample(sample, col_ranges):
 
 	return pos_array
 
+
 def prepare_for_analysis(filename):
 	data_array = pd.read_csv(filename,header=None).values
 
@@ -295,6 +360,7 @@ def prepare_for_analysis(filename):
 
 	return data_array
 
+
 def sort_by_val(main, density):
     ordered_main = []
     ordered_density = []
@@ -307,6 +373,7 @@ def sort_by_val(main, density):
 
     return ordered_main, ordered_density
 
+
 def sort_by_imp(main, density, ft_imps):
 	ordered_main = []
 	ordered_density = []
@@ -318,6 +385,7 @@ def sort_by_imp(main, density, ft_imps):
 		ordered_main.append(main[key])
 
 	return ordered_main, ordered_density
+
 
 def test_match(idx, p):
 	# -- Testing to match new individual binning --
