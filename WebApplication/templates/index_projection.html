@@ -42,7 +42,7 @@
     <div class="main">
       <div class="left-sidebar-proj">
         <header class="site-header-proj">
-          <h1><a href="/">HOME</a></h1>
+          <h1><a href="/"> HOME </a></h1>
         </header>
         <nav class="left-nav-proj">
           <ul>
@@ -588,6 +588,7 @@
 
             // setup the grid after the page has finished loading
             var gridDiv = document.querySelector('#table-div');
+            gridDiv.style.float = "left";
             new agGrid.Grid(gridDiv, gridOptions);
             gridOptions.api.sizeColumnsToFit();
 
@@ -657,7 +658,7 @@
         resetFeatures("null", n_filter_sets);
       }
 
-       // Get preprocessed csv file
+      // Get preprocessed csv file
       function fetch_csv(){
         txtFile = new XMLHttpRequest();
         txtFile.onreadystatechange = initContents;
