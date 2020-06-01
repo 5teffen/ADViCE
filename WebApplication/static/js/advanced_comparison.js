@@ -14,10 +14,10 @@
     // complete_data = [set1,set2,set1,set2,set1];
 
 
-function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle) {
+function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle, detail_toggle) {
 
     // -- Details on/off -- 
-    detail_toggle = true;
+    // detail_toggle = true;
 
 
     function stagger_val(x,y,radius){
@@ -154,8 +154,19 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     // -- Drawing and styling the AXIS
     var xAxis = d3.axisBottom().scale(xScale);
 
-    svg.append("g")
+
+    // --- Make space for Details --- 
+    if (detail_toggle) {
+        axis_svg = svg.append("g")
+                .attr("transform","translate(0,"+ (10) + ')'); 
+    }
+    else {
+        axis_svg = svg;
+    }
+        
+    axis_svg.append("g")
         .attr("class", "axis")
+        .attr("y", -50)
         .attr("transform", "translate(0," + (height+padding) + ")")
         .call(xAxis)
         .selectAll("text")  
