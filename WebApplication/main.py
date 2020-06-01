@@ -171,15 +171,25 @@ def init_data(dataset):
 	
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 	
-	# --- Tests ---
-	test_samp1 = [x for x in range(100)]
-	aggr_tests1 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp1 , bins_centred, X_pos_array, False)
-	test_samp2 = [x for x in range(100,200)]
-	aggr_tests2 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp2 , bins_centred, X_pos_array, False)
+	# --- Algorithm Tests ---
+	# test_samp1 = [x for x in range(100)]
+	# aggr_tests1 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp1 , bins_centred, X_pos_array, False)
+	# test_samp2 = [x for x in range(100,200)]
+	# aggr_tests2 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp2 , bins_centred, X_pos_array, False)
 
-	histz1, medz1 = prep_histo_data(aggr_tests1)
-	histz2, medz2 = prep_histo_data(aggr_tests2)
-	sort_by_div(medz1, medz2)
+
+	# aggr_tests1 = prep_complete_data(metadata, data, feature_names, test_samp1 ,col_ranges, bins_centred, X_pos_array, False)
+
+
+	# histz1, medz1 = prep_histo_data(aggr_tests1)
+	# histz2, medz2 = prep_histo_data(aggr_tests2)
+	# comp_dat = [{"data":aggr_tests1, "den":histz1, "median":medz1}, {"data":aggr_tests2, "den":histz2, "median":medz2}]
+
+	# sl = sort_by_div(medz1, medz2)
+	
+	# new_comp = apply_sort(sl,comp_dat)
+
+
 
 
 
@@ -529,7 +539,6 @@ def violin_site_req():
 			sort_toggle = True
 
 
-
 			doing_comparison = 1 if proj_samples_2[0]!="null" else 0
 
 			# --- Converting to 0 indexed --- 
@@ -552,17 +561,17 @@ def violin_site_req():
 			for i in range(no_comparisons):
 				samples = samples_lst[i]
 
-				aggr_data = prep_for_D3_aggregation(metadata, data, feature_names, samples, bins_centred, X_pos_array, sort_toggle)
-				hist_data, median_data = prep_histo_data(aggr_data)
-				# sel_den, sel_med, sel_mean = specific_kernel_densities(data, samples, feature_names, density_fineness) # FIX DENSITY CURVE 
-
-				one_set = {"data":aggr_data, "den":hist_data, "median":median_data}
-
+				# --- Complete data prep for D3 --- 
+				one_set = prep_complete_data(metadata, data, feature_names, samples ,col_ranges, bins_centred, X_pos_array, 0)
 				complete_data.append(one_set)
 
-			# if sort_toggle and no_comparisons > 1:
-			# 	sort_lst = sort_by_div(complete_data[0]["median"], complete_data[1]["median"])
-			# 	complete_data = apply_sort(sort_lst, complete_data)
+			# ==== Sorting options ===
+			if sort_toggle and no_comparisons > 1:
+				
+				# --- Median sort --- 
+				sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"])
+				
+				complete_data = apply_sort(sort_lst, complete_data)
 
 			ret_string = json.dumps(complete_data)
 

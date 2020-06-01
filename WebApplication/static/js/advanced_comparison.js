@@ -16,38 +16,9 @@
 
 function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle) {
 
-    function determine_discrete(data,no_bins){
-        no_ft = data[0].length
-        no_samp = data.length
-        mask = []
+    // -- Details on/off -- 
+    detail_toggle = true;
 
-        for (col = 0; col < no_ft; col++){
-
-            unique = [];
-            for (i=0 ; i < no_samp; i++) {
-                val = data[i][col].scl_val;
-                if (unique.includes(val) == false){
-                    unique.push(val);
-                }
-            }
-
-            if (unique.length < no_bins) {mask.push(1);}
-            else {mask.push(0);}
-        }
-
-        return mask;
-    }
-
-    function stagger_val2(x,y,radius){
-        // output = Math.sqrt(-2*log(Math.random()))*cos(2*Math.PI*Math.random())
-        // radius = 2;
-        angle = 2*Math.PI*Math.random();
-        r = radius*Math.sqrt(Math.random());
-        x_out = r * Math.cos(angle) + x;
-        y_out = r * Math.sin(angle) + y;
-
-        return [x_out, y_out]
-    }   
 
     function stagger_val(x,y,radius){
 
@@ -60,7 +31,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             return [x_out, y_out]
     }
 
-    function draw_triangle(data) {
+    function draw_triangle(data,tri_w) {
         var full_string = "";
 
         for(n=0 ; n < data.length; n++){
@@ -69,8 +40,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
             // if ((d.scl_val != d.scl_change) || (!button3 && !density_toggle)){
             if (d.scl_val != d.scl_change) {
-                x1 = xScale(d.name) - triangle_w/2
-                x2 = xScale(d.name) + triangle_w/2
+                x1 = xScale(d.name) - tri_w/2
+                x2 = xScale(d.name) + tri_w/2
                 x3 = xScale(d.name) 
                 y1 = yScale(d.scl_val)
                 y2 = yScale(d.scl_change)
@@ -85,25 +56,23 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         }
         return full_string
     }
+    
+    // --- Establish metadata ---
+    var metadata = complete_data[0].meta
 
-
-    // --- Mask the discrete features --- 
-    var discrete_mask = determine_discrete(complete_data[0].data,10);
-
-
-    // --- Identify the number of sets to visualize --- 
-    var no_sets = complete_data.length;
-
-    // --- Metadata about the sets --- 
-    var no_features = complete_data[0].data[0].length, // Assumes they all match
+    var no_features = metadata.length, // Assumes they all match
         no_bins = complete_data[0].den[0].length,  // Assumes they all match
         no_samples_lst = [],
         pt_opp_lst = [];
 
 
-    for (i=0; i<no_sets;i++){
+    // --- Identify the number of sets to visualize --- 
+    var no_sets = complete_data.length;
+
+
+    for (i=0; i<no_sets; i++){
         no_samp = complete_data[0].data.length;
-        no_samples_lst.push(no_samp);
+        no_samples_lst.push(no_samp);  // Different for each set
         pt_opp_lst.push((1/no_samp)*50);
     }
 
@@ -119,13 +88,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         bad_col = "#1b9e77";
        
     var single_data_point = complete_data[0].data[0];
-
-    if (single_data_point[0].dec == 0) {
-        opp_colour = good_col;
-        the_colour = bad_col;}
-    else {
-        opp_colour = bad_col
-        the_colour = good_col;}
 
 
     // --- Establshing Dimensions ---
@@ -154,7 +116,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
     // --- Creating Scales based on canvas --- 
     var xScale = d3.scaleBand()
-            .domain(single_data_point.map(function(d){return d.name;}))
+            .domain(metadata.map(function(d){return d.name;}))
             .rangeRound([0, width])
             .paddingInner(separator),
         
@@ -163,7 +125,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             .rangeRound([height, 0]);
 
     var bandwidth = xScale.bandwidth(),
-        triangle_w = (bandwidth/2)*0.6;  // Single CF Triangle Width
+        triangle_w = (one_width/2)*0.6;  // Single CF Triangle Width
 
 
 
@@ -187,23 +149,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 .attr("class", "main-svg")
                 .append("g")
                      .attr("transform","translate(" + margin.left + ',' + margin.top +')');
-
-
-
-    // -- Drawing background rectangles -- 
-    // svg.selectAll("rect")
-    //     .data(testData)
-    //     .enter()
-    //     .append("rect")
-    //     .attr("class","bg_bar")
-    //     .attr('x',function(d) {return xScale(d.name);})
-    //     .attr('y',-padding)
-    //     .attr("height",function(d){return yScale(0)+2*padding})
-    //     .attr("width",bandwidth)
-    //     .attr("fill", "None")
-    //     .attr("stroke", "None")
-    //     .style("opacity",0.5);
-        
 
   
     // -- Drawing and styling the AXIS
@@ -238,7 +183,9 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         this_data = this_set.data;
         this_den = this_set.den;
         this_med = this_set.median;
+        this_meta = this_set.meta;
 
+        // console.log("----Set"+s.toString());
         // === Density & Median === 
         for (ind=0 ; ind < no_features; ind++) {
             ft_name = this_data[0][ind].name;
@@ -280,16 +227,16 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             if (median_toggle) {   
                 var tick_size = 10,
                     tick_width = 3;
-               
+
                 svg.append("g")
                     .append("line")
                     .attr("class","split_lines")
                     .attr("x1",centre - tick_size/2)
                     .attr('y1',function(){
-                        if (discrete_mask[ind]==1) {return yScale(this_med[ind])-point_shift}
+                        if (this_meta[ind].cat ==1 ) {return yScale(this_med[ind])-point_shift}
                         else {return yScale(this_med[ind]);}})
                     .attr('y2',function(){
-                        if (discrete_mask[ind]==1) {return yScale(this_med[ind])-point_shift}
+                        if (this_meta[ind].cat == 1) {return yScale(this_med[ind])-point_shift}
                         else {return yScale(this_med[ind]);}})
                     .attr("x2",centre + tick_size/2)
                     .style("stroke",den_colour)
@@ -323,7 +270,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     window.location.href = reloc;
                 })
                 .attr('d',function(d){
-                    return draw_triangle(d);})
+                    return draw_triangle(d, triangle_w);})
                 .attr("class","arrows")
                 .attr("fill-opacity",0.7)
                 .attr("fill",function(d){
@@ -357,7 +304,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     xy = stagger_val(x,y_shift,stagger_r);
 
                     // Identify discrete features to jagger
-                    if (discrete_mask[i]==1){
+                    if (this_meta[i].cat == 1){
                         y = xy[1];
                         // x = xy[0];
                     }
@@ -400,45 +347,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .attr("stroke-width", 0.5)
                     .attr("stroke","gray")
                     .attr("stroke-opacity",0);
-                    // .on('mouseover',function(){
-                    //     d3.select(this).attr("stroke-opacity",1);
-                    // })
-                    // .on('mouseout',function(){
-                    //     d3.select(this).attr("stroke-opacity",0);
-                    // });
-
-
-                        // .on('mouseover',function(){
-                        //     d3.selectAll(".arrows").attr("fill-opacity",0);
-                        //     d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
-                        // })
-
-                        // .on('mouseout',function(){
-                        //     d3.selectAll(".arrows").attr("fill-opacity",0.7);
-                        //     d3.select(this).attr("stroke-opacity",0)
-                        // })
-                        // .on('click',function(d){
-                        //     var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
-                        //     window.location.href = reloc;
-                        // })
-                        // .attr('d',line_str)
-                        // .attr("class","arrows")
-                        // .attr("fill-opacity",0.7)
-                        // .attr("fill",function(d){
-                        //     if (d[0].dec == 0) {
-                        //         return bad_col;}
-                        //     else {
-                        //         return good_col;}
-                        // })
-                        // .attr("stroke-width", 2)
-                        // .attr("stroke",function(d){
-                        //     if (d[0].dec == 0) {
-                        //         return bad_col;}
-                        //     else {
-                        //         return good_col;}
-                        // })
-                        // .attr("stroke-opacity",0)
-
 
             }
         }
