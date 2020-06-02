@@ -104,7 +104,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
     // --- Establishing margins and canvas bounds --- 
     var margin = {
-            top: 20, 
+            top: 30, 
             right: 20, 
             bottom: 170, 
             left: 20
@@ -125,8 +125,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             .rangeRound([height, 0]);
 
     var bandwidth = xScale.bandwidth(),
+        // triangle_w = 0.6*bandwidth/no_sets;
         triangle_w = (one_width/2)*0.6;  // Single CF Triangle Width
-
 
 
     // --- Density Variables and Scales --
@@ -187,6 +187,40 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
     var point_shift = histo_bin_h/2;
 
+    // -- Max/Min range details --
+
+    if (detail_toggle) {
+        svg.append('g').selectAll("text")
+            .data(complete_data[0].meta)
+            .enter()
+            .append("text")
+            .text(function(d){return "Min: "+ d.min.toString();})
+            .attr("x",function(d){
+                return xScale(d.name)+bandwidth/2;})
+            .attr("y",yScale(0)+14)
+            .attr("text-anchor","middle")
+            .attr("font-family",'"Open Sans", sans-serif')
+            .attr("font-size", '9px')
+            .attr("font-weight", 400)
+            .attr("fill","black");
+
+        svg.append('g').selectAll("text")
+            .data(complete_data[0].meta)
+            .enter()
+            .append("text")
+            .text(function(d){return "Max: "+ d.max.toString();})
+            .attr("x",function(d){
+                return xScale(d.name)+bandwidth/2;})
+            .attr("y",yScale(1)-14)
+            .attr("text-anchor","middle")
+            .attr("font-family",'"Open Sans", sans-serif')
+            .attr("font-size", '9px')
+            .attr("font-weight", 400)
+            .attr("fill","black");
+    }
+
+
+
     for (s=0 ; s < no_sets; s++) {
 
         // -- Data variables for the specific set -- 
@@ -232,7 +266,34 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .attr("stroke-width",1)
                     .attr("stroke","white");
 
+
+                // --- Bin Details --- 
+                if (detail_toggle && s == 0) {
+                    svg.append('g')
+                        .append("text")
+                        .text(function(){
+                            if (this_meta[ind].cat) {
+                                return this_meta[ind].bins[n];
+                            }
+                            else{
+                                low = this_meta[ind].bins[n][0];
+                                high = this_meta[ind].bins[n][1];
+                            }
+                            return low + "-" + high;})
+                        .attr("x",function(){
+                            return xScale(this_meta[ind].name)+bandwidth/2;})
+                        .attr("y",yDenScale(histo_bin_h*n+histo_bin_h - histo_bin_h/2-5))
+                        .attr("text-anchor","middle")
+                        .attr("font-family",'"Open Sans", sans-serif')
+                        .attr("font-size", '10px')
+                        .attr("font-weight", 400)
+                        .attr("fill","black");
+                }
             }
+
+
+
+
 
             // --- Median Line --- 
             if (median_toggle) {   
