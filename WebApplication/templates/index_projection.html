@@ -73,6 +73,7 @@
                   <button id="points-button" class="proj-button"> Points </button>
                   <button id="density-button" class="proj-button"> Density </button>
                   <button id="cf-button" class="proj-button"> CF </button>
+                  <button id="detail-button" class="proj-button"> Details </button>
                 </div>
               </th>
             </tr>
@@ -483,6 +484,9 @@
             // --- Toggle Density --- 
             var cf_toggle = (document.getElementById("cf-button").style.backgroundColor == dark_shade);
 
+            // --- Toggle Details --- 
+            var detail_toggle = (document.getElementById("detail-button").style.backgroundColor == dark_shade);
+
             // --- Sort Features --- 
 
             // --- Monotonicity ---  
@@ -493,7 +497,7 @@
             }
 
             draw_comparison(resp_list, "#distribution-div",
-              median_toggle, density_toggle, points_toggle,cf_toggle);
+              median_toggle, density_toggle, points_toggle,cf_toggle, detail_toggle);
        
           }
           else {
@@ -700,6 +704,10 @@
         cf_btn = document.getElementById("cf-button");
         cf_btn.onclick = function(){aggrButtonRequest(this);};
         cf_btn.style.backgroundColor = dark_shade;
+
+        detail_btn = document.getElementById("detail-button");
+        detail_btn.onclick = function(){aggrButtonRequest(this);};
+        detail_btn.style.backgroundColor = dark_shade;
 
         // reset = document.getElementById("reset-button-proj");
         // reset.onclick = function(){ resetFeatures(); };

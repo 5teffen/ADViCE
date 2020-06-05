@@ -11,61 +11,53 @@ class dataset():
 		self.name = name
 		self.lock = lock
 
+
 def apply_sort(sl, complete_data): # Apply sort list (sl) to complete data input
-	print("MY SORT LIST: ----- " ,sl)
 	new_complete = copy.deepcopy(complete_data)
 
 	for s in range(len(complete_data)):
 		data_set = complete_data[s]
+		new_complete[s]["data"] = np.array(new_complete[s]["data"])
 		
 		for i in range(len(sl)):
 			idx = sl[i]
+
+			# -- Metadata -- 
+			new_meta = data_set["meta"][idx]
+			new_complete[s]["meta"][i] = new_meta
+			
 			# -- Median -- 
 			new_med = data_set["median"][idx]
 			new_complete[s]["median"][i] = new_med
-
 
 			# -- Histo -- 
 			new_hist = data_set["den"][idx]
 			new_complete[s]["den"][i] = new_hist
 
-
 			# -- Aggregation --
-			new_aggr = data_set["data"][idx]
-			new_complete[s]["data"][i] = new_aggr
-
-
-
-		# # -- Median -- 
-		# cur_med = data_set["median"]
-		# new_med = [cur_med for _,cur_med in sorted(zip(sl,cur_med))]
-		# complete_data[s]["median"] = new_med
-
-		# # -- Histo -- 
-		# cur_hist = data_set["den"]
-		# new_hist = [cur_hist for _,cur_hist in sorted(zip(sl,cur_hist))]
-		# complete_data[s]["den"] = new_hist
-
-		# # -- Aggregation -- 
-		# cur_aggr = data_set["data"]
-		# new_aggr = [cur_aggr for _,cur_aggr in sorted(zip(sl,cur_aggr))]
-		# complete_data[s]["data"] = new_aggr
-
-	# print(new_complete[0])
-	# print(complete_data[0])
+			new_aggr = np.array(data_set["data"])[:,int(idx)]
+			new_complete[s]["data"][:,i] = new_aggr
+		
+		new_complete[s]["data"] = (new_complete[s]["data"]).tolist()
 
 	return new_complete
 
 
-def sort_by_div(medians1, medians2): # Sort aggregation by divergence of medians
+
+def sort_by_med(medians1, medians2): # Sort aggregation by divergence of medians
 	diff_lst = []
 	idx_lst = []
+
+	print("MEDIAN 1:" , np.around(medians1,2))
+	print("MEDIAN 2:" , np.around(medians2,2))
 
 	for i in range(len(medians1)):
 		diff_lst.append(-1*abs(medians2[i] - medians1[i]))
 		idx_lst.append(i)
 
+	print("Difference:", np.around(diff_lst,2))
 	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(diff_lst,idx_lst))]
+	print("Sort list:", sort_lst)
 	return sort_lst
 
 def sort_by_cf(): # Sort aggregation by number of counter factuals
