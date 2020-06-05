@@ -1173,6 +1173,7 @@ table #model-display {
 
 .right-side-proj {
   height: 100vh;
+  padding-top: 15px;
   font-family: "Source Sans Pro", Helvetica, sans-serif;
   width: auto;
   margin-left: 120px;
@@ -1192,7 +1193,9 @@ table #model-display {
   margin-left: 30px;
   /*width: calc(100% - 300px);*/
   width: 400px;
-  height: calc(100% - 50px);
+  height: calc(100% - 10px);
+  border-right: solid 1px;
+  border-color: #b4b1d559;
   /*margin-top: 15px;*/
   /*background-color: darkgrey;*/
   display: inline-block;
