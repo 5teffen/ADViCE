@@ -376,10 +376,13 @@
             // TODO: Do summary for matrix in place, and in correct index for the rest
             if (doing_comparison==0){
               draw_summary(allData[2],  allData[3], '#summary-div-1');
+              draw_conf_mat_numbers(allData[2], 1);
             }
             else if (doing_comparison==1){
               draw_summary(allData[2],  allData[3], '#summary-div-1');
               draw_summary(allData[5],  allData[6], '#summary-div-2');
+              draw_conf_mat_numbers(allData[2], 1);
+              draw_conf_mat_numbers(allData[2], 2);
             }
             
             //console.log(allData[1]);
@@ -396,6 +399,16 @@
               alert('HttpRequest Error')
           }
         }
+      }
+
+      // TODO: Replace confusion mat summary with this
+      function draw_conf_mat_numbers(conf_nums, idx){
+        console.log("Drawing conf mat numbers", conf_nums);
+        document.getElementById("TP-text-"+idx.toString()).innerHTML = conf_nums.tp;
+        console.log(document.getElementById("TP-text-"+idx.toString()).innerHTML);
+        document.getElementById("FP-text-"+idx.toString()).innerHTML = conf_nums.fp;
+        document.getElementById("TN-text-"+idx.toString()).innerHTML = conf_nums.tn;
+        document.getElementById("FN-text-"+idx.toString()).innerHTML = conf_nums.fn;
       }
       
       // Request from bokeh plot to right panel aggregation
