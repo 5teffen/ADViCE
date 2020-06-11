@@ -101,6 +101,9 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
       change = val
 
 
+      # -- Bin index -- 
+      meta[f]["bin_id"] = positions[s][f]
+
       # --- Find Counter Factual when occurs ---
       for a in range((start_col+no_anchs) , (start_col+no_anchs+no_changes)):  # Format of metadata
         col = metadata[s][a]
@@ -108,13 +111,14 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
           idx = positions[s][col] 
           increments = metadata[s][a+no_changes]
           change = bins_centred[f][int(idx+increments)]  # Target value based on bin centres
-
+          meta[f]["bin_id"] = int(idx+increments)
 
       max_bin = np.max(bins_centred[f])
       min_bin = bins_centred[f][0]
 
       if (max_bin - min_bin < no_bins):
         max_bin = min_bin + no_bins
+
 
       # -- Add bin max/min to metadata -- 
       meta[f]["max_bin"] = max_bin
@@ -186,7 +190,7 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
   # -- Normalize the Histogram --
   for hb in range(len(histo_bins)):
     highest_count = np.amax(histo_bins[hb])
-    histo_bins[hb] = list(np.around(histo_bins[hb]/highest_count,3))
+    histo_bins[hb] = list(np.around(histo_bins[hb]/highest_count,5))
   
 
   # --------------------------------------------------------------------
