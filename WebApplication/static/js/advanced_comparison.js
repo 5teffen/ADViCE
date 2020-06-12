@@ -17,7 +17,7 @@
 function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle, detail_toggle) {
 
     // -- Details on/off -- 
-    // detail_toggle = true;
+    detail_toggle = false;
 
 
     function stagger_val(x,y,radius){
@@ -252,6 +252,10 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             // --- Drawing the Density --- 
             for (n=0 ; n < no_bins; n++){
                 var inBin = xDenScale(this_den[ind][n]);
+                if (this_den[ind][n] > 0 && inBin < 1) { // Look into this
+                    console.log("triggered");
+                    inBin = 1;}
+               
                 svg.append("g")
                     .append("rect")
                     .attr('x',centre-inBin/2)
@@ -268,8 +272,9 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .attr("stroke","white");
 
 
-                // --- Bin Details --- 
+                // // --- Bin Details --- 
                 if (detail_toggle && s == 0) {
+                // if (s == 0) {   
                     svg.append('g')
                         .append("text")
                         .text(function(){
@@ -292,10 +297,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 }
             }
 
-
-
-
-
             // --- Median Line --- 
             if (median_toggle) {   
                 var tick_size = 10,
@@ -316,6 +317,34 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .style("stroke-opacity",1)
                     .style("stroke-width",tick_width);
             }
+
+
+
+
+            // --- Click Boxes  --- 
+            for (no=0 ; no < no_bins; no++){
+                svg.append("g")
+                    .append("rect")
+                    .attr('id', "box-")
+                    .attr('x',centre-xDenScale(1)/2)
+                    .attr('y',yDenScale(histo_bin_h*no+histo_bin_h))
+                    .attr("height",histo_bin_h)
+                    .attr("width",xDenScale(1))
+                    .attr("fill","red")
+                    .attr('opacity',0.2)
+                    .on('click', function(){
+                        console.log("Bin no", no);
+                        console.log("Set", s);
+                    })                
+                    .on('mouseover',function(){
+                    })
+                    .on('mouseout',function(){
+                    });
+
+            }
+
+
+
         }
 
 
