@@ -491,13 +491,11 @@ def main_site_backend_req():
 			selected_samples = apply_mask(all_samples, current_mask)
 
 			# STEFFEN
-			# selected_samples = [x['id'] for x in result]
-			# selected_samples =range(30)
 			print("SELECTED SAMPLES", selected_samples)
-			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
-			updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples)
+			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, all_samples)
+			# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples) # STEFFEN: Need to check if same as prep_summary
 			print("PERC FILTER INPUT", updated_percentage_filter_input)
-			print("CONF MAT INPUT", updated_conf_matrix_input)
+			# print("CONF MAT INPUT", updated_conf_matrix_input)
 
 
 			## Parse values into python dictionary
@@ -506,7 +504,7 @@ def main_site_backend_req():
 			jsmask1.extend(jsmask2)
 
 			if idx_k == 0:
-				ret_string = [result, jsmask1, summary, filter_lst, "null", "null", "null"]
+				ret_string = [result, jsmask1, summary, filter_lst, "null", "null", "null", updated_percentage_filter_input, "null"]
 				if doing_comparison:
 					confusion_mat = confusion_mat_2
 					pred_range = pred_range_2
@@ -517,6 +515,7 @@ def main_site_backend_req():
 				ret_string[4] = jsmask1
 				ret_string[5] = summary
 				ret_string[6] = filter_lst
+				ret_string[8] = updated_percentage_filter_input
 				
 
 		return json.dumps(ret_string)
