@@ -17,7 +17,7 @@
 function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle, detail_toggle) {
 
     // -- Details on/off -- 
-    detail_toggle = false;
+    // detail_toggle = true;
 
 
     function stagger_val(x,y,radius){
@@ -82,6 +82,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         point_size = 2,
         stagger_r = 3;
 
+    // --- Track current bin --- 
+    var current_bin = ""
 
     // --- Color related variables ---
     var good_col = "#d95f02",
@@ -252,6 +254,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             // --- Drawing the Density --- 
             for (n=0 ; n < no_bins; n++){
                 var inBin = xDenScale(this_den[ind][n]);
+                
                 if (this_den[ind][n] > 0 && inBin < 1) { // Look into this
                     console.log("triggered");
                     inBin = 1;}
@@ -272,9 +275,9 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .attr("stroke","white");
 
 
-                // // --- Bin Details --- 
-                if (detail_toggle && s == 0) {
-                // if (s == 0) {   
+                // --- Bin Details --- 
+                // if (detail_toggle && s == 0) {
+                if (s == 0) {   
                     svg.append('g')
                         .append("text")
                         .text(function(){
@@ -286,6 +289,9 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                                 high = this_meta[ind].bins[n][1];
                             }
                             return low + "-" + high;})
+                        .attr("id", function(){
+                            console.log(s.toString() +'-'+ind.toString()+'-'+n.toString())
+                            return s.toString() +'-'+ind.toString()+'-'+n.toString()})
                         .attr("x",function(){
                             return xScale(this_meta[ind].name)+bandwidth/2;})
                         .attr("y",yDenScale(histo_bin_h*n+histo_bin_h - histo_bin_h/2-5))
@@ -293,7 +299,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                         .attr("font-family",'"Open Sans", sans-serif')
                         .attr("font-size", '10px')
                         .attr("font-weight", 400)
-                        .attr("fill","black");
+                        .attr("fill","none");
                 }
             }
 
@@ -318,85 +324,19 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .style("stroke-width",tick_width);
             }
 
-
-
-
-            // --- Click Boxes  --- 
-            for (no=0 ; no < no_bins; no++){
-                svg.append("g")
-                    .append("rect")
-                    .attr('id', "box-")
-                    .attr('x',centre-xDenScale(1)/2)
-                    .attr('y',yDenScale(histo_bin_h*no+histo_bin_h))
-                    .attr("height",histo_bin_h)
-                    .attr("width",xDenScale(1))
-                    .attr("fill","red")
-                    .attr('opacity',0.2)
-                    .on('click', function(){
-                        console.log("Bin no", no);
-                        console.log("Set", s);
-                    })                
-                    .on('mouseover',function(){
-                    })
-                    .on('mouseout',function(){
-                    });
-
-            }
-
-
-
         }
 
 
         shift_svg = svg.append("g")
             .attr("transform","translate(" + (start_point+(s*single_bw)) + ',0)'); 
         
-        // === Counter Factuals === 
-        if (cf_toggle){
-
-            shift_svg.append('g').selectAll("path")
-                .data(this_data)
-                .enter()
-                .append("path")
-                .on('mouseover',function(){
-                    d3.selectAll(".arrows").attr("fill-opacity",0);
-                    d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
-                })
-
-                .on('mouseout',function(){
-                    d3.selectAll(".arrows").attr("fill-opacity",0.7);
-                    d3.select(this).attr("stroke-opacity",0)
-                })
-                .on('click',function(d){
-                    var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
-                    window.location.href = reloc;
-                })
-                .attr('d',function(d){
-                    return draw_triangle(d, triangle_w);})
-                .attr("class","arrows")
-                .attr("fill-opacity",0.7)
-                .attr("fill",function(d){
-                    if (d[0].dec == 0) {
-                        return bad_col;}
-                    else {
-                        return good_col;}
-                })
-                .attr("stroke-width", 2)
-                .attr("stroke",function(d){
-                    if (d[0].dec == 0) {
-                        return bad_col;}
-                    else {
-                        return good_col;}
-                })
-                .attr("stroke-opacity",0);
-        }
 
         // === Individual Points === 
         if (point_toggle) {
             for(n=0 ; n < this_data.length; n++){
-                var oneData = this_data[n]
+                var oneData = this_data[n];
 
-                line_str = "M"
+                line_str = "M";
 
                 for(i=0; i < oneData.length; i++){
                     d = oneData[i];
@@ -454,10 +394,203 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         }
 
 
+        function draw_lines(data, set, ft, bin, clear) {
+            // Deselect all previous selections
+            d3.selectAll(".line-selected").attr("class","line-empty")
+                .attr("stroke-opacity",0);
+
+
+            if (clear == false){
+                for(n=0 ; n < data.length; n++){
+                    var oneData = data[n];
+                    
+                    if (oneData[ft].bin_id == bin){
+                        id_code = set.toString() + '-' + n.toString();
+                        d3.select('#line-'+id_code.toString())
+                        .attr("stroke-opacity",1)
+                        .attr("class","line-selected");
+
+                    } 
+                }
+            }
+        }
+
+
+
+        // --- Click Boxes  --- 
+        for (ind=0 ; ind < no_features; ind++) {
+            ft_name = this_data[0][ind].name;
+            centre = xScale(ft_name) + start_point+(s*single_bw);
+            box_size = (xDenScale(1)+5)
+            for (no=0 ; no < no_bins; no++){
+                svg.append("g")
+                    .append("rect")
+                    .attr("data-bin", no)
+                    .attr("data-set", s)
+                    .attr("data-ft", ind)
+                    .attr('x',centre-box_size/2)
+                    .attr('y',yDenScale(histo_bin_h*no+histo_bin_h))
+                    .attr("height",histo_bin_h)
+                    .attr("width",box_size)
+                    .attr("fill","red")
+                    .attr('opacity',0)
+                    .on('click', function(){
+                        // console.log("clicked");
+                        var selection = d3.select(this);
+                        set_id = selection.attr("data-set");
+                        bin_id = selection.attr("data-bin");
+                        ft_id = selection.attr("data-ft");
+
+                        bin_str = set_id.toString() +'-'+ ft_id.toString() +'-'+ bin_id.toString();
+                        if (bin_str == current_bin) {clear = true; current_bin = "";} 
+                        else {clear = false; current_bin = bin_str;}
+                        draw_lines(this_data,set_id,ft_id,bin_id,clear);
+                    })                
+                    .on('mouseover',function(){
+                        if(detail_toggle){
+                            var selection = d3.select(this);
+                            set_id = selection.attr("data-set");
+                            bin_id = selection.attr("data-bin");
+                            ft_id = selection.attr("data-ft");
+                            bin_str = set_id.toString() +'-'+ ft_id.toString() +'-'+ bin_id.toString();
+                            document.getElementById(bin_str);
+                            var det_selection = document.getElementById(bin_str);
+                            det_selection.style.fill = "black";
+                        }
+                    })
+                    .on('mouseout',function(){
+                        if(detail_toggle){
+                            var selection = d3.select(this);
+                            set_id = selection.attr("data-set");
+                            bin_id = selection.attr("data-bin");
+                            ft_id = selection.attr("data-ft");
+                            bin_str = set_id.toString() +'-'+ ft_id.toString() +'-'+ bin_id.toString();
+                            document.getElementById(bin_str);
+                            var det_selection = document.getElementById(bin_str);
+                            det_selection.style.fill = "none";
+                        }
+                    });
+            }
+        }
+
+        shift_svg = svg.append("g")
+            .attr("transform","translate(" + (start_point+(s*single_bw)) + ',0)'); 
+        // === Counter Factuals === 
+        if (cf_toggle){
+
+            shift_svg.append('g').selectAll("path")
+                .data(this_data)
+                .enter()
+                .append("path")
+                .on('mouseover',function(){
+                    d3.selectAll(".arrows").attr("fill-opacity",0);
+                    d3.select(this).attr("stroke-opacity",1).attr("fill-opacity",0.7)
+                })
+
+                .on('mouseout',function(){
+                    d3.selectAll(".arrows").attr("fill-opacity",0.7);
+                    d3.select(this).attr("stroke-opacity",0)
+                })
+                .on('click',function(d){
+                    var reloc = window.location.origin + "/individual?sample=" + d[0].sample;
+                    window.location.href = reloc;
+                })
+                .attr('d',function(d){
+                    return draw_triangle(d, triangle_w);})
+                .attr("class","arrows")
+                .attr("fill-opacity",0.7)
+                .attr("fill",function(d){
+                    if (d[0].dec == 0) {
+                        return bad_col;}
+                    else {
+                        return good_col;}
+                })
+                .attr("stroke-width", 2)
+                .attr("stroke",function(d){
+                    if (d[0].dec == 0) {
+                        return bad_col;}
+                    else {
+                        return good_col;}
+                })
+                .attr("stroke-opacity",0);
+        }
+
+
+
+
     }
 
 
 }
+
+
+
+
+        // if (point_toggle) {
+        //     for(n=0 ; n < this_data.length; n++){
+        //         var oneData = this_data[n];
+
+        //         line_str = "M";
+
+        //         for(i=0; i < oneData.length; i++){
+        //             d = oneData[i];
+        //             x = xScale(d.name);
+        //             y = yScale(d.scl_val);
+        //             y_shift = yScale(d.scl_val)-point_shift;
+        //             xy = stagger_val(x,y_shift,stagger_r);
+
+        //             // Identify discrete features to jagger
+        //             if (this_meta[i].cat == 1){
+        //                 y = xy[1];
+        //                 // x = xy[0];
+        //             }
+        //             x = xy[0]; // Jaggers all point in x-plane
+
+        //             shift_svg.append("g")
+        //                 .append("circle")
+        //                 .attr("class",s.toString()+'-'+n.toString())
+        //                 .attr("id", i.toString())
+        //                 .attr("r", point_size)
+        //                 .attr("cx",x)
+        //                 .attr("cy",y)
+        //                 .style("fill", function(){
+        //                     if (d.dec == 0) {
+        //                         return good_col;}
+        //                     else {
+        //                         return bad_col;}})
+        //                 .style("opacity", pt_opp_lst[s])
+        //                 .on("mouseover",function(){
+        //                     id_code = d3.select(this).attr("class");
+        //                     d3.select('#line-'+id_code.toString()).attr("stroke-opacity",1);
+        //                 })
+        //                 .on('mouseout',function(){
+        //                     id_code = d3.select(this).attr("class");
+        //                     d3.select('#line-'+id_code.toString()).attr("stroke-opacity",0);
+        //                 });
+
+        
+
+        //             // Add to line path
+        //             line_str = line_str + x.toString() + ',' + y.toString();
+        //             if (i != oneData.length-1){line_str += ",L";}
+        //         }
+                
+        //         // ==== Draw line connecting points ==== 
+        //         shift_svg.append('g')
+        //             .append("path")
+        //             .attr('d',line_str)
+        //             .attr('id',"line-"+s.toString()+'-'+n.toString())
+        //             .attr('fill',"None")
+        //             .attr("stroke-width", 0.5)
+        //             .attr("stroke","gray")
+        //             .attr("stroke-opacity",0);
+
+        //     }
+        // }
+
+
+
+
 
 
 // draw_aggregation_graph(leftData,leftDen,rightDen,leftMed, rightMed,'body')
