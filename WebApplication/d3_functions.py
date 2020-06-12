@@ -102,7 +102,7 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
 
 
       # -- Bin index -- 
-      meta[f]["bin_id"] = positions[s][f]
+      result["bin_id"] = positions[s][f]
 
       # --- Find Counter Factual when occurs ---
       for a in range((start_col+no_anchs) , (start_col+no_anchs+no_changes)):  # Format of metadata
@@ -111,7 +111,7 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
           idx = positions[s][col] 
           increments = metadata[s][a+no_changes]
           change = bins_centred[f][int(idx+increments)]  # Target value based on bin centres
-          meta[f]["bin_id"] = int(idx+increments)
+          # result["bin_id"] = int(idx+increments)
 
       max_bin = np.max(bins_centred[f])
       min_bin = bins_centred[f][0]
