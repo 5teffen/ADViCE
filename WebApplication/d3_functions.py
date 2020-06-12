@@ -382,38 +382,70 @@ def prep_percentage_filter(metadata, no_bins, samples = []):
     result = (result/highest_count).tolist()
     pos_result = (pos_result/highest_count).tolist()
     neg_result = (neg_result/highest_count).tolist()
+    # print(">>>>>>>> OPTION 1 <<<<<<<<<<")
+    # print("res", len(result))
+    # print("pos", len(pos_result))
+    # print("neg", len(neg_result))
     return [result,pos_result,neg_result]
-
 
   # ---- OPTION 2: Generate histogram for specific datapoints ----
   else:
     for s in samples:
       perc = metadata[s][1]*100
+      lab = metadata[s][2]
 
       floor = 0
       ceil = one_bin
+
+      # Identify ground truth 
+      if lab == "TP" or lab == "FN":
+        pos = True  
+      else:
+        pos = False 
+
 
       for b in range(no_bins):
         # -- Edge Cases -- 
         if (b == 0 and perc < one_bin):
           result[0] += 1
+
+          if pos:
+            pos_result[0] += 1
+          else:
+            neg_result[0] += 1
           break
 
         elif (b == (no_bins-1)):
           result[no_bins-1] += 1
+
+          if pos:
+            pos_result[no_bins-1] += 1
+          else:
+            neg_result[no_bins-1] += 1
           break
 
         elif ((perc >= floor) and (perc < ceil)):
-           result[b] += 1
-           break
-       
+          result[b] += 1
+
+          if pos:
+            pos_result[b] += 1
+          else:
+            neg_result[b] += 1
+          break
+     
         floor += one_bin
         ceil += one_bin
 
     # -- Scale the bins --
     highest_count = np.amax(result)      
     result = (result/highest_count).tolist()
-    return result
+    pos_result = (pos_result/highest_count).tolist()
+    neg_result = (neg_result/highest_count).tolist()
+    # print(">>>>>>>> OPTION 2 <<<<<<<<<<")
+    # print("res", len(result))
+    # print("pos", len(pos_result))
+    # print("neg", len(neg_result))
+    return [result,pos_result,neg_result]
 
 
 
