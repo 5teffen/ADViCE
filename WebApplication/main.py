@@ -486,12 +486,13 @@ def main_site_backend_req():
 			summary = prep_filter_summary(result, no_samples)
 
 			# STEFFEN
-			selected_samples = [x['id'] for x in result]
+			# selected_samples = [x['id'] for x in result]
+			selected_samples =range(30)
 			print("SELECTED SAMPLES", selected_samples)
-			# updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
-			# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples)
-			# print("PERC FILTER INPUT", updated_percentage_filter_input)
-			# print("CONF MAT INPUT", updated_conf_matrix_input)
+			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
+			updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples)
+			print("PERC FILTER INPUT", updated_percentage_filter_input)
+			print("CONF MAT INPUT", updated_conf_matrix_input)
 
 
 			## Parse values into python dictionary
