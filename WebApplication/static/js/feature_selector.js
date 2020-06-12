@@ -276,7 +276,7 @@ function feature_selector(place, aFeature, idx) {
             filter_set_idx = this.dataset.filteridx;
 			ft_curr_range[filter_set_idx][aFeature.id] = [out_low,out_high];
             console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
-    		makeScatterRequest();
+    		makeMainBackendRequest();
     		
 
 
