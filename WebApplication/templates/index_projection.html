@@ -68,13 +68,23 @@
           <table class="proj-table">
             <tr>
               <th style="border-radius: 1px; width: 280px">
-                <div class="btn-group-proj" >
+                <span class="btn-group-proj" >
                   <button id="median-button" class="proj-button"> Median </button>
                   <button id="points-button" class="proj-button"> Points </button>
                   <button id="density-button" class="proj-button"> Density </button>
                   <button id="cf-button" class="proj-button"> CF </button>
                   <button id="detail-button" class="proj-button"> Details </button>
-                </div>
+                </span>
+                <span class="btn-group-proj" style="margin-top: -20px;">
+                  <label class="control-label">Sort</label>
+                  <div>
+                    <select id="sort-dropdown" tabindex="-1" onchange="sortButtonHandle(this.value)">
+                      <option value="Default" selected="selected">Default</option>
+                      <option value="Mean-Dif">Mean Dif.</option>
+                      <option value="KL-Div">KL Div.</option>
+                    </select>        
+                  </div>
+                </span>
               </th>
             </tr>
             <tr>
@@ -380,10 +390,10 @@
             
             draw_summary(allData[2],  allData[3], '#summary-div-1');
             draw_conf_mat_numbers(allData[2], 1);
-            percentage_filter_input = allData[8];
+            percentage_filter_input = allData[7];
             console.log("percentage_filter_input", percentage_filter_input);
             document.getElementById("percentage-filter-div-1").innerHTML = "";
-            percentage_bar("#percentage-filter-div-1", pred_range[1], allData[8], 1);
+            percentage_bar("#percentage-filter-div-1", pred_range[1], allData[7], 1);
 
             if (doing_comparison==1){
               draw_summary(allData[5],  allData[6], '#summary-div-2');
@@ -419,7 +429,7 @@
       }
       
       // Request from scatter plot to right panel violin plot
-      function makeViolinRequest(mask_1, mask_2="null") {
+      function makeViolinRequest(mask_1, mask_2="null", sort_val="Default") {
         httpRequestViolin = new XMLHttpRequest();
         if (!httpRequestViolin) {
           alert('Giving up :( Cannot create an XMLHTTP instance');
@@ -441,10 +451,11 @@
         }
         else {id_list_2="null";}
 
+        console.log("SORT BUTTON", sort_val);
         // curr_aggr_ids = id_list;
         httpRequestViolin.onreadystatechange = alertContentsViolin;
         // httpRequestViolin.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
-        httpRequestViolin.open('GET', 'violin_req?id_list_1=' + id_list_1 + "&id_list_2=" + id_list_2);  
+        httpRequestViolin.open('GET', 'violin_req?id_list_1=' + id_list_1 + "&id_list_2=" + id_list_2 + "&sort_val=" + sort_val);  
         httpRequestViolin.send();
         return false;
       }
@@ -472,7 +483,8 @@
             // --- Toggle Details --- 
             var detail_toggle = (document.getElementById("detail-button").dataset.toggled == 1);
 
-            // --- Sort Features --- 
+            // --- Sort Features ---
+            // Done in backend (?)
 
             // --- Monotonicity ---  
 
@@ -602,6 +614,11 @@
         makeViolinRequest(left_mask, right_mask);
       }
 
+      // Sort dropdown button
+      function sortButtonHandle(value){
+        makeViolinRequest(left_mask, right_mask, value);
+      }
+
       // Reset button
       function resetFeatures(elem, idx="null") {
 
@@ -646,6 +663,8 @@
 
         resetFeatures("null", n_filter_sets);
       }
+
+      
 
       // Start global screen after instructions
       function begin_glob(){

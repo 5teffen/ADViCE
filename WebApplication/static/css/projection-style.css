@@ -1412,6 +1412,28 @@ table #model-display {
   /*margin-left: 15px;*/
 }
 
+label.control-label {
+  font-weight: 600;
+  margin-bottom: 0px;
+  font-size: 12px;
+}
+
+#sort-dropdown {
+  width: 85px;
+  height: 35px;
+  border-radius: 4px;
+  background-color: white;
+  border-color: rgb(204, 204, 204);
+  font-size: 12px;
+  font-family: Open Sans, sans-serif;
+}
+#sort-dropdown:hover {
+  cursor: pointer;
+}
+#sort-dropdown:focus {
+  outline: none;
+}
+
 
 /*--------------*/
 /* New D3 Lasso */
