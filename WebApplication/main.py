@@ -492,7 +492,7 @@ def main_site_backend_req():
 
 			# STEFFEN
 			print("SELECTED SAMPLES", selected_samples)
-			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, all_samples)
+			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
 			# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples) # STEFFEN: Need to check if same as prep_summary
 			print("PERC FILTER INPUT", updated_percentage_filter_input)
 			# print("CONF MAT INPUT", updated_conf_matrix_input)
@@ -528,13 +528,16 @@ def violin_site_req():
 
 		proj_samples_1 = request.args.get('id_list_1').split(',')
 		proj_samples_2 = request.args.get('id_list_2').split(',')
+		sort_val = request.args.get('sort_val')
 
 		if (proj_samples_1[0]=='' or proj_samples_1[0]=='-1'):
 			return "-1"
 
 		else:
 			# --- Sort Features --- OSCAR!
-			sort_toggle = True
+			sort_toggle = False
+			if sort_val != "Default": sort_toggle = True
+			print("SORTING IS", sort_toggle)
 
 
 			doing_comparison = 1 if proj_samples_2[0]!="null" else 0
