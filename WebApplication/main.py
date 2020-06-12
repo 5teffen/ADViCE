@@ -398,7 +398,8 @@ def main_site_backend_req():
 
 
 		# STEFFEN
-		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)
+		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
+		all_samples = [x for x in range(no_samples)]
 
 		idx_range = range(2) if doing_comparison else range(1)
 
@@ -482,12 +483,16 @@ def main_site_backend_req():
 
 			current_mask = start_mask*mask1*mask2*mask4 #*mask6
 
+
+			# -- CAN BE REMOVED WHEN FILTER SUMMARY REMOVED -- 
 			result = apply_mask(all_points, current_mask)
 			summary = prep_filter_summary(result, no_samples)
 
+			selected_samples = apply_mask(all_samples, current_mask)
+
 			# STEFFEN
 			# selected_samples = [x['id'] for x in result]
-			selected_samples =range(30)
+			# selected_samples =range(30)
 			print("SELECTED SAMPLES", selected_samples)
 			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
 			updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples)

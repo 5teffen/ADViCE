@@ -256,7 +256,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 var inBin = xDenScale(this_den[ind][n]);
                 
                 if (this_den[ind][n] > 0 && inBin < 1) { // Look into this
-                    console.log("triggered");
                     inBin = 1;}
                
                 svg.append("g")
@@ -290,7 +289,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                             }
                             return low + "-" + high;})
                         .attr("id", function(){
-                            console.log(s.toString() +'-'+ind.toString()+'-'+n.toString())
                             return s.toString() +'-'+ind.toString()+'-'+n.toString()})
                         .attr("x",function(){
                             return xScale(this_meta[ind].name)+bandwidth/2;})
