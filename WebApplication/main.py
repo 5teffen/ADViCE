@@ -340,8 +340,8 @@ def projection_site():
 	return render_template("index_projection.html", no_features=no_features, feature_names=json.dumps(feature_names.tolist()), preproc_path=preproc_path,
 							feature_selector_input = json.dumps(feature_selector_input), percentage_filter_input = json.dumps(percentage_filter_input))
 
-@app.route('/scatter_req', methods=['GET'])
-def scatter_request():
+@app.route('/main_backend_req', methods=['GET'])
+def main_backend_req_handle():
 
 	if request.method == 'GET':
 
@@ -402,9 +402,7 @@ def scatter_request():
 		# ft_range = [50,85]
 		# ft_idx = 1   # Zero-indexed
 
-		#show_projection(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
-		#ret_arr = show_projection2(projection_changes_path[:-4]+"_"+dim_red+".csv", no_samples, algorithm=algorithm, selected_ids=ret_arr, dim_red=dim_red, directionality=True)
-
+		# STEFFEN
 		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)
 
 		idx_range = range(2) if doing_comparison else range(1)
@@ -418,8 +416,6 @@ def scatter_request():
 
 		for idx_k in idx_range:
 
-			# At the moment the logic is with only one set of filters. Should be easy to accomodate multiple.
-			# Probaly add a global list variable that stores the last filter_dict. 
 			# Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
 			
 			# ==== Filter Dictionary ==== 
@@ -448,11 +444,6 @@ def scatter_request():
 					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
 				else:
 					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
-
-			# print ("FILTER DICT")
-			# print(filter_dict)
-			# if (len(filter_dict["3"]) == 0):
-			# 	filter_dict["3"]
 				
 			
 			# ==== Filter Dictionary -> D3 ====
@@ -501,6 +492,10 @@ def scatter_request():
 			result = apply_mask(all_points, current_mask)
 			summary = prep_filter_summary(result, no_samples)
 
+			# STEFFEN
+			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, [1,2,3])
+			updated_conf_matrix_input = prep_confusion_matrix(metadata, [1,2,3])
+
 
 			## Parse values into python dictionary
 			jsmask1 = [0]
@@ -523,6 +518,7 @@ def scatter_request():
 
 		return json.dumps(ret_string)
 
+# OSCAR: integrate in main backend call
 @app.route('/violin_req')
 def violin_site_req():
 
