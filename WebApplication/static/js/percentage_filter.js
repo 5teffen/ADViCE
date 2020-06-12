@@ -259,7 +259,7 @@ function percentage_bar(elem, state, allHistoData, idx) {
 			console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
 			filter_set_idx = this.dataset.filteridx;
 			pred_range[filter_set_idx]=[out_low,out_high];
-    		makeScatterRequest();
+    		makeMainBackendRequest();
     		console.log("LOW:",	out_low);
     		console.log("HIGH:", out_high);
     		// console.log(this);
