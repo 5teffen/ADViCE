@@ -58,12 +58,12 @@ dataset_dict = {
 }
 
 # --- Data initialization ---
-data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness = np.zeros(12)
+data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness, bins_used = np.zeros(13)
 categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(14)
 col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input = np.zeros(13)
 def init_data(dataset):
 
-	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness
+	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness, bins_used
 	global categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
 	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input
 
@@ -81,6 +81,7 @@ def init_data(dataset):
 	# print(reduced_data_path)
 
 	no_bins = 10
+	bins_used = 20
 
 	df = pd.read_csv(data_path)
 
@@ -165,7 +166,6 @@ def init_data(dataset):
 
 	# --- Percentage Filter ---
 	samples_selected = []
-	bins_used = 20
 	
 	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
 	
@@ -341,12 +341,11 @@ def projection_site():
 							feature_selector_input = json.dumps(feature_selector_input), percentage_filter_input = json.dumps(percentage_filter_input))
 
 @app.route('/main_backend_req', methods=['GET'])
-def main_backend_req_handle():
+def main_site_backend_req():
 
 	if request.method == 'GET':
 
 		doing_comparison = int(request.args.get('doing_comparison'))
-
 		ft_list = request.args.get('selected_fts')
 		ft_list = ft_list[1:-1].split(',')
 
@@ -397,10 +396,6 @@ def main_backend_req_handle():
 			ft_curr_range_2 = temp_curr_range
 			print ("FT CURR RANGE CMP", ft_curr_range_2)
 
-
-		# Feature Selector Pre-Logic
-		# ft_range = [50,85]
-		# ft_idx = 1   # Zero-indexed
 
 		# STEFFEN
 		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)
@@ -470,8 +465,6 @@ def main_backend_req_handle():
 
 			# print("FILTER LIST", filter_lst) # This needs to go to D3 filter selector as input
 
-
-
 			# === Apply Masks === 
 
 			start_mask = np.ones(data.shape[0])
@@ -493,8 +486,12 @@ def main_backend_req_handle():
 			summary = prep_filter_summary(result, no_samples)
 
 			# STEFFEN
-			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, [1,2,3])
-			updated_conf_matrix_input = prep_confusion_matrix(metadata, [1,2,3])
+			selected_samples = [x['id'] for x in result]
+			print("SELECTED SAMPLES", selected_samples)
+			# updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
+			# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples)
+			# print("PERC FILTER INPUT", updated_percentage_filter_input)
+			# print("CONF MAT INPUT", updated_conf_matrix_input)
 
 
 			## Parse values into python dictionary

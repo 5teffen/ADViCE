@@ -52,7 +52,7 @@
         </nav>
       </div>
       
-      <div class="right-side-proj" id="demo">
+      <div class="right-side-proj" id="main-div">
 
         <div id="middle-panel-proj">
           <table class="proj-table" id="filter-sets-table">
@@ -369,11 +369,13 @@
             //Do stuff with the response
 
             var resp_arr = httpRequest.responseText;
-
             var allData = JSON.parse(resp_arr);
             console.log(allData);
-            // draw_scatter(allData[0], '#bokeh-div');
+
             // TODO: Do summary for matrix in place, and in correct index for the rest
+            // // TODO: Feedback the data that is in the conf_matrix at the moment
+            // var example_data = {'tn': 1, 'fp': 1, 'tp': 1, 'fn': 1};
+            // confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data, idx);
             if (doing_comparison==0){
               draw_summary(allData[2],  allData[3], '#summary-div-1');
               draw_conf_mat_numbers(allData[2], 1);
@@ -410,41 +412,6 @@
         document.getElementById("FN-text-"+idx.toString()).innerHTML = conf_nums.fn;
       }
       
-      // Request from bokeh plot to right panel aggregation
-      function makeAggregationRequest(id_list) {
-        httpRequest = new XMLHttpRequest();
-        if (!httpRequest) {
-          alert('Giving up :( Cannot create an XMLHTTP instance');
-          return false;
-        }
-        httpRequest.onreadystatechange = alertContentsAggregation;
-        httpRequest.open('GET', 'aggregation_req?id_list='+id_list);   //id_list);
-        httpRequest.send();
-        return false;
-      }
-
-      // Right panel aggregation
-      function alertContentsAggregation() {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest.status === 200) {
-            //Do stuff with the response
-            
-            var resp_arr = httpRequest.responseText;
-            if (resp_arr!="-1"){
-              var allData = JSON.parse(resp_arr);
-              // console.log("right panel aggregation");
-              document.getElementById("aggregation-div").innerHTML = "";
-              draw_aggregation_graph(allData,"#aggregation-div");
-            }
-            // makeViolinRequest(id_list);
-
-          }
-          else {
-              alert('HttpRequest Error');
-          }
-        }
-      }
-
       // Request from scatter plot to right panel violin plot
       function makeViolinRequest(mask_1, mask_2="null") {
         httpRequestViolin = new XMLHttpRequest();
@@ -485,19 +452,19 @@
             
             var resp_arr = httpRequestViolin.responseText;
             // --- Toggle Median Marker ---
-            var median_toggle = (document.getElementById("median-button").style.backgroundColor == dark_shade);
+            var median_toggle = (document.getElementById("median-button").dataset.toggled == 1 );
 
             // --- Toggle Points ---
-            var points_toggle = (document.getElementById("points-button").style.backgroundColor == dark_shade);
+            var points_toggle = (document.getElementById("points-button").dataset.toggled == 1);
 
             // --- Toggle Density --- 
-            var density_toggle = (document.getElementById("density-button").style.backgroundColor == dark_shade);
+            var density_toggle = (document.getElementById("density-button").dataset.toggled == 1);
 
             // --- Toggle Density --- 
-            var cf_toggle = (document.getElementById("cf-button").style.backgroundColor == dark_shade);
+            var cf_toggle = (document.getElementById("cf-button").dataset.toggled == 1);
 
             // --- Toggle Details --- 
-            var detail_toggle = (document.getElementById("detail-button").style.backgroundColor == dark_shade);
+            var detail_toggle = (document.getElementById("detail-button").dataset.toggled == 1);
 
             // --- Sort Features --- 
 
@@ -616,12 +583,15 @@
       }
 
       // Aggregation parameters buttons
-      function aggrButtonRequest(elem){
-        if (elem.style.backgroundColor == dark_shade) {
+      function optionsButtonRequest(elem){
+        var tog = elem.dataset.toggled;        
+        if (tog==1) {
           elem.style.backgroundColor = light_shade;
+          elem.dataset.toggled = 0;
         }
-        else{
+        else {
           elem.style.backgroundColor = dark_shade;
+          elem.dataset.toggled = 1;
         }
         makeViolinRequest(left_mask, right_mask);
       }
@@ -644,7 +614,6 @@
         document.getElementById("feature-dropdown-"+filter_set_idx.toString()).value = "init";
         draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), filter_set_idx);
         document.getElementById("feature-range-slider-div-"+filter_set_idx).innerHTML = "";
-        // confusion_restart[filter_set_idx] = true;
         makeMainBackendRequest();
       }
 
@@ -653,10 +622,8 @@
         var filtersetidx = parseInt(elem.dataset.filteridx);
         if (checked == true){
           confusion_mat[filtersetidx].push(text);
-          console.log(confusion_mat[filtersetidx]);
         } else {
            confusion_mat[filtersetidx].splice(confusion_mat[filtersetidx].indexOf(text), 1);
-           console.log(confusion_mat[filtersetidx]);
         }
         filter_set_idx = filtersetidx;
         makeMainBackendRequest();
@@ -674,63 +641,39 @@
         resetFeatures("null", n_filter_sets);
       }
 
-      // Get preprocessed csv file
-      function fetch_csv(){
-        txtFile = new XMLHttpRequest();
-        txtFile.onreadystatechange = initContents;
-        txtFile.open("GET", preproc_path);
-        txtFile.send()
-      }
-      
-      // Parse csv
-      var pre_array = [];
-      function initContents() {
-        if (txtFile.readyState === XMLHttpRequest.DONE) {
-          if (txtFile.status === 200) {
-            var rows = txtFile.responseText.split("\n");
-            for (var i = 0; i < rows.length; i++) {
-              var cells = rows[i].split(",");
-              pre_array.push(cells);
-            }
-          }
-        }
-      }
-
       // Start global screen after instructions
       function begin_glob(){
 
-        var right = document.getElementById("demo");
+        var right = document.getElementById("main-div");
 
         median_btn = document.getElementById("median-button");
-        median_btn.onclick = function(){aggrButtonRequest(this);};
+        median_btn.onclick = function(){optionsButtonRequest(this);};
         median_btn.style.backgroundColor = dark_shade;
+        median_btn.dataset.toggled = 1;
 
         points_btn = document.getElementById("points-button");
-        points_btn.onclick = function(){aggrButtonRequest(this);};
-        points_btn.style.backgroundColor = dark_shade;
+        points_btn.onclick = function(){optionsButtonRequest(this);};
+        points_btn.style.backgroundColor = light_shade;
+        points_btn.dataset.toggled = 0;
 
         density_btn = document.getElementById("density-button");
-        density_btn.onclick = function(){aggrButtonRequest(this);};
+        density_btn.onclick = function(){optionsButtonRequest(this);};
         density_btn.style.backgroundColor = dark_shade;
+        density_btn.dataset.toggled = 1;
 
         cf_btn = document.getElementById("cf-button");
-        cf_btn.onclick = function(){aggrButtonRequest(this);};
+        cf_btn.onclick = function(){optionsButtonRequest(this);};
         cf_btn.style.backgroundColor = dark_shade;
+        cf_btn.dataset.toggled = 1;
 
         detail_btn = document.getElementById("detail-button");
-        detail_btn.onclick = function(){aggrButtonRequest(this);};
-        detail_btn.style.backgroundColor = dark_shade;
-
-        // reset = document.getElementById("reset-button-proj");
-        // reset.onclick = function(){ resetFeatures(); };
+        detail_btn.onclick = function(){optionsButtonRequest(this);};
+        detail_btn.style.backgroundColor = light_shade;
+        detail_btn.dataset.toggled = 0;
 
         addFilterSet();
-
-        // draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]));
       }
 
-
-      fetch_csv();
       begin_glob();
 
 
