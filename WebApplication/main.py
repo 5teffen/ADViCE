@@ -165,11 +165,15 @@ def init_data(dataset):
 	metadata = 	pd.read_csv(preproc_path, index_col=False).values
 
 	# --- Percentage Filter ---
-	samples_selected = []
+	samples_selected = [x for x in range(100)]
 	
 	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
 	
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
+
+	one_compset = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array, 0)
+	
+
 	
 	# --- Algorithm Tests ---
 	# test_samp1 = [x for x in range(100)]
