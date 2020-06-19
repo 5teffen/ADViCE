@@ -33,7 +33,7 @@ function percentage_bar(elem, state, allHistoData, idx) {
         },
 
         width = 230 - margin.right - margin.left,
-        height = 100 - margin.top - margin.bottom;
+        height = 70 - margin.top - margin.bottom;
 
 
 
