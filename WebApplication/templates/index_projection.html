@@ -390,7 +390,7 @@
             // var example_data = {'tn': 1, 'fp': 1, 'tp': 1, 'fn': 1};
             // confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data, idx);
             
-            draw_summary(allData[2],  allData[3], '#summary-div-1');
+            // draw_summary(allData[2],  allData[3], '#summary-div-1');
             draw_conf_mat_numbers(allData[2], 1);
             percentage_filter_input = allData[7];
             console.log("percentage_filter_input", percentage_filter_input);
@@ -398,7 +398,7 @@
             percentage_bar("#percentage-filter-div-1", pred_range[1], allData[7], 1);
 
             if (doing_comparison==1){
-              draw_summary(allData[5],  allData[6], '#summary-div-2');
+              // draw_summary(allData[5],  allData[6], '#summary-div-2');
               draw_conf_mat_numbers(allData[5], 2);
               document.getElementById("percentage-filter-div-2").innerHTML = "";
               percentage_bar("#percentage-filter-div-2", pred_range[2], allData[8], 2);
