@@ -1187,22 +1187,11 @@ table #model-display {
 /*--------------*/
 
 #middle-panel-proj {
-  margin-left: 30px;
-  /*width: calc(100% - 300px);*/
-  width: 400px;
+  width: 100%;
   height: calc(100% - 10px);
-  border-right: solid 1px;
-  border-color: #b4b1d559;
-  /*margin-top: 15px;*/
-  /*background-color: darkgrey;*/
   display: inline-block;
-  /*display: none;*/
   float: left;
-/*  float: right;
-  margin-left: 100px;*/
-  -webkit-transition: all 2s;
-  /*border: 1px solid black;*/
-  /*position: absolute;*/
+
 
 }
 
@@ -1320,20 +1309,12 @@ table #model-display {
 
 
 #right-panel-proj {
-  margin-left: 20px;
-  /*width: calc(100% - 300px);*/
-  width: 850px;
+  /*width: 1200px;*/
   height: calc(100% - 50px)
   margin-top: 15px;
-  /*background-color: darkgrey;*/
   display: inline-block;
-  /*display: none;*/
-  float: left;
-/*  float: right;
-  margin-left: 100px;*/
-  -webkit-transition: all 2s;
-  /*border: 1px solid black;*/
-  /*position: absolute;*/
+  float: center;
+
 }
 
 .btn-group-proj{
@@ -1376,7 +1357,7 @@ table #model-display {
 #distribution-div {
   margin-top: 0px;
   width: 820px;
-  height: 400px;
+  height: 420px;
   padding-top: 0px;
   display: inline-block;
   float: left;
@@ -1562,6 +1543,6 @@ label.control-label {
 
 
 .proj-table table, th, td {
-  /*border: 1px solid black;*/
+  border: 1px solid black;
   /*border-collapse: collapse;*/
 }

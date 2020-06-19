@@ -54,16 +54,6 @@
       
       <div class="right-side-proj" id="main-div">
 
-        <div id="middle-panel-proj">
-          <table class="proj-table" id="filter-sets-table">
-            <tr id="tr-new-filter-set-button">
-              <td colspan="2">
-                <button onclick="addFilterSet()"> + </button>
-              </td>
-            </tr>
-          </table>
-        </div>
-
         <div id="right-panel-proj">
           <table class="proj-table">
             <tr>
@@ -95,7 +85,16 @@
               </td>
             </tr>
           </table>
-          <div>
+
+          <span id="middle-panel-proj">
+            <table class="proj-table" id="filter-set-button-table" style="float: left;">
+              <tr id="tr-new-filter-set-button">
+                <td colspan="2">
+                  <button onclick="addFilterSet()"> + </button>
+                </td>
+              </tr>
+            </table>
+          </div>
 
         </div>
           
@@ -181,6 +180,7 @@
 
       function create_filter_set (idx){
 
+        var table = document.createElement("table");
         var tr = document.createElement("tr");
         var td_fil = document.createElement("td");
         var filter_div = document.createElement("div");
@@ -219,7 +219,7 @@
 
         var ftrang_slider = document.createElement("div");
         ftrang_slider.id = "feature-range-slider-div-" + idx.toString();
-        ftrang_slider.style.height = "80px";
+        ftrang_slider.style.height = "60px";
 
         ftrang_filt_div.appendChild(document.createElement("br"));
         ftrang_filt_div.appendChild(ft_dropdown);
@@ -240,8 +240,17 @@
 
         tr.appendChild(td_fil);
         tr.appendChild(td_sum);
+        table.appendChild(tr);
+        if (idx==1){
+          table.style.float = "left";
+        }
+        else{
+          table.style.float = "right";
+        }
+        // table.style.borderRight = "1px solid black";
+        // table.style.marginLeft = "20px";
 
-        return tr;
+        return table;
       }
 
       // wrapper to avoid duplicates
@@ -395,13 +404,9 @@
               percentage_bar("#percentage-filter-div-2", pred_range[2], allData[8], 2);
             }
             
-
-            //console.log(allData[1]);
             left_mask = allData[1];
             right_mask = allData[4];
             makeViolinRequest(left_mask, right_mask);
-            makeTableRequest(allData[1]);
-            //makeAggregationRequest();
 
             // Save the results
 
@@ -496,71 +501,6 @@
         }
       }
 
-      // Request from scatter plot to right panel table
-      function makeTableRequest(mask) {
-        httpRequestTable = new XMLHttpRequest();
-        if (!httpRequestTable) {
-          alert('Giving up :( Cannot create an XMLHTTP instance');
-          return false;
-        }
-
-        console.log(mask.length);
-
-        var id_list = [];
-        for (var k=0; k<mask.length; k++){
-          if(mask[k]==1) id_list.push(k);
-        }
-        if (id_list.length<1) return false;
-        curr_aggr_ids = id_list;
-
-        httpRequestTable.onreadystatechange = alertContentsTable;
-        // httpRequestTable.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
-        httpRequestTable.open('GET', 'table_req?id_list='+id_list);  
-        httpRequestTable.send();
-        return false;
-      }
-
-      // Right panel table   
-      function alertContentsTable() {
-        if (httpRequestTable.readyState === XMLHttpRequest.DONE) {
-          if (httpRequestTable.status === 200) {
-            //Do stuff with the response
-            
-            var resp_arr = httpRequestTable.responseText;
-            var resp_list_table;
-            var resp_list_meta;
-
-            if (resp_arr!="-1"){
-              resp_arr = JSON.parse(resp_arr);
-            }
-            resp_list_meta = resp_arr[0];
-            resp_list_table = resp_arr[1];
-
-            // specify the columns
-            var columnDefs = [
-              {headerName: "ID", field: "ID"},
-              {headerName: "Percentage", field: "Percentage"},
-              {headerName: "Category", field: "Category",
-                cellClassRules: {
-                    'table-tp': function(params) { return params.value === "TP"},
-                    'table-tn': function(params) { return params.value === "TN"},
-                    'table-fp': function(params) { return params.value === "FP"},
-                    'table-fn': function(params) { return params.value === "FN"}
-                }
-              }
-            ];
-            for (var k=0; k<ft_names.length; k++){
-              columnDefs.push({headerName: ft_names[k], field: ft_names[k]});
-            }
-
-
-          }
-          else {
-              alert('HttpRequest Error');
-          }
-        }
-      }
-
       // Aggregation parameters buttons
       function optionsButtonRequest(elem){
         var tog = elem.dataset.toggled;        
@@ -617,9 +557,12 @@
 
         n_filter_sets+=1;
 
-        document.getElementById("filter-sets-table").getElementsByTagName("tbody")[0].insertBefore(create_filter_set(n_filter_sets), 
-          document.getElementById("tr-new-filter-set-button"));
+        document.getElementById("middle-panel-proj").insertBefore(create_filter_set(n_filter_sets), 
+          document.getElementById("filter-set-button-table"));
 
+        if (n_filter_sets>=2) {
+          document.getElementById("filter-set-button-table").style.display = "none";
+        }
         draw_filters(confusion_mat_2_state(confusion_mat[n_filter_sets]), n_filter_sets);
 
         resetFeatures("null", n_filter_sets);
