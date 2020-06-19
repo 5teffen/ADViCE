@@ -1187,10 +1187,10 @@ table #model-display {
 /*--------------*/
 
 #middle-panel-proj {
-  width: 100%;
+  width: 850px;
   height: calc(100% - 10px);
   display: inline-block;
-  float: left;
+  float: center;
 
 
 }
@@ -1333,7 +1333,6 @@ table #model-display {
     float: left;
     font-weight: 500;
     display: inline-block;
-    margin-bottom: 25px;
     margin-right: 2px;
     border-radius: 4px;
     background-color: white;
@@ -1356,11 +1355,11 @@ table #model-display {
 
 #distribution-div {
   margin-top: 0px;
-  width: 820px;
+  width: 1200px;
   height: 420px;
   padding-top: 0px;
   display: inline-block;
-  float: left;
+  float: center;
   border: 0px solid lightgray;
 }
 
@@ -1543,6 +1542,6 @@ label.control-label {
 
 
 .proj-table table, th, td {
-  border: 1px solid black;
+  /*border: 1px solid black;*/
   /*border-collapse: collapse;*/
 }
