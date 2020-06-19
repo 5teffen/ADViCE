@@ -94,13 +94,6 @@
                 </div>
               </td>
             </tr>
-            <tr>
-              <td>
-                <div id="table-div" class="ag-theme-balham">
-                  Table
-                </div>
-              </td>
-            </tr>
           </table>
           <div>
 
@@ -537,7 +530,6 @@
             var resp_list_table;
             var resp_list_meta;
 
-            document.getElementById("table-div").innerHTML = "";
             if (resp_arr!="-1"){
               resp_arr = JSON.parse(resp_arr);
             }
@@ -561,37 +553,6 @@
               columnDefs.push({headerName: ft_names[k], field: ft_names[k]});
             }
 
-                
-            // specify the data
-            var rowData = [];
-            for (var k=0; k<resp_list_table.length; k++){
-              var rowPoint = {};
-              rowPoint["ID"] = resp_list_meta[k][0];
-              rowPoint["Percentage"] = resp_list_meta[k][1];
-              rowPoint["Category"] = resp_list_meta[k][2];
-              for (var j=0; j<ft_names.length; j++){
-                rowPoint[ft_names[j]] = resp_list_table[k][j];
-              }
-              rowData.push(rowPoint);
-            }
-                
-            // let the grid know which columns and what data to use
-            var gridOptions = {
-              defaultColDef: {
-                  resizable: true,
-                  sortable: true
-              },
-              columnDefs: columnDefs,
-              rowData: rowData
-            };
-
-            console.log("drawing table aggr");
-
-            // setup the grid after the page has finished loading
-            var gridDiv = document.querySelector('#table-div');
-            gridDiv.style.float = "left";
-            new agGrid.Grid(gridDiv, gridOptions);
-            gridOptions.api.sizeColumnsToFit();
 
           }
           else {
@@ -663,8 +624,6 @@
 
         resetFeatures("null", n_filter_sets);
       }
-
-      
 
       // Start global screen after instructions
       function begin_glob(){
