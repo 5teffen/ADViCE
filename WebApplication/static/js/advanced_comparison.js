@@ -181,7 +181,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 .append("svg")
                 .attr("width",width + margin.right + margin.left)
                 .attr("height",height + margin.top + margin.bottom)
-                .attr("style", "float: center;")
+                .attr("style", "float: left;")
                 .attr("class", "main-svg")
                 .append("g")
                      .attr("transform","translate(" + margin.left + ',' + margin.top +')');
