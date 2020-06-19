@@ -56,6 +56,39 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         }
         return full_string
     }
+
+
+    function draw_triangle2(data,tri_w,shift,binh) {
+        var full_string = "";
+
+        for(n=0 ; n < data.length; n++){
+
+            var d = data[n];
+
+            // if ((d.scl_val != d.scl_change) || (!button3 && !density_toggle)){
+            if (d.scl_val != d.scl_change) {
+                x1 = xScale(d.name) - tri_w/2
+                x2 = xScale(d.name) + tri_w/2
+                x3 = xScale(d.name) 
+                y1 = yScale(d.scl_val)
+                y2 = yScale(d.scl_change)
+
+                y1_dec = Math.floor(d.scl_val*10);
+                y2_dec = Math.floor(d.scl_change*10);
+
+                res1 = height - shift_lst[n][y1_dec]+binh/2;
+                res2 = height - shift_lst[n][y2_dec]+binh/2;
+
+
+                one_tri = "M"+x1+","+res1+"L"+x2+","+res1+"L"+x3+","+res2
+                    +"L"+x1+","+res1;
+
+                full_string += one_tri;
+            }
+
+        }
+        return full_string
+    }
     
     // --- Establish metadata ---
     var metadata = complete_data[0].meta
@@ -148,7 +181,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 .append("svg")
                 .attr("width",width + margin.right + margin.left)
                 .attr("height",height + margin.top + margin.bottom)
-                .attr("style", "float: center;")
+                .attr("style", "float: left;")
                 .attr("class", "main-svg")
                 .append("g")
                      .attr("transform","translate(" + margin.left + ',' + margin.top +')');
@@ -181,6 +214,34 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             .attr("class", "feature-name");
 
 
+    // ====== Creating a shift vector ======
+    var shift_lst = [];
+    
+    for (n=0 ; n < no_features; n++){
+        oneMeta = metadata[n];
+        
+        if (oneMeta.cat == 1){
+            ft_bins = oneMeta.bins.length;
+            section_h = height/ft_bins;
+            hist_h = height/no_bins;
+
+            // console.log(oneMeta.bins);
+
+            // // shift_map = new Map();
+            var one_shift = [];
+            for (g=0 ; g < ft_bins; g++){
+                bin_val = oneMeta.bins[g][0];
+                bin_shift = (section_h/2) + (section_h*g) + (hist_h/2);
+                one_shift.push(bin_shift);
+            }
+            shift_lst.push(one_shift);
+        }
+
+        else{
+            shift_lst.push(0);
+        }
+        
+    }
 
     // ======= Density Distribution ======= 
     var single_bw = bandwidth/no_sets,
@@ -191,7 +252,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     var point_shift = histo_bin_h/2;
 
     // -- Max/Min range details --
-
     if (detail_toggle) {
         svg.append('g').selectAll("text")
             .data(complete_data[0].meta)
@@ -223,7 +283,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     }
 
 
-
     for (s=0 ; s < no_sets; s++) {
 
         // -- Data variables for the specific set -- 
@@ -252,16 +311,26 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 .attr("stroke",den_colour);
 
             // --- Drawing the Density --- 
-            for (n=0 ; n < no_bins; n++){
+            for (n=0 ; n < this_den[ind].length; n++){
                 var inBin = xDenScale(this_den[ind][n]);
+                // console.log(this_den[ind][n]);
                 
-                if (this_den[ind][n] > 0 && inBin < 1) { // Look into this
-                    inBin = 1;}
+                if (this_den[ind][n] > 0 && inBin < 3) { // Look into this
+                    inBin = 3;}
                
                 svg.append("g")
                     .append("rect")
+                    .attr("id", "den-"+s.toString()+'-'+ind.toString()+'-'+n.toString())
                     .attr('x',centre-inBin/2)
-                    .attr('y',yDenScale(histo_bin_h*n+histo_bin_h))
+                    .attr('y',function(){
+                        if (this_meta[ind].cat == 1 && inBin != 0){
+                            res = height - shift_lst[ind][n];
+                            // res = yDenScale(histo_bin_h*n+histo_bin_h);
+                            return res;
+                        }
+
+                        return yDenScale(histo_bin_h*n+histo_bin_h);
+                    })
                     .attr("height",histo_bin_h)
                     .attr("width",inBin)
                     .attr("fill",den_colour)
@@ -318,7 +387,9 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                         else {return yScale(this_med[ind]);}})
                     .attr("x2",centre + tick_size/2)
                     .style("stroke",den_colour)
-                    .style("stroke-opacity",1)
+                    .style("stroke-opacity",function(){
+                        if (this_meta[ind].cat == 1) {return 0}
+                        else {return 1;}})
                     .style("stroke-width",tick_width);
             }
 
@@ -333,9 +404,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         if (point_toggle) {
             for(n=0 ; n < this_data.length; n++){
                 var oneData = this_data[n];
-
                 line_str = "M";
-
                 for(i=0; i < oneData.length; i++){
                     d = oneData[i];
                     x = xScale(d.name);
@@ -396,7 +465,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             // Deselect all previous selections
             d3.selectAll(".line-selected").attr("class","line-empty")
                 .attr("stroke-opacity",0);
-
 
             if (clear == false){
                 for(n=0 ; n < data.length; n++){
@@ -494,7 +562,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     window.location.href = reloc;
                 })
                 .attr('d',function(d){
-                    return draw_triangle(d, triangle_w);})
+                    // return draw_triangle(d, triangle_w);})
+                    return draw_triangle2(d, triangle_w, shift_lst,histo_bin_h);})
                 .attr("class","arrows")
                 .attr("fill-opacity",0.7)
                 .attr("fill",function(d){
