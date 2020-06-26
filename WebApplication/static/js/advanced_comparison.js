@@ -239,8 +239,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
         else{
             shift_lst.push(0);
-        }
-        
+        }    
     }
 
     // ======= Density Distribution ======= 
@@ -311,7 +310,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 .attr("stroke",den_colour);
 
             // --- Drawing the Density --- 
-            for (n=0 ; n < this_den[ind].length; n++){
+            for (n=0 ; n < this_meta[ind].bins.length; n++){
                 var inBin = xDenScale(this_den[ind][n]);
                 // console.log(this_den[ind][n]);
                 
@@ -361,7 +360,17 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                             return s.toString() +'-'+ind.toString()+'-'+n.toString()})
                         .attr("x",function(){
                             return xScale(this_meta[ind].name)+bandwidth/2;})
-                        .attr("y",yDenScale(histo_bin_h*n+histo_bin_h - histo_bin_h/2-5))
+                        .attr('y',function(){
+                            if (this_meta[ind].cat == 1){
+                                res = height - shift_lst[ind][n]+histo_bin_h/2+3;
+                                // res = yDenScale(histo_bin_h*n+histo_bin_h);
+                                return res;
+                            }
+
+                            return yDenScale(histo_bin_h*n+histo_bin_h - histo_bin_h/2-5);
+                            })
+
+                        // .attr("y",yDenScale(histo_bin_h*n+histo_bin_h - histo_bin_h/2-5))
                         .attr("text-anchor","middle")
                         .attr("font-family",'"Open Sans", sans-serif')
                         .attr("font-size", '10px')
@@ -488,14 +497,22 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             ft_name = this_data[0][ind].name;
             centre = xScale(ft_name) + start_point+(s*single_bw);
             box_size = (xDenScale(1)+5)
-            for (no=0 ; no < no_bins; no++){
+            for (no=0 ; no < this_meta[ind].bins.length; no++){
                 svg.append("g")
                     .append("rect")
                     .attr("data-bin", no)
                     .attr("data-set", s)
                     .attr("data-ft", ind)
                     .attr('x',centre-box_size/2)
-                    .attr('y',yDenScale(histo_bin_h*no+histo_bin_h))
+                    .attr('y',function(){
+                        if (this_meta[ind].cat == 1){
+                            res = height - shift_lst[ind][no];
+                            // res = yDenScale(histo_bin_h*n+histo_bin_h);
+                            return res;
+                        }
+                        console.log("Check");
+                        return yDenScale(histo_bin_h*no+histo_bin_h);
+                    })
                     .attr("height",histo_bin_h)
                     .attr("width",box_size)
                     .attr("fill","red")
@@ -563,7 +580,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 })
                 .attr('d',function(d){
                     // return draw_triangle(d, triangle_w);})
-                    return draw_triangle2(d, triangle_w, shift_lst,histo_bin_h);})
+                    return draw_triangle2(d, triangle_w, shift_lst, histo_bin_h);})
                 .attr("class","arrows")
                 .attr("fill-opacity",0.7)
                 .attr("fill",function(d){
@@ -589,6 +606,9 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
 
 }
+
+
+                    // .attr('y',yDenScale(histo_bin_h*no+histo_bin_h))
 
 
 
