@@ -79,6 +79,13 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 res1 = height - shift_lst[n][y1_dec]+binh/2;
                 res2 = height - shift_lst[n][y2_dec]+binh/2;
 
+                // if (isNaN(res1) == true){ // Non-permanent fix // Remove later
+                //     console.log("fixing");
+                //     y_dec = shift_lst[n].length-1
+                //     res1 = height - shift_lst[n][y_dec]+binh/2;
+                //     console.log(shift_lst[n][y_dec]);
+
+                // }
 
                 one_tri = "M"+x1+","+res1+"L"+x2+","+res1+"L"+x3+","+res2
                     +"L"+x1+","+res1;
@@ -324,6 +331,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     .attr('y',function(){
                         if (this_meta[ind].cat == 1 && inBin != 0){
                             res = height - shift_lst[ind][n];
+
                             // res = yDenScale(histo_bin_h*n+histo_bin_h);
                             return res;
                         }
@@ -418,15 +426,31 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     d = oneData[i];
                     x = xScale(d.name);
                     y = yScale(d.scl_val);
-                    y_shift = yScale(d.scl_val)-point_shift;
-                    xy = stagger_val(x,y_shift,stagger_r);
+
+                    x = stagger_val(x,y,stagger_r)[0];
+
+                    // Add shift 
+                    if (this_meta[i].cat == 1){
+                        y_dec = Math.floor(d.scl_val*10);
+                        y = height - shift_lst[i][y_dec]+histo_bin_h/2;
+
+                        if (isNaN(y) == true){ // Non-permanent fix // Remove later
+                            y_dec = shift_lst[i].length-1
+                            y = height - shift_lst[i][y_dec]+histo_bin_h/2;
+
+                        }
+
+                    }
+
+                    // y_shift = yScale(d.scl_val)-point_shift;
+                    // xy = stagger_val(x,y_shift,stagger_r);
 
                     // Identify discrete features to jagger
-                    if (this_meta[i].cat == 1){
-                        y = xy[1];
-                        // x = xy[0];
-                    }
-                    x = xy[0]; // Jaggers all point in x-plane
+                    // if (this_meta[i].cat == 1){
+                    //     y = xy[1];
+                    //     // x = xy[0];
+                    // }
+                    // x = xy[0]; // Jaggers all point in x-plane
 
                     shift_svg.append("g")
                         .append("circle")
@@ -510,7 +534,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                             // res = yDenScale(histo_bin_h*n+histo_bin_h);
                             return res;
                         }
-                        console.log("Check");
                         return yDenScale(histo_bin_h*no+histo_bin_h);
                     })
                     .attr("height",histo_bin_h)
