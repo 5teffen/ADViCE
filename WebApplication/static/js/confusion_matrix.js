@@ -33,13 +33,13 @@ function confusion_matrix(elem, state, data, idx) {
 
 
     var margin = {
-            top: 10, 
-            right: 10, 
-            bottom: 10, 
-            left: 10
+            top: 0, 
+            right: 0, 
+            bottom: 0, 
+            left: 0
         },
         width = 150 - margin.right - margin.left,
-        height = 80 - margin.top - margin.bottom;
+        height = 70 - margin.top - margin.bottom;
 
 
     var svg = d3.select(elem)
@@ -49,7 +49,8 @@ function confusion_matrix(elem, state, data, idx) {
         .attr("class", "confusionMat")
         .attr("id", "confusionMat-"+idx.toString())
         .append("g")
-             .attr("transform","translate(" + margin.left + ',' + margin.top +')');
+             .attr("transform","translate(" + margin.left + ',' + margin.top +')')
+             .attr("id", "confMatG");
 
 
     yScale = d3.scaleLinear()
@@ -383,8 +384,9 @@ function confusion_matrix(elem, state, data, idx) {
                 .attr("stroke","none");
         });
     
-    
-    
+    document.getElementById("confusionMat-"+idx.toString()).setAttribute("width", document.getElementById('confMatG').getBoundingClientRect().width.toString() + 'px');
+    console.log( "CONF MATT", document.getElementById('confMatG').getBoundingClientRect().width );
+    console.log( "CONF MATT",  document.getElementById("confusionMat-"+idx.toString()).width );
 }
 
 

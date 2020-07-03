@@ -109,6 +109,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     // --- Identify the number of sets to visualize --- 
     var no_sets = complete_data.length;
 
+    var max_ft_name_len = 15;
+
 
     for (i=0; i<no_sets; i++){
         no_samp = complete_data[0].data.length;
@@ -148,11 +150,11 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     var margin = {
             top: 30, 
             right: 20, 
-            bottom: 170, 
-            left: 20
+            bottom: 55, 
+            left: 65
         },
         width = col_width*no_features - margin.right - margin.left,
-        height = 420 - margin.top - margin.bottom;
+        height = 300 - margin.top - margin.bottom;
 
 
 
@@ -217,7 +219,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             .style("text-anchor", "end")
             .attr("dy", "-0.5em")
             .attr("dx", "-0.5em")
-            .attr("transform","rotate(-70)")
+            .attr("transform","rotate(-25)")
             .attr("class", "feature-name");
 
 
@@ -627,6 +629,14 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
     }
 
+    for (var j=0; j<no_features; j++){
+        var ft_name = document.getElementsByClassName("feature-name")[j].innerHTML;
+        var short_ft_name = ft_name;
+        if (ft_name.length > max_ft_name_len){
+            short_ft_name = ft_name.substring(0,max_ft_name_len) + "...";
+        }
+        document.getElementsByClassName("feature-name")[j].innerHTML = short_ft_name;
+    }
 
 }
 
