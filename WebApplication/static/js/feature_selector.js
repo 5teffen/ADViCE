@@ -10,7 +10,7 @@
 
 // var aFeature = [oneFeature, oneFeature,oneFeature, oneFeature]
 
-function feature_selector(place, aFeature, idx) {
+function feature_selector(place, aFeature, idx, slider_idx) {
 
 	var section_h = 30,
 		section_w = 150,
@@ -206,7 +206,7 @@ function feature_selector(place, aFeature, idx) {
 	    	var id = selection.attr("id");
 
 
-	    	if (id == "slide1-"+idx.toString()){
+	    	if (id == "slide1-"+idx.toString() + "-" + slider_idx.toString()){
 	    		var percentage = x/section_w;
 	    		// m1 = Math.round(percentage*fineness);
 	    		m1 = Math.round(percentage*100);
@@ -218,14 +218,14 @@ function feature_selector(place, aFeature, idx) {
 
                 cur_l = avg_x;
 	    	  
-	    		d3.select("#llab"+idx.toString()).attr('x',avg_x-lab_shift);
+	    		d3.select("#llab"+idx.toString() + "-" + slider_idx.toString()).attr('x',avg_x-lab_shift);
 
-	    		d3.select("#lt-label"+idx.toString())
+	    		d3.select("#lt-label"+idx.toString() + "-" + slider_idx.toString())
 	    			.text(out_min.toString())
 	    			.attr('x',avg_x+text_shift)
 
 
-                d3.select("#ft_bar_selected"+idx.toString())
+                d3.select("#ft_bar_selected"+idx.toString() + "-" + slider_idx.toString())
                     .attr("width", cur_r-cur_l)
                     .attr("x", cur_l+slide_shift);
 
@@ -235,7 +235,7 @@ function feature_selector(place, aFeature, idx) {
 
 	    	}
 
-	    	else if (id == "slide2-"+idx.toString()){
+	    	else if (id == "slide2-"+idx.toString() + "-" + slider_idx.toString()){
 	    		var percentage = x/section_w;
 	    		// m2 = Math.round(percentage*fineness);
 	    		m2 = Math.round(percentage*100);
@@ -248,13 +248,13 @@ function feature_selector(place, aFeature, idx) {
 	    		out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
 	    	
 
-	    		d3.select("#rlab"+idx.toString()).attr('x',avg_x-lab_shift);
+	    		d3.select("#rlab"+idx.toString() + "-" + slider_idx.toString()).attr('x',avg_x-lab_shift);
 
-	    		d3.select("#rt-label"+idx.toString())
+	    		d3.select("#rt-label"+idx.toString() + "-" + slider_idx.toString())
 		    		.text(out_max.toString())
 		    		.attr('x',avg_x+text_shift);
 
-                d3.select("#ft_bar_selected"+idx.toString())
+                d3.select("#ft_bar_selected"+idx.toString() + "-" + slider_idx.toString())
                     .attr("width", cur_r-cur_l)
 
                 selection.attr('x',avg_x);
@@ -311,7 +311,7 @@ function feature_selector(place, aFeature, idx) {
 
     svg.append("g")
         .append("rect")
-        .attr("id","ft_bar_selected"+idx.toString())
+        .attr("id","ft_bar_selected"+idx.toString() + "-" + slider_idx.toString())
         .attr('x',lstart+slide_shift)
         .attr('y',slide_h-bar_h-3)
         .attr("height",bar_h)
@@ -325,7 +325,7 @@ function feature_selector(place, aFeature, idx) {
     svg.append("g")
         .append("rect")
         .attr("class","slider")
-        .attr("id", "slide1-"+idx.toString())
+        .attr("id", "slide1-"+idx.toString() + "-" + slider_idx.toString())
         .attr("data-filteridx", idx.toString())
         .attr('x',lstart)
         .attr('y',0)
@@ -343,7 +343,7 @@ function feature_selector(place, aFeature, idx) {
     svg.append("g")
         .append("rect")
         .attr("class","slider")
-        .attr("id", "slide2-"+idx.toString())
+        .attr("id", "slide2-"+idx.toString() + "-" + slider_idx.toString())
         .attr("data-filteridx", idx.toString())
         .attr('x',rstart)
         .attr('y',0)
@@ -366,7 +366,7 @@ function feature_selector(place, aFeature, idx) {
 	svg.append("g")
 	    .append("rect")
 	    // .attr("class","left-label")
-	    .attr("id", "llab"+idx.toString())
+	    .attr("id", "llab"+idx.toString() + "-" + slider_idx.toString())
         .attr('x',lstart - lab_shift)
 	    .attr('y',-lab_h-5)
 	    .attr("height",lab_h)
@@ -379,7 +379,7 @@ function feature_selector(place, aFeature, idx) {
 	svg.append("g")
 	    .append("rect")
 	    // .attr("class","r-label")
-	    .attr("id", "rlab"+idx.toString())
+	    .attr("id", "rlab"+idx.toString() + "-" + slider_idx.toString())
         .attr('x',rstart - lab_shift)
 	    .attr('y',-lab_h-5)
 	    .attr("height",lab_h)
@@ -392,7 +392,7 @@ function feature_selector(place, aFeature, idx) {
 	svg.append("g")
 		.append('text')
 		.text(start.toString())
-		.attr("id", "lt-label"+idx.toString())
+		.attr("id", "lt-label"+idx.toString() + "-" + slider_idx.toString())
         .attr('x',lstart  + text_shift)
 		.attr('y',-10)
 		.attr("font-family",'"Open Sans", sans-serif')
@@ -404,7 +404,7 @@ function feature_selector(place, aFeature, idx) {
 	svg.append("g")
 		.append('text')
 		.text(end.toString())
-		.attr("id", "rt-label"+idx.toString())
+		.attr("id", "rt-label"+idx.toString() + "-" + slider_idx.toString())
 		.attr('x',rstart + text_shift)
 		.attr('y',-10)
 		.attr("font-family",'"Open Sans", sans-serif')
@@ -412,6 +412,56 @@ function feature_selector(place, aFeature, idx) {
 		.attr("font-weight", 'bold')
 		.attr("fill",'black')
 		.attr("text-anchor",'middle');
+
+
+    // === Removal Button === 
+    var cross_line = 4,
+        circ = 6,
+        sec_h = 25,
+        sec_s = 3,
+        cross_op = 0.3
+        mov_right = 10;
+
+    svg.append('g').append("line")
+    .attr("x1", width-circ-5-cross_line+mov_right)
+    .attr("y1", sec_h/2-cross_line)
+    .attr("x2", width-circ-5+cross_line+mov_right)
+    .attr("y2", sec_h/2+cross_line)
+    .attr("stroke","red")
+    .attr("stroke-width","2")
+    .attr("stroke-opacity", cross_op);
+
+    svg.append('g').append("line")
+    .attr("x1", width-circ-5+cross_line+mov_right)
+    .attr("y1", sec_h/2-cross_line)
+    .attr("x2", width-circ-5-cross_line+mov_right)
+    .attr("y2", sec_h/2+cross_line)
+    .attr("stroke","red")
+    .attr("stroke-width","2")
+    .attr("stroke-opacity", cross_op);  
+
+    svg.append('g').append("circle")
+    .attr("id","exit-"+idx.toString() + "-" + slider_idx.toString())
+    .attr("data-filteridx", idx)
+    .attr("data-slideridx", slider_idx)
+    .attr("data-featureidx", aFeature.id)
+    .attr("r", circ)
+    .attr("cx", width-circ-5+mov_right)
+    .attr("cy", sec_h/2)
+    .attr("stroke","red")
+    .attr("stroke-width","2")
+    .attr("stroke-opacity", cross_op)
+    .attr("fill-opacity", 0.1)
+    .attr("fill","pink")
+    .on('click', function(d) {
+        // OSCAR: This is the index that needs to be removed from filter list
+        var filter_idx_to_rm =  d3.select(this).attr("data-filteridx");
+        var slider_idx_to_rm =  d3.select(this).attr("data-slideridx");
+        var feature_idx_to_rm =  d3.select(this).attr("data-featureidx");
+        console.log("TO REMOVE", filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
+        remove_filter_range(filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
+
+    });
 
     
 	var grad = svg.append("defs")

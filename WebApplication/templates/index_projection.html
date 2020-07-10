@@ -81,7 +81,7 @@
             <tr>
               <td>
                 <div id="legend-div" style="position: fixed;">
-        </div>
+                </div>
                 <div id="distribution-div">
                   Distribution
                 </div>
@@ -90,14 +90,8 @@
           </table>
 
           <span id="middle-panel-proj">
-            <table class="proj-table" id="filter-set-button-table" style="float: left;">
-              <tr id="tr-new-filter-set-button">
-                <td colspan="2">
-                  <button onclick="addFilterSet()"> + </button>
-                </td>
-              </tr>
-            </table>
-          </div>
+            <button id="filter-set-button" class="projection-buttons" onclick="addFilterSet()"> New Filter Set </button>
+          </span>
 
         </div>
           
@@ -159,10 +153,8 @@
       reset_ft_curr_ranges(1);
       reset_ft_curr_ranges(2);
 
-      // console.log("FT names:", ft_names);
-      // console.log("FT selector input:", feature_selector_input);
-      // console.log("FT current ranges:", ft_curr_range);
-      // console.log("Percentage filter input:", percentage_filter_input);
+
+
       
       function reset_ft_curr_ranges (idx){
         // Generalize to many filter sets later
@@ -193,8 +185,9 @@
         var table = document.createElement("table");
         var tr = document.createElement("tr");
         var td_fil = document.createElement("td");
-        var filter_div = document.createElement("div");
+        td_fil.style.verticalAlign = "top";
 
+        var filter_div = document.createElement("div");
         filter_div.id = "filter-div-" + idx.toString();
         filter_div.className = "filter-set";
 
@@ -218,12 +211,19 @@
         var confmat_filt_div = document.createElement("div");
         confmat_filt_div.id = "confusion-matrix-filter-div-" + idx.toString();
 
+        var ftrang_container = document.createElement("div");
+        ftrang_container.className = "feature-range-container-div";
+        ftrang_container.id = "feature-range-container-div-" + idx.toString();
+        ftrang_container.style.height = "calc(100vh - 400px)";
+        ftrang_container.style.overflowY = "auto";
+        ftrang_container.innerHTML = "Feature ranges";
+        ftrang_container.dataset.numSliders = 1;
+
         var ftrang_filt_div = document.createElement("div");
-        ftrang_filt_div.id = "feature-range-filter-div-" + idx.toString();
-        ftrang_filt_div.innerHTML = "Feature range slider";
+        ftrang_filt_div.id = "feature-range-filter-div-" + idx.toString() + "-1";
 
         var ft_dropdown = document.createElement("select");
-        ft_dropdown.id = "feature-dropdown-" + idx.toString();
+        ft_dropdown.id = "feature-dropdown-" + idx.toString() + "-1";
 
         var init_option = document.createElement("option");
         init_option.value = "init" + idx.toString();
@@ -233,32 +233,41 @@
         ft_dropdown.appendChild(init_option);
         ft_dropdown.value = "init";
 
-        var ftrang_slider = document.createElement("div");
-        ftrang_slider.id = "feature-range-slider-div-" + idx.toString();
-        ftrang_slider.style.height = "60px";
-
-        ftrang_filt_div.appendChild(document.createElement("br"));
-        ftrang_filt_div.appendChild(ft_dropdown);
-        ftrang_filt_div.appendChild(ftrang_slider);
-
         top_div.appendChild(filter_title);
         top_div.appendChild(reset_btn);
 
         filter_div.appendChild(top_div);
         filter_div.appendChild(percent_filt_div);
         filter_div.appendChild(confmat_filt_div);
-        filter_div.appendChild(ftrang_filt_div);
 
         td_fil.appendChild(filter_div);
 
-        var td_sum = document.createElement("td");
-        var sum_div = document.createElement("div");
+        var td_rangs = document.createElement("td");
+        td_rangs.style.verticalAlign = "top";
 
-        sum_div.id = "summary-div-" + idx.toString();
-        td_sum.appendChild(sum_div);
+        var ftrang_slider = document.createElement("div");
+        ftrang_slider.id = "feature-range-slider-div-" + idx.toString() + "-1";
+        ftrang_slider.style.height = "60px";
+
+        ftrang_filt_div.appendChild(document.createElement("br"));
+        ftrang_filt_div.appendChild(ft_dropdown);
+        ftrang_filt_div.appendChild(ftrang_slider);
+
+        var ftrang_button = document.createElement("button");
+        ftrang_button.className = "projection-buttons";
+        ftrang_button.id = "feature-range-new-button-" + idx.toString();
+        ftrang_button.innerHTML = "+";
+        ftrang_button.dataset.idx = idx;
+        ftrang_button.onclick = function(){new_ft_range_slider(this);};
+        
+        ftrang_container.appendChild(ftrang_filt_div);
+        ftrang_container.appendChild(ftrang_button);
+
+        td_rangs.appendChild(ftrang_container);
 
         tr.appendChild(td_fil);
-        tr.appendChild(td_sum);
+        tr.appendChild(td_rangs);
+
         table.appendChild(tr);
         if (idx==1){
           table.style.float = "left";
@@ -292,34 +301,81 @@
         }
         percentage_bar("#percentage-filter-div-"+idx.toString(), pred_range[filter_set_idx], percentage_filter_input, idx);
 
-        // Feature selector dropdown
-        var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option-"+idx.toString());
+        draw_feature_dropdown(idx); 
+      }
+
+      // Feature selector dropdown
+      function draw_feature_dropdown(idx, slider_idx=1){
+        var ft_dropdown_opts = document.getElementsByClassName("ft-dropdown-option-"+idx.toString()+"-"+slider_idx.toString());
         if (ft_dropdown_opts.length <= 1){
-          var ft_dropdown = document.getElementById("feature-dropdown-"+idx.toString());
+          var ft_dropdown = document.getElementById("feature-dropdown-" + idx.toString() +"-"+slider_idx.toString());
           ft_dropdown.dataset.filteridx = idx;
-          ft_dropdown.onchange = function () {draw_feature_selector(this,idx);};
+          ft_dropdown.dataset.slideridx = slider_idx;
+          ft_dropdown.onchange = function () {draw_feature_selector(this);};
           for (i=0; i<ft_names.length; i++){
             var option = document.createElement("option");
             option.text = short_ft_names[i];
             option.value = i;
             option.ftid = i;
-            option.className = "ft-dropdown-option-"+idx.toString();
+            option.className = "ft-dropdown-option-"+idx.toString()+"-"+slider_idx.toString();
             option.parent_idx = idx;
-            option.onclick = function () {draw_feature_selector(this);};
             ft_dropdown.add(option);
           }
-        }     
-      }
+        } 
+      }  
 
       // wrapper to avoid duplicates
       function draw_feature_selector(ft_option){
         filter_set_idx = ft_option.dataset.filteridx;
+        var slider_idx = ft_option.dataset.slideridx;
+        console.log("DRAwing SlideR", filter_set_idx, slider_idx);
         console.log("Feature selector idx:", ft_option.value);
         var aFeature = feature_selector_input[ft_option.value];
         aFeature['current'] = ft_curr_range[filter_set_idx][ft_option.value];
         console.log("Drawing range slider", aFeature);
-        document.getElementById("feature-range-slider-div-"+filter_set_idx).innerHTML = "";
-        feature_selector("#feature-range-slider-div-"+filter_set_idx, aFeature, filter_set_idx);
+        document.getElementById("feature-range-slider-div-"+filter_set_idx+"-"+slider_idx.toString()).innerHTML = "";
+        feature_selector("#feature-range-slider-div-"+filter_set_idx+"-"+slider_idx.toString(), aFeature, filter_set_idx, slider_idx);
+      }
+
+      function new_ft_range_slider (elem){
+        var idx = elem.dataset.idx;
+        var next_slider_idx = parseInt(document.getElementById("feature-range-container-div-" + idx.toString()).dataset.numSliders) + 1;
+        document.getElementById("feature-range-container-div-" + idx.toString()).dataset.numSliders = next_slider_idx;
+        console.log("NEW SLIDER", idx, next_slider_idx);
+
+        var ftrang_container = document.getElementById("feature-range-container-div-" + idx.toString());
+
+        var ftrang_filt_div = document.createElement("div");
+        ftrang_filt_div.id = "feature-range-filter-div-" + idx.toString() + "-" + next_slider_idx.toString();
+
+        var ft_dropdown = document.createElement("select");
+        ft_dropdown.id = "feature-dropdown-" + idx.toString() + "-" + next_slider_idx.toString();
+
+        var init_option = document.createElement("option");
+        init_option.value = "init" + idx.toString();
+        init_option.innerHTML = "Choose feature";
+        init_option.disabled = true;
+        init_option.selected = true;
+        ft_dropdown.appendChild(init_option);
+        ft_dropdown.value = "init";
+
+        var ftrang_slider = document.createElement("div");
+        ftrang_slider.id = "feature-range-slider-div-" + idx.toString() + "-" + next_slider_idx.toString();
+        ftrang_slider.style.height = "60px";
+
+        ftrang_filt_div.appendChild(document.createElement("br"));
+        ftrang_filt_div.appendChild(ft_dropdown);
+        ftrang_filt_div.appendChild(ftrang_slider);
+        ftrang_container.insertBefore(ftrang_filt_div, document.getElementById("feature-range-new-button-" + idx.toString()));
+
+        draw_feature_dropdown(idx, next_slider_idx);
+      }
+
+      function remove_filter_range(filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm){
+        ft_curr_range[filter_idx_to_rm][feature_idx_to_rm] = feature_selector_input[feature_idx_to_rm]['range'];
+        var elem = document.querySelector("#feature-range-filter-div-" + filter_idx_to_rm.toString() + "-" + slider_idx_to_rm.toString());
+        elem.parentNode.removeChild(elem);
+        makeMainBackendRequest();
       }
 
       // Request to send feature list
@@ -391,8 +447,8 @@
 
         if (httpRequest.readyState === XMLHttpRequest.OPENED){
           document.getElementById("middle-panel-proj").style.display = "inline-block";
-          document.getElementById("summary-div-1").innerHTML = "";
-          if (n_filter_sets>1){ document.getElementById("summary-div-2").innerHTML = "";}
+          // document.getElementById("summary-div-1").innerHTML = "";
+          // if (n_filter_sets>1){ document.getElementById("summary-div-2").innerHTML = "";}
           // add_loader(document.getElementById("middle-panel-proj"));    
         }
 
@@ -409,7 +465,7 @@
             // var example_data = {'tn': 1, 'fp': 1, 'tp': 1, 'fn': 1};
             // confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data, idx);
             
-            draw_summary(allData[2],  allData[3], '#summary-div-1');
+            // draw_summary(allData[2],  allData[3], '#summary-div-1');
             draw_conf_mat_numbers(allData[2], 1);
             percentage_filter_input = allData[7];
             console.log("percentage_filter_input", percentage_filter_input);
@@ -417,7 +473,9 @@
             percentage_bar("#percentage-filter-div-1", pred_range[1], allData[7], 1);
 
             if (doing_comparison==1){
-              draw_summary(allData[5],  allData[6], '#summary-div-2');
+              // draw_summary(allData[5],  allData[6], '#summary-div-2');
+              // TODO: draw total from summary somewhere else
+
               draw_conf_mat_numbers(allData[5], 2);
               document.getElementById("percentage-filter-div-2").innerHTML = "";
               percentage_bar("#percentage-filter-div-2", pred_range[2], allData[8], 2);
@@ -554,9 +612,16 @@
         doing_comparison = 0;
         reset_ft_curr_ranges(filter_set_idx);
 
-        document.getElementById("feature-dropdown-"+filter_set_idx.toString()).value = "init";
+        document.getElementById("feature-dropdown-" + filter_set_idx.toString() + "-1").value = "init";
+
+        var no_sliders = document.getElementById("feature-range-container-div-" + filter_set_idx.toString()).dataset.numSliders;
+        for (var i=2; i<=no_sliders; i++){
+          var elem = document.querySelector("#feature-range-filter-div-" + filter_set_idx.toString() + "-" + i.toString());
+          elem.parentNode.removeChild(elem);
+        }
+
         draw_filters(confusion_mat_2_state(confusion_mat[filter_set_idx]), filter_set_idx);
-        document.getElementById("feature-range-slider-div-"+filter_set_idx).innerHTML = "";
+        document.getElementById("feature-range-slider-div-"+filter_set_idx+"-1").innerHTML = "";
         makeMainBackendRequest();
       }
 
@@ -577,10 +642,10 @@
         n_filter_sets+=1;
 
         document.getElementById("middle-panel-proj").insertBefore(create_filter_set(n_filter_sets), 
-          document.getElementById("filter-set-button-table"));
+          document.getElementById("filter-set-button"));
 
         if (n_filter_sets>=2) {
-          document.getElementById("filter-set-button-table").style.display = "none";
+          document.getElementById("filter-set-button").style.display = "none";
         }
         draw_filters(confusion_mat_2_state(confusion_mat[n_filter_sets]), n_filter_sets);
 
