@@ -100,9 +100,33 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
       val = data[s][f].round(0)   # FIX for FLOATS!!!
       change = val
 
+      # -- Bin index --
+      # result["bin_id"] = positions[s][f] # Doesn't match
+      the_bins = meta[f]["bins"]  # Bins used for CF. Use same. 
+      for b in range(len(the_bins)): 
+        one_bin = the_bins[b]
 
-      # -- Bin index -- 
-      result["bin_id"] = positions[s][f]
+        if len(one_bin) == 2:  # == NON-CATEGORICAL
+          l, h = one_bin  # low, high
+
+          if (b == 0 and val < l):  # Smaller than first bin
+            result["bin_id"] = b
+            break
+
+          elif (b == len(the_bins)-1 and val > h):  # Bigger than last bin
+            result["bin_id"] = b
+            break
+
+          elif(l <= val and val <= h): 
+            result["bin_id"] = b
+            break
+
+        if len(one_bin) == 1:  # == CATEGORICAL
+          l = one_bin[0]
+
+          if (val == l):
+            result["bin_id"] = b
+            break
 
       # --- Find Counter Factual when occurs ---
       for a in range((start_col+no_anchs) , (start_col+no_anchs+no_changes)):  # Format of metadata
