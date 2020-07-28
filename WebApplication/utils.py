@@ -3,6 +3,10 @@ import pandas as pd
 from sklearn.neighbors.kde import KernelDensity
 from sklearn import preprocessing
 from operator import itemgetter
+
+from scipy.stats import norm
+import tensorflow as tf
+import seaborn as sns
 import copy
 
 class dataset():
@@ -43,25 +47,113 @@ def apply_sort(sl, complete_data): # Apply sort list (sl) to complete data input
 	return new_complete
 
 
+def default_order(meta):
+	cont_lst = []
+	cat_lst = []
 
-def sort_by_med(medians1, medians2): # Sort aggregation by divergence of medians
-	diff_lst = []
-	idx_lst = []
-
-	print("MEDIAN 1:" , np.around(medians1,2))
-	print("MEDIAN 2:" , np.around(medians2,2))
-
-	for i in range(len(medians1)):
-		diff_lst.append(-1*abs(medians2[i] - medians1[i]))
-		idx_lst.append(i)
-
-	print("Difference:", np.around(diff_lst,2))
-	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(diff_lst,idx_lst))]
-	print("Sort list:", sort_lst)
+	for n in range(len(meta)):
+		if (meta[n]["cat"] != 1):
+			cont_lst.append(n)
+		else:
+			cat_lst.append(n)
+	sort_lst = cont_lst + cat_lst 
 	return sort_lst
 
-def sort_by_cf(): # Sort aggregation by number of counter factuals
-	pass
+
+def sort_by_med(medians1, medians2, meta): # Sort aggregation by divergence of medians
+	diff_lst = []
+	idx_lst = []
+	idx_cat = []
+
+	# -- Median doesn't apply to categorical -- 
+	med1_cont = []
+	med2_cont = []
+
+	for n in range(len(medians1)):
+		if (meta[n]["cat"] != 1):
+			med1_cont.append(medians1[n])
+			med2_cont.append(medians2[n])
+			idx_lst.append(n)
+		else:
+			idx_cat.append(n)
+
+
+	for i in range(len(med1_cont)):
+		diff_lst.append(-1*abs(med2_cont[i] - med1_cont[i]))
+
+	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(diff_lst,idx_lst))]
+	sort_lst += idx_cat  # Add back the categorical indices 
+	return sort_lst
+
+
+def sort_by_cf(data1,data2, meta): # Sort aggregation by number of counter factuals
+	idx_lst = [x for x in range(len(meta))]
+	total_lst = [0 for x in range(len(meta))]
+	
+	# -- Singular -- 
+	if (data2 == None):
+		for s in range(len(data1)):
+			data_pt1 = data1[s]
+			for i in range(len(meta)):
+				if (data_pt1[i]["scl_val"] != data_pt1[i]["scl_change"]):
+					total_lst[i] += -1
+
+	# -- Comparison -- 
+	# sort by sum of CFs for both filter sets
+	else:
+		for s in range(len(data1)):  # -- Filter set 1
+			data_pt1 = data1[s]
+			for i in range(len(meta)):
+				if (data_pt1[i]["scl_val"] != data_pt1[i]["scl_change"]):
+					total_lst[i] += -1
+		for s in range(len(data2)):  # -- Filter set 2
+			data_pt2 = data2[s]
+			for i in range(len(meta)):
+				if (data_pt2[i]["scl_val"] != data_pt2[i]["scl_change"]):
+					total_lst[i] += -1
+
+
+	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(total_lst,idx_lst))]
+
+	return sort_lst
+
+
+def sort_by_div(data1,data2, meta):
+
+	def kl_divergence(p, q):
+	    return np.sum(np.where(p != 0, p * np.log(p / q), 0))
+
+	# --- Isolate continuous features ---
+	idx_cont = []
+	idx_cat = []
+
+	for n in range(len(meta)):
+		if (meta[n]["cat"] != 1):
+			idx_cont.append(n)
+		else:
+			idx_cat.append(n)
+
+
+	# --- Gaussian Density estimate each feature --- 
+	for ft in idx_cont:
+		points1 = []
+		for s in range(len(data1)): # -- Filter set 1
+			val = data1[s][ft]["scl_val"]
+			points1.append(val)
+
+		# -- Create 2D array -- 
+		x = np.array([x for x in range(len(points1))])
+		y = np.array(points1)
+		xy = np.append()
+
+	
+		kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(np.array(points1))
+
+		result = kde.score_samples(points1)
+
+		print(result)
+
+
 
 def mono_finder(model,data, ranges):
 	"""

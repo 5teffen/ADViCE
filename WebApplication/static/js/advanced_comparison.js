@@ -136,7 +136,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
 
     // --- Establshing Dimensions ---
-    var max_width = 1100,
+    var max_width = 1050,
         one_width = (max_width/no_features)/no_sets;
     
     if (one_width > 50){one_width = 50;} // Ensures width is not too big

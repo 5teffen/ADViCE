@@ -170,13 +170,15 @@ def init_data(dataset):
 
 	# --- Percentage Filter ---
 	samples_selected = [x for x in range(100)]
+	samples_selected2 = [x for x in range(100,250)]
 	
 	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
 	
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 
-	one_compset = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array, 0)
-	
+	one_compset = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array)
+	two_compset = prep_complete_data(metadata, data, feature_names, samples_selected2 ,col_ranges, bins_centred, X_pos_array)
+
 
 	
 	# --- Algorithm Tests ---
@@ -193,9 +195,14 @@ def init_data(dataset):
 	# histz2, medz2 = prep_histo_data(aggr_tests2)
 	# comp_dat = [{"data":aggr_tests1, "den":histz1, "median":medz1}, {"data":aggr_tests2, "den":histz2, "median":medz2}]
 
-	# sl = sort_by_div(medz1, medz2)
-	
-	# new_comp = apply_sort(sl,comp_dat)
+	# sl = sort_by_med(one_compset["median"], two_compset["median"], one_compset["meta"])
+	# sl = sort_by_cf(one_compset["data"], two_compset["data"], two_compset["meta"])
+	# sl = sort_by_cf(one_compset["data"], None, two_compset["meta"])
+
+	sl = sort_by_div(one_compset["data"], two_compset["data"], two_compset["meta"])
+
+	comp_dat = [one_compset, two_compset]
+	new_comp = apply_sort(sl,comp_dat)
 
 
 
@@ -571,16 +578,45 @@ def violin_site_req():
 				samples = samples_lst[i]
 
 				# --- Complete data prep for D3 --- 
-				one_set = prep_complete_data(metadata, data, feature_names, samples ,col_ranges, bins_centred, X_pos_array, 0)
+				one_set = prep_complete_data(metadata, data, feature_names, samples ,col_ranges, bins_centred, X_pos_array)
 				complete_data.append(one_set)
 
-			# ==== Sorting options ===
+
+			# ==== Sorting options ====
+
+			# --- Comparison sorts --- 
 			if sort_toggle and no_comparisons > 1:
 				
 				# --- Median sort --- 
-				sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"])
-				
+				# sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"], complete_data[0]["meta"])
+				# complete_data = apply_sort(sort_lst, complete_data)
+
+				# --- CF sort --- 
+				sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
 				complete_data = apply_sort(sort_lst, complete_data)
+
+
+				# --- KL div sort --- 
+				# sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
+				# complete_data = apply_sort(sort_lst, complete_data)
+
+
+			# --- Singular sorts --- 
+			if sort_toggle and no_comparisons == 1:
+
+				# --- CF sort --- 
+				sort_lst = sort_by_cf(complete_data[0]["data"], None, complete_data[0]["meta"])
+				complete_data = apply_sort(sort_lst, complete_data)
+
+
+			# ==== Default sort ==== 
+			if not sort_toggle:
+				
+				# --- Default separated order (cont left/cat right) ---
+				sort_lst = default_order(complete_data[0]["meta"])
+				complete_data = apply_sort(sort_lst, complete_data)
+
+
 
 			ret_string = json.dumps(complete_data)
 
