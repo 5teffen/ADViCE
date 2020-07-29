@@ -49,7 +49,7 @@ def apply_sort(sl, complete_data): # Apply sort list (sl) to complete data input
 	return new_complete
 
 
-def default_order(meta):
+def sort_by_sep(meta): # Sort aggregation by separating continuous and categorical
 	cont_lst = []
 	cat_lst = []
 
@@ -120,7 +120,7 @@ def sort_by_cf(data1, data2, meta): # Sort aggregation by number of counter fact
 	return sort_lst
 
 
-def sort_by_div(data1, data2, meta):
+def sort_by_div(data1, data2, meta): # Sort aggregation by KL divergence
 	# --- Isolate continuous features ---
 	idx_cont = []
 	idx_cat = []
