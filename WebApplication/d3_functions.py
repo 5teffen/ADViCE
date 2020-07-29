@@ -100,6 +100,9 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
       val = data[s][f].round(0)   # FIX for FLOATS!!!
       change = val
 
+      # --- Record value ---
+      result["val"] = val
+
       # -- Bin index --
       # result["bin_id"] = positions[s][f] # Doesn't match
       the_bins = meta[f]["bins"]  # Bins used for CF. Use same. 

@@ -169,40 +169,22 @@ def init_data(dataset):
 	metadata = 	pd.read_csv(preproc_path, index_col=False).values
 
 	# --- Percentage Filter ---
-	samples_selected = [x for x in range(100)]
-	samples_selected2 = [x for x in range(100,250)]
-	
+	samples_selected = [x for x in range(no_samples)]
+
 	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
-	
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 
-	one_compset = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array)
-	two_compset = prep_complete_data(metadata, data, feature_names, samples_selected2 ,col_ranges, bins_centred, X_pos_array)
-
-
-	
 	# --- Algorithm Tests ---
 	# test_samp1 = [x for x in range(100)]
-	# aggr_tests1 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp1 , bins_centred, X_pos_array, False)
-	# test_samp2 = [x for x in range(100,200)]
-	# aggr_tests2 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp2 , bins_centred, X_pos_array, False)
+	# test_samp2 = [x for x in range(100,250)]
 
+	# one_compset = prep_complete_data(metadata, data, feature_names, test_samp1 ,col_ranges, bins_centred, X_pos_array)
+	# two_compset = prep_complete_data(metadata, data, feature_names, test_samp2 ,col_ranges, bins_centred, X_pos_array)
 
-	# aggr_tests1 = prep_complete_data(metadata, data, feature_names, test_samp1 ,col_ranges, bins_centred, X_pos_array, False)
+	# sl = sort_by_div(one_compset["data"], two_compset["data"], two_compset["meta"])
 
-
-	# histz1, medz1 = prep_histo_data(aggr_tests1)
-	# histz2, medz2 = prep_histo_data(aggr_tests2)
-	# comp_dat = [{"data":aggr_tests1, "den":histz1, "median":medz1}, {"data":aggr_tests2, "den":histz2, "median":medz2}]
-
-	# sl = sort_by_med(one_compset["median"], two_compset["median"], one_compset["meta"])
-	# sl = sort_by_cf(one_compset["data"], two_compset["data"], two_compset["meta"])
-	# sl = sort_by_cf(one_compset["data"], None, two_compset["meta"])
-
-	sl = sort_by_div(one_compset["data"], two_compset["data"], two_compset["meta"])
-
-	comp_dat = [one_compset, two_compset]
-	new_comp = apply_sort(sl,comp_dat)
+	# comp_dat = [one_compset, two_compset]
+	# new_comp = apply_sort(sl,comp_dat)
 
 
 
@@ -506,10 +488,10 @@ def main_site_backend_req():
 			selected_samples = apply_mask(all_samples, current_mask)
 
 			# STEFFEN
-			print("SELECTED SAMPLES", selected_samples)
+			# print("SELECTED SAMPLES", selected_samples)
 			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
 			# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples) # STEFFEN: Need to check if same as prep_summary
-			print("PERC FILTER INPUT", updated_percentage_filter_input)
+			# print("PERC FILTER INPUT", updated_percentage_filter_input)
 			# print("CONF MAT INPUT", updated_conf_matrix_input)
 
 
@@ -592,13 +574,13 @@ def violin_site_req():
 				# complete_data = apply_sort(sort_lst, complete_data)
 
 				# --- CF sort --- 
-				sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
-				complete_data = apply_sort(sort_lst, complete_data)
+				# sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
+				# complete_data = apply_sort(sort_lst, complete_data)
 
 
 				# --- KL div sort --- 
-				# sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
-				# complete_data = apply_sort(sort_lst, complete_data)
+				sort_lst = sort_by_div(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
+				complete_data = apply_sort(sort_lst, complete_data)
 
 
 			# --- Singular sorts --- 

@@ -4,10 +4,12 @@ from sklearn.neighbors.kde import KernelDensity
 from sklearn import preprocessing
 from operator import itemgetter
 
-from scipy.stats import norm
+from scipy.stats import norm, gaussian_kde, entropy
 import tensorflow as tf
 import seaborn as sns
 import copy
+
+import matplotlib.pyplot as plt
 
 class dataset():
 
@@ -86,7 +88,7 @@ def sort_by_med(medians1, medians2, meta): # Sort aggregation by divergence of m
 	return sort_lst
 
 
-def sort_by_cf(data1,data2, meta): # Sort aggregation by number of counter factuals
+def sort_by_cf(data1, data2, meta): # Sort aggregation by number of counter factuals
 	idx_lst = [x for x in range(len(meta))]
 	total_lst = [0 for x in range(len(meta))]
 	
@@ -118,11 +120,7 @@ def sort_by_cf(data1,data2, meta): # Sort aggregation by number of counter factu
 	return sort_lst
 
 
-def sort_by_div(data1,data2, meta):
-
-	def kl_divergence(p, q):
-	    return np.sum(np.where(p != 0, p * np.log(p / q), 0))
-
+def sort_by_div(data1, data2, meta):
 	# --- Isolate continuous features ---
 	idx_cont = []
 	idx_cat = []
@@ -133,26 +131,36 @@ def sort_by_div(data1,data2, meta):
 		else:
 			idx_cat.append(n)
 
-
-	# --- Gaussian Density estimate each feature --- 
+	# --- Gaussian Density estimate + KL Divergence for each feature --- 
+	diff_lst = []
 	for ft in idx_cont:
+		u = np.linspace(meta[ft]["min"],meta[ft]["max"], 500) # No points chosen arbitrarily
+		# -- Filter set 1
 		points1 = []
-		for s in range(len(data1)): # -- Filter set 1
-			val = data1[s][ft]["scl_val"]
-			points1.append(val)
+		for s in range(len(data1)):
+			val = data1[s][ft]["val"]
+			points1.append(val)	
+		kde1 = gaussian_kde(points1)
+		v1 = kde1.evaluate(u)
+		v1.shape = (v1.shape[0],)
+		# -- Filter set 2
+		points2 = []
+		for s in range(len(data2)):
+			val = data2[s][ft]["val"]
+			points2.append(val)
+		kde2 = gaussian_kde(points2)
+		v2 = kde2.evaluate(u)
+		v2.shape = (v2.shape[0],)
 
-		# -- Create 2D array -- 
-		x = np.array([x for x in range(len(points1))])
-		y = np.array(points1)
-		xy = np.append()
+		# -- Determine divergence -- 
+		kl_div = entropy(v1,v2)
+		diff_lst.append(-1*kl_div)  # Negatives used for easier sort
 
-	
-		kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(np.array(points1))
 
-		result = kde.score_samples(points1)
-
-		print(result)
-
+	# --- Rank by highest divergence --- 
+	sort_lst = [1*idx_cont for _,idx_cont in sorted(zip(diff_lst,idx_cont))]
+	sort_lst += idx_cat  # Add back the categorical indices 
+	return sort_lst
 
 
 def mono_finder(model,data, ranges):
@@ -486,6 +494,7 @@ def test_match(idx, p):
 		print(idx+1, "no match")
 	return 
 
+
 def ids_with_combination(pre_proc_file, cols_lst, anchs = False):
 	# --- Finds all the combinations with the desired columns --- 
 
@@ -524,11 +533,3 @@ def ids_with_combination(pre_proc_file, cols_lst, anchs = False):
 			samples_list.append(pre_data[sample][0])
 
 	return samples_list
-
-
-
-
-
-
-
-
