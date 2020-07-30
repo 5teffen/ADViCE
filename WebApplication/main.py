@@ -123,14 +123,7 @@ def init_data(dataset):
 
 	monotonicity_arr = mono_finder(svm_model, data, col_ranges)
 
-	# ==== FEATURE SELECTOR ====
-	# init_vals = [0,10]
-	samples4test = []
-	feature_selector_input = []
-	for i in range(no_features):
-		feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges, no_bins, samples4test))# 0 indexed
-	# If no init vals known then leave blank.
-	
+
 	dict_array = all_den
 	dict_array_orig = all_den
 
@@ -173,6 +166,29 @@ def init_data(dataset):
 
 	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
+
+	# --- Init Complete Data ---
+	init_comp_data = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array)
+
+
+	# --- Feature Selector ---
+	# init_vals = [0,10]
+	samples4test = []
+	feature_selector_input = []
+
+	# for i in range(no_features):
+	# 	feature_selector_input.append(prep_feature_selector(data, init_comp_data["meta"], i))
+
+
+	for i in range(no_features):
+		feature_selector_input.append(prep_feature_selector_old(data, i, feature_names, col_ranges, no_bins, samples4test))
+
+
+
+
+	# feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges, no_bins, samples4test))# 0 indexed
+	# If no init vals known then leave blank.
+	
 
 	# --- Algorithm Tests ---
 	# test_samp1 = [x for x in range(100)]
