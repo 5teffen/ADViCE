@@ -291,7 +291,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             .attr("fill","black");
     }
 
-
     for (s=0 ; s < no_sets; s++) {
 
         // -- Data variables for the specific set -- 
@@ -626,7 +625,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 })
                 .attr("stroke-opacity",0);
         }
-
     }
 
     for (var j=0; j<no_features; j++){

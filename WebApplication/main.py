@@ -490,9 +490,18 @@ def main_site_backend_req():
 			# mask5 = query_similar_points(data,metadata,10,0.5)
 			# mask6 = query_sampled_data(data, 30)
 
+			print("<<<<<<<- HERE ->>>>>>")
+			mask_test = query_feature_categories(data, 0, [0,0,1])
+
 			mask4 = np.copy(start_mask)
+			# Decide if categorical or continuous from js input?
+			# Continuous Option:
 			for idx in modified_range_idx:
 				mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
+
+			# Categorical Option:
+			# for idx in modified_range_idx:
+			# 	mask4 = mask4 * query_feature_categories(data, col_id, [0,1,2,3])
 
 			current_mask = start_mask*mask1*mask2*mask4 #*mask6
 

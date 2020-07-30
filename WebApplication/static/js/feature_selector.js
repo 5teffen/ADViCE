@@ -624,6 +624,7 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
             .attr("stroke-width",1)
             .attr("stroke","white");
 
+        // FIX: The ranges needed. Assumes 0-n atm.  
         svg.append("g")
             .append('text')
             .text(n.toString())
