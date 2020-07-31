@@ -176,12 +176,12 @@ def init_data(dataset):
 	samples4test = []
 	feature_selector_input = []
 
-	# for i in range(no_features):
-	# 	feature_selector_input.append(prep_feature_selector(data, init_comp_data["meta"], i))
-
-
 	for i in range(no_features):
-		feature_selector_input.append(prep_feature_selector_old(data, i, feature_names, col_ranges, no_bins, samples4test))
+		feature_selector_input.append(prep_feature_selector(data, init_comp_data["meta"], i))
+
+
+	# for i in range(no_features):
+	# 	feature_selector_input.append(prep_feature_selector_old(data, i, feature_names, col_ranges, no_bins, samples4test))
 
 
 
