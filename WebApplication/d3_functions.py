@@ -476,10 +476,8 @@ def prep_feature_selector(data, meta, ft_no, samples = []):
   out_dict["range"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
   out_dict["current"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
 
-
   print(out_dict)
   return out_dict
-
 
 
 

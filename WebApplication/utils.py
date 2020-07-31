@@ -5,7 +5,6 @@ from sklearn import preprocessing
 from operator import itemgetter
 
 from scipy.stats import norm, gaussian_kde, entropy
-import tensorflow as tf
 import seaborn as sns
 import copy
 
