@@ -6,7 +6,7 @@ from utils import *
 from global_explanations import *
 
 
-def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, positions, sort = 0):
+def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, positions):
   # --- Output format ---
   # {"meta": meta_info, data": main_data, "den": histo_bins, "median":median}
 
@@ -40,6 +40,8 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
     single_col = {}
     single_col["name"] = names[f]  # Feature name
 
+    single_col["no_bins"] = no_bins  # Number of bins for easy access
+
     ft_ranges = ranges[f]  # Ranges for single ft
     bins_lst = []
 
@@ -68,8 +70,8 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
     single_col["bins"] = bins_lst
 
     if single_col["cat"]:
-      single_col["min"] = bins_lst[0]
-      single_col["max"] = bins_lst[-1]
+      single_col["min"] = bins_lst[0][0]
+      single_col["max"] = bins_lst[-1][0]
 
     else:
       single_col["min"] = bins_lst[0][0]
@@ -100,9 +102,36 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
       val = data[s][f].round(0)   # FIX for FLOATS!!!
       change = val
 
+      # --- Record value ---
+      result["val"] = val
 
-      # -- Bin index -- 
-      result["bin_id"] = positions[s][f]
+      # -- Bin index --
+      # result["bin_id"] = positions[s][f] # Doesn't match
+      the_bins = meta[f]["bins"]  # Bins used for CF. Use same. 
+      for b in range(len(the_bins)): 
+        one_bin = the_bins[b]
+
+        if len(one_bin) == 2:  # == NON-CATEGORICAL
+          l, h = one_bin  # low, high
+
+          if (b == 0 and val < l):  # Smaller than first bin
+            result["bin_id"] = b
+            break
+
+          elif (b == len(the_bins)-1 and val > h):  # Bigger than last bin
+            result["bin_id"] = b
+            break
+
+          elif(l <= val and val <= h): 
+            result["bin_id"] = b
+            break
+
+        if len(one_bin) == 1:  # == CATEGORICAL
+          l = one_bin[0]
+
+          if (val == l):
+            result["bin_id"] = b
+            break
 
       # --- Find Counter Factual when occurs ---
       for a in range((start_col+no_anchs) , (start_col+no_anchs+no_changes)):  # Format of metadata
@@ -213,113 +242,11 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
 
   # --------------------------------------------------------------------
  
-  # ===== Apply different sorts =====
-  # 0: No sort               # 1: Median sort
-  # 2: KL divergence sort    # 3: CF sort
-  if sort == 1:
-    pass
-
-  elif sort == 2:
-    pass
-
-  elif sort == 3:
-    pass
-
-
 
   # +++++++ Compile complete data +++++++ 
   complete_data = {"meta": meta, "data": main_data, "den": histo_bins, "median":median_lst} 
 
-
-
   return complete_data
-  #   no_ft = len(data_dict[0])
-  # col_bins =  [list(np.zeros((no_bins,))) for i in range(no_ft)]
-  # med_lsts = empty_lists = [[] for i in range(no_ft)]  # Add up the values for each column
-
-
-  # # return final_data
-  # final_data = np.array(final_data)
-  # # return(final_data.tolist())
-
-  # # -- Sorting based on the number of arrows -- 
-  # if sort == True:
-  #   count_list = np.zeros((final_data.shape[1],))
-  #   for c in range(final_data.shape[1]):
-  #     col = final_data[:,c]
-  #     count = 0
-  #     for sample in col:
-  #       if sample['scl_val'] != sample['scl_change']:
-  #         count += 1
-
-  #     count_list[c] = count
-
-  #   keySort = np.argsort(count_list)[::-1]
-
-  #   final_result = np.array([])
-
-  #   for key in keySort:
-  #     if final_result.any() == False:
-  #       final_result = final_data[:,key].reshape(-1,1)
-  #     else:
-  #       final_result = np.append(final_result,final_data[:,key].reshape(-1,1), axis = 1)
-
-  #   return final_result.tolist()
-
-  # else:
-  #   return final_data.tolist()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def prep_histo_data(data_dict, no_bins = 10):
-  no_ft = len(data_dict[0])
-  col_bins =  [list(np.zeros((no_bins,))) for i in range(no_ft)]
-  med_lsts = empty_lists = [[] for i in range(no_ft)]  # Add up the values for each column
-
-  for sample in data_dict:
-    for c in range(len(sample)):
-      one_ft = sample[c]
-      scl_val = one_ft["scl_val"]
-      med_lsts[c].append(scl_val)
-      
-      for b in range(no_bins):
-        floor = round((0 + b*0.1),2)
-        ceil = round((0.1 + b*0.1),2)
-
-        if (scl_val < ceil) and (scl_val >= floor):
-          # print(scl_val, floor, ceil, b)
-          col_bins[c][b] += 1
-          break
-
-
-  # --- Normalize Histogram ---
-  for cb in range(len(col_bins)):
-    highest_count = np.amax(col_bins[cb])
-    col_bins[cb] = list(np.round(col_bins[cb]/highest_count, 3))
-
-
-  # --- Calculate Median  ---
-  med_result = []
-
-  for med_col in med_lsts:
-    med = np.median(med_col)
-    med_result.append(med)
-  #   highest_count = np.amax(col_bins) 
-  #   col_bins = list(col_bins/highest_count)
-  #   result.append(col_bins)
-  # print(col_bins)
-  return col_bins, med_result
 
 
 
@@ -489,34 +416,75 @@ def prep_confusion_matrix(metadata, samples = []):
 
 
 
-def prep_filter_summary(points, no_samples):
-  tp = 0
-  fp = 0 
-  tn = 0
-  fn = 0 
-  count = 0
-  for p in points:
-    cat = p['category']
-    if cat == "TP":
-      tp += 1
-    elif cat == "FP":
-      fp += 1 
+def prep_feature_selector(data, meta, ft_no, samples = []):
+  
+  # -- Dictionary for D3 visualisation --
+  # - name, range, den, current, cat, 
+  out_dict = {}
 
-    elif cat == "TN":
-      tn += 1 
+  # -- Constants -- 
+  no_bins = meta[0]["no_bins"]
+  no_feat = data.shape[1]
+  no_samp = data.shape[0]
 
-    elif cat == "FN":
-      fn += 1
+  # ===== Create distribution histogram  =====
+  histo_bins = list(np.zeros((no_bins,)))
 
-    count += 1
+  if (samples == []):
+    samples = [x for x in range(no_samp)]
 
-  result = {"tot_p": no_samples, "no_p": count, "tp":tp, "fp":fp, "tn":tn, "fn":fn,   }
+  for s in samples:
+    val = data[s][ft_no].round(0)   # FIX for FLOATS!!!
 
-  return result
+    the_bins = meta[ft_no]["bins"]  # Bins used for CF. Use same. 
+
+    for b in range(len(the_bins)):
+      one_bin = the_bins[b]
+
+      if len(one_bin) == 2:  # == NON-CATEGORICAL
+        l, h = one_bin  # low, high
+
+        if (b == 0 and val < l):  # Smaller than first bin
+          histo_bins[0] += 1
+          break
+
+        elif (b == len(the_bins)-1 and val > h):  # Bigger than last bin
+          histo_bins[b] += 1
+          break
+
+        elif(l <= val and val <= h): 
+          histo_bins[b] += 1
+          break
+
+      if len(one_bin) == 1:  # == CATEGORICAL
+        l = one_bin[0]
+
+        if (val == l):
+          histo_bins[b] += 1
+          break
+
+  # -- Normalize the Histogram --
+  highest_count = np.amax(histo_bins)
+  histo_bins = list(np.around(histo_bins/highest_count,5))
+
+
+  # +++++++ Compile output +++++++ 
+  out_dict["id"] = ft_no
+  out_dict["name"] = meta[ft_no]["name"]
+  out_dict["cat"] = meta[ft_no]["cat"]
+  out_dict["den"] = histo_bins
+  out_dict["range"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
+  out_dict["current"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
+
+
+  print(out_dict)
+  return out_dict
 
 
 
-def prep_feature_selector(data, feature_no, names, ranges, no_bins, samples, init = None):
+
+
+def prep_feature_selector_old(data, feature_no, names, ranges, no_bins, samples, init = None):
   out_dict = {}
 
   # out_dict["den"] = all_den[feature_no]['data']
@@ -595,6 +563,12 @@ def prep_feature_selector(data, feature_no, names, ranges, no_bins, samples, ini
 
 
   out_dict["den"] = col_bins
+
+  # temp solution
+  if len(col_bins) < 10:
+    out_dict["cat"] = 1
+  else:
+    out_dict["cat"] = 0
   
   feat_range = ranges[feature_no]
   min_val = feat_range[0][0]
@@ -615,383 +589,42 @@ def prep_feature_selector(data, feature_no, names, ranges, no_bins, samples, ini
   else:
     out_dict["current"] = init
 
+
+
+
+  print(out_dict)
   return out_dict
 
 
 
-def prepare_for_D3(sample, bins_centred, change_row, change_vector, anchors, percent, names, apply_monot, monot_array, locked_fts=[]):
-    data = []
-    
-    no_features = sample.shape[0]
-    
-    if (monot_array is None or monot_array == []):
-        monot_array = np.ones(no_features)
-
-
-    for i in range(bins_centred.shape[0]):
-        result = {}
-        result["name"] = names[i]
-        
-        if len(names[i]) > 20:
-            result["short_name"] = names[i][:20] + "..."
-        else:
-            result["short_name"] = names[i]
-        
-        if (change_vector is not None):
-            result["incr"] = int(abs(change_vector[i]))
-        else:
-            result["incr"] = 0 
-        
-        if (percent > 0.5):
-            result["dir"] = 1
-        else:
-            result["dir"] = 0
-        
-        if (anchors is not None):
-            if (anchors[i] == 1):
-                result["anch"] = 1
-            else:
-                result["anch"] = 0
-        else:
-            result["anch"] = 0
-        
-        val = round(sample[i]) #.round(0)
-        # try:
-        #   val = long(sample[i]).round(0)
-        # except:
-        #   print (sample[i],i, sample)
-    
-        if (change_row is None):
-            change = val
-        else:
-            change = round(change_row[i]) #.round(0)
-        
-        max_bin = np.max(bins_centred[i])
-        min_bin = np.min(bins_centred[i])
-        
-        if (min_bin == -1):
-            min_bin = 0
-
-        if (max_bin < 10):
-            max_bin = 10
-        
-        scl_val = (val-min_bin)/(max_bin-min_bin)
-        scl_change = (change-min_bin)/(max_bin-min_bin)
-
-        if (scl_val < 0 ):
-            scl_val = 0
-        if (scl_change < 0):
-            scl_change = 0
-        if (scl_val > 1 ):
-            scl_val = 1
-        if (scl_change > 1):
-            scl_change = 1
-
-        if (apply_monot and monot_array[i] == 0):
-            result["val"] = int(val)
-            result["scl_val"] = 1-float(scl_val)
-            result["change"] = int(change)
-            result["scl_change"] = 1-float(scl_change)
-
-        else:
-            result["val"] = int(val)
-            result["scl_val"] = float(scl_val)
-            result["change"] = int(change)
-            result["scl_change"] = float(scl_change)
-            result["locked"] = 1 if i in locked_fts else 0
-            result["orig_ft_pos"] = i
-
-        data.append(result)
-        
-    return data
 
 
 
-def prep_for_D3_aggregation(metadata,X,names,samples,bins_centred,positions,sort = False):
-
-  # --- Hardcoded Parameters --- 
-  no_anchs = 4
-  no_changes = 5
-  start_col = 5
-
-  # --- Constants --- 
-  no_samp = X.shape[0]
-  no_feat = X.shape[1]
-
-  final_data = []
 
 
-  for s in samples:
-    single_dict_list = []
-    for i in range(no_feat):
-      result = {}
-      result["name"] = names[i]
-      result["sample"] = str(s+1)
-      result["incr"] = 0 
+def prep_filter_summary(points, no_samples):
+  tp = 0
+  fp = 0 
+  tn = 0
+  fn = 0 
+  count = 0
+  for p in points:
+    cat = p['category']
+    if cat == "TP":
+      tp += 1
+    elif cat == "FP":
+      fp += 1 
 
-      if metadata[s][1] > 0.5:
-        result["dec"] = 1
-      else:
-        result["dec"] = 0
+    elif cat == "TN":
+      tn += 1 
 
-      val = X[s][i].round(0)   # FIX
-      change = val
+    elif cat == "FN":
+      fn += 1
 
-      # -- Identify Anchors --
-      for an in range(start_col,start_col+no_anchs):
-        col = metadata[s][an]
-        if (i == col):
-          result["anch"] = 1
+    count += 1
 
-      # -- Find Change -- 
-      for a in range(start_col+no_anchs,start_col+no_anchs+no_changes):
-        col = metadata[s][a]
-        if (i == col):
-          idx = positions[s][col]
-          increments = metadata[s][a+no_changes]
-          change = bins_centred[i][int(idx+increments)]
-
-      max_bin = np.max(bins_centred[i])
-      min_bin = np.min(bins_centred[i])
-
-      if (min_bin == -1):
-        min_bin = 0
-
-      if (max_bin < 10):
-        max_bin = 10
-
-      scl_val = ((val-min_bin)/(max_bin-min_bin)).round(2)
-      scl_change = ((change-min_bin)/(max_bin-min_bin)).round(2)
-
-      if (scl_val < 0 ):
-        scl_val = 0
-
-      if (scl_val > 1 ):
-        scl_val = 1
-      
-      if (scl_change < 0):
-        scl_change = 0
-
-      if (scl_change > 1 ):
-        scl_change = 1
-
-      result["scl_val"] = float(scl_val)
-      result["scl_change"] = float(scl_change)
-
-      single_dict_list.append(result)
-
-    final_data.append(single_dict_list)
-
-  # return final_data
-  final_data = np.array(final_data)
-  # return(final_data.tolist())
-
-  # -- Sorting based on the number of arrows -- 
-  if sort == True:
-    count_list = np.zeros((final_data.shape[1],))
-    for c in range(final_data.shape[1]):
-      col = final_data[:,c]
-      count = 0
-      for sample in col:
-        if sample['scl_val'] != sample['scl_change']:
-          count += 1
-
-      count_list[c] = count
-
-    keySort = np.argsort(count_list)[::-1]
-
-    final_result = np.array([])
-
-    for key in keySort:
-      if final_result.any() == False:
-        final_result = final_data[:,key].reshape(-1,1)
-      else:
-        final_result = np.append(final_result,final_data[:,key].reshape(-1,1), axis = 1)
-
-    return final_result.tolist()
-
-  else:
-    return final_data.tolist()
-
-
-
-def prep_histo_data_old(data,ranges, samples = []):
-
-  no_samp, no_feat = data.shape
-  no_bins = ranges.shape[1]
-
-  result = []
-
-  for c in range(no_feat):
-    col = data[:,c]
-    col_range = ranges[c]
-
-    col_bins =  list(np.zeros((no_bins,)))
-
-
-    # ---- OPTION 1: Generate histogram for all datapoints ----
-    if samples == []:   # OPTION 1: Generate histogram for all datapoints
-
-      for s in range(no_samp):
-        sample = col[s]
-
-        for b in range(no_bins):
-          
-          floor = ranges[c][b][0]
-          ceil = ranges[c][b][1]
-
-          if (b == 0 and sample < ceil): #Edge case first bin
-            col_bins[0] += 1
-            break
-
-          elif (b == (no_bins-1)):  #Edge case last bin
-            col_bins[no_bins-1] += 1
-            break
-
-          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
-            col_bins[b] += 1
-            break
-
-          elif ((sample >= floor) and (sample < ceil)):
-            col_bins[b] += 1
-            break
-
-
-    # ---- OPTION 2: Generate histogram for specific datapoints ----
-    else:
-      for s in samples:
-        sample = col[s]
-
-        for b in range(no_bins):
-          
-          floor = ranges[c][b][0]
-          ceil = ranges[c][b][1]
-
-          if (b == 0 and sample < ceil): #Edge case first bin
-            col_bins[0] += 1
-            break
-
-          elif (b == (no_bins-1)):  #Edge case last bin
-            col_bins[no_bins-1] += 1
-            break
-
-          elif isinstance(ranges[c][b+1], str): #Edge case fewer than standard no_bins
-            col_bins[b] += 1
-            break
-
-          elif ((sample >= floor) and (sample < ceil)):
-            col_bins[b] += 1
-            break
-
-
-      # --- Normalize Histogram ---
-
-    highest_count = np.amax(col_bins) 
-    col_bins = list(col_bins/highest_count)
-    result.append(col_bins)
+  result = {"tot_p": no_samples, "no_p": count, "tp":tp, "fp":fp, "tn":tn, "fn":fn,   }
 
   return result
-
-
-
-def prep_feature_selector_simple(data, feature_no, names, ranges, no_bins, samples, init = None):
-  out_dict = {}
-
-  # out_dict["den"] = all_den[feature_no]['data']
-  out_dict["id"] = feature_no
-
-  no_samp, no_feat = data.shape
-  no_bins = ranges.shape[1]
-
-  result = []
-
-  col = data[:,feature_no]
-  col_range = ranges[feature_no]
-
-  col_bins =  list(np.zeros((no_bins,)))
-
-
-  # ---- OPTION 1: Generate histogram for all datapoints ----
-  if samples == []:   # OPTION 1: Generate histogram for all datapoints
-
-    for s in range(no_samp):
-      sample = col[s]
-
-      for b in range(no_bins):
-        
-        floor = ranges[feature_no][b][0]
-        ceil = ranges[feature_no][b][1]
-
-        if (b == 0 and sample < ceil): #Edge case first bin
-          col_bins[0] += 1
-          break
-
-        elif (b == (no_bins-1)):  #Edge case last bin
-          col_bins[no_bins-1] += 1
-          break
-
-        elif isinstance(ranges[feature_no][b+1], str): #Edge case fewer than standard no_bins
-          col_bins[b] += 1
-          break
-
-        elif ((sample >= floor) and (sample < ceil)):
-          col_bins[b] += 1
-          break
-
-
-    # ---- OPTION 2: Generate histogram for specific datapoints ----
-    else:
-      for s in samples:
-        sample = col[s]
-
-        for b in range(no_bins):
-          
-          floor = ranges[feature_no][b][0]
-          ceil = ranges[feature_no][b][1]
-
-          if (b == 0 and sample < ceil): #Edge case first bin
-            col_bins[0] += 1
-            break
-
-          elif (b == (no_bins-1)):  #Edge case last bin
-            col_bins[no_bins-1] += 1
-            break
-
-          elif isinstance(ranges[feature_no][b+1], str): #Edge case fewer than standard no_bins
-            col_bins[b] += 1
-            break
-
-          elif ((sample >= floor) and (sample < ceil)):
-            col_bins[b] += 1
-            break
-
-    # --- Normalize Histogram ---
-    highest_count = np.amax(col_bins) 
-    col_bins = list(col_bins/highest_count)
-    result.append(col_bins)
-
-  
-  feat_range = ranges[feature_no]
-  min_val = feat_range[0][0]
-  max_val = 0  
-  for i in range(len(feat_range)):  # Finding the max range value
-    if (i == len(feat_range)-1):
-      max_val = feat_range[i][1]
-
-    elif (feat_range[i+1] == '-1'):
-      max_val = feat_range[i][1]
-      break
-
-  out_dict["range"] = [min_val,max_val]
-
-  if init == None:
-    out_dict["current"] = [min_val,max_val]
-
-  else:
-    out_dict["current"] = init
-
-  return out_dict
-
-
 
 

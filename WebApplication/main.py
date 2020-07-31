@@ -123,14 +123,7 @@ def init_data(dataset):
 
 	monotonicity_arr = mono_finder(svm_model, data, col_ranges)
 
-	# ==== FEATURE SELECTOR ====
-	# init_vals = [0,10]
-	samples4test = []
-	feature_selector_input = []
-	for i in range(no_features):
-		feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges, no_bins, samples4test))# 0 indexed
-	# If no init vals known then leave blank.
-	
+
 	dict_array = all_den
 	dict_array_orig = all_den
 
@@ -169,32 +162,44 @@ def init_data(dataset):
 	metadata = 	pd.read_csv(preproc_path, index_col=False).values
 
 	# --- Percentage Filter ---
-	samples_selected = [x for x in range(100)]
-	
+	samples_selected = [x for x in range(no_samples)]
+
 	percentage_filter_input = prep_percentage_filter(metadata, bins_used, samples_selected)
-	
 	conf_matrix_input = prep_confusion_matrix(metadata, samples_selected)
 
-	one_compset = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array, 0)
+	# --- Init Complete Data ---
+	init_comp_data = prep_complete_data(metadata, data, feature_names, samples_selected ,col_ranges, bins_centred, X_pos_array)
+
+
+	# --- Feature Selector ---
+	# init_vals = [0,10]
+	samples4test = []
+	feature_selector_input = []
+
+	# for i in range(no_features):
+	# 	feature_selector_input.append(prep_feature_selector(data, init_comp_data["meta"], i))
+
+
+	for i in range(no_features):
+		feature_selector_input.append(prep_feature_selector_old(data, i, feature_names, col_ranges, no_bins, samples4test))
+
+
+
+
+	# feature_selector_input.append(prep_feature_selector(data, i, feature_names, col_ranges, no_bins, samples4test))# 0 indexed
+	# If no init vals known then leave blank.
 	
 
-	
 	# --- Algorithm Tests ---
 	# test_samp1 = [x for x in range(100)]
-	# aggr_tests1 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp1 , bins_centred, X_pos_array, False)
-	# test_samp2 = [x for x in range(100,200)]
-	# aggr_tests2 = prep_for_D3_aggregation(metadata, data, feature_names, test_samp2 , bins_centred, X_pos_array, False)
+	# test_samp2 = [x for x in range(100,250)]
 
+	# one_compset = prep_complete_data(metadata, data, feature_names, test_samp1 ,col_ranges, bins_centred, X_pos_array)
+	# two_compset = prep_complete_data(metadata, data, feature_names, test_samp2 ,col_ranges, bins_centred, X_pos_array)
 
-	# aggr_tests1 = prep_complete_data(metadata, data, feature_names, test_samp1 ,col_ranges, bins_centred, X_pos_array, False)
+	# sl = sort_by_div(one_compset["data"], two_compset["data"], two_compset["meta"])
 
-
-	# histz1, medz1 = prep_histo_data(aggr_tests1)
-	# histz2, medz2 = prep_histo_data(aggr_tests2)
-	# comp_dat = [{"data":aggr_tests1, "den":histz1, "median":medz1}, {"data":aggr_tests2, "den":histz2, "median":medz2}]
-
-	# sl = sort_by_div(medz1, medz2)
-	
+	# comp_dat = [one_compset, two_compset]
 	# new_comp = apply_sort(sl,comp_dat)
 
 
@@ -485,9 +490,18 @@ def main_site_backend_req():
 			# mask5 = query_similar_points(data,metadata,10,0.5)
 			# mask6 = query_sampled_data(data, 30)
 
+			print("<<<<<<<- HERE ->>>>>>")
+			mask_test = query_feature_categories(data, 0, [0,0,1])
+
 			mask4 = np.copy(start_mask)
+			# Decide if categorical or continuous from js input?
+			# Continuous Option:
 			for idx in modified_range_idx:
 				mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
+
+			# Categorical Option:
+			# for idx in modified_range_idx:
+			# 	mask4 = mask4 * query_feature_categories(data, col_id, [0,1,2,3])
 
 			current_mask = start_mask*mask1*mask2*mask4 #*mask6
 
@@ -499,10 +513,10 @@ def main_site_backend_req():
 			selected_samples = apply_mask(all_samples, current_mask)
 
 			# STEFFEN
-			print("SELECTED SAMPLES", selected_samples)
+			# print("SELECTED SAMPLES", selected_samples)
 			updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
 			# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples) # STEFFEN: Need to check if same as prep_summary
-			print("PERC FILTER INPUT", updated_percentage_filter_input)
+			# print("PERC FILTER INPUT", updated_percentage_filter_input)
 			# print("CONF MAT INPUT", updated_conf_matrix_input)
 
 
@@ -571,16 +585,45 @@ def violin_site_req():
 				samples = samples_lst[i]
 
 				# --- Complete data prep for D3 --- 
-				one_set = prep_complete_data(metadata, data, feature_names, samples ,col_ranges, bins_centred, X_pos_array, 0)
+				one_set = prep_complete_data(metadata, data, feature_names, samples ,col_ranges, bins_centred, X_pos_array)
 				complete_data.append(one_set)
 
-			# ==== Sorting options ===
+
+			# ==== Sorting options ====
+
+			# --- Comparison sorts --- 
 			if sort_toggle and no_comparisons > 1:
 				
 				# --- Median sort --- 
-				sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"])
-				
+				# sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"], complete_data[0]["meta"])
+				# complete_data = apply_sort(sort_lst, complete_data)
+
+				# --- CF sort --- 
+				# sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
+				# complete_data = apply_sort(sort_lst, complete_data)
+
+
+				# --- KL div sort --- 
+				sort_lst = sort_by_div(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
 				complete_data = apply_sort(sort_lst, complete_data)
+
+
+			# --- Singular sorts --- 
+			if sort_toggle and no_comparisons == 1:
+
+				# --- CF sort --- 
+				sort_lst = sort_by_cf(complete_data[0]["data"], None, complete_data[0]["meta"])
+				complete_data = apply_sort(sort_lst, complete_data)
+
+
+			# ==== Default sort ==== 
+			if not sort_toggle:
+				
+				# --- Default separated order (cont left/cat right) ---
+				sort_lst = sort_by_sep(complete_data[0]["meta"])
+				complete_data = apply_sort(sort_lst, complete_data)
+
+
 
 			ret_string = json.dumps(complete_data)
 

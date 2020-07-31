@@ -31,6 +31,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             return [x_out, y_out]
     }
 
+
     function draw_triangle(data,tri_w) {
         var full_string = "";
 
@@ -76,16 +77,16 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 y1_dec = Math.floor(d.scl_val*10);
                 y2_dec = Math.floor(d.scl_change*10);
 
-                res1 = height - shift_lst[n][y1_dec]+binh/2;
-                res2 = height - shift_lst[n][y2_dec]+binh/2;
+                if (shift_lst[n] != 0) {
+                    res1 = height - shift_lst[n][y1_dec]+binh/2;
+                    res2 = height - shift_lst[n][y2_dec]+binh/2;
 
-                // if (isNaN(res1) == true){ // Non-permanent fix // Remove later
-                //     console.log("fixing");
-                //     y_dec = shift_lst[n].length-1
-                //     res1 = height - shift_lst[n][y_dec]+binh/2;
-                //     console.log(shift_lst[n][y_dec]);
+                }
 
-                // }
+                else{
+                    res1 = y1;
+                    res2 = y2;
+                }
 
                 one_tri = "M"+x1+","+res1+"L"+x2+","+res1+"L"+x3+","+res2
                     +"L"+x1+","+res1;
@@ -135,7 +136,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
 
     // --- Establshing Dimensions ---
-    var max_width = 1100
+    var max_width = 1050,
         one_width = (max_width/no_features)/no_sets;
     
     if (one_width > 50){one_width = 50;} // Ensures width is not too big
@@ -289,7 +290,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
             .attr("font-weight", 400)
             .attr("fill","black");
     }
-
 
     for (s=0 ; s < no_sets; s++) {
 
@@ -583,6 +583,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
         shift_svg = svg.append("g")
             .attr("transform","translate(" + (start_point+(s*single_bw)) + ',0)'); 
+        
+
         // === Counter Factuals === 
         if (cf_toggle){
 
@@ -623,10 +625,6 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 })
                 .attr("stroke-opacity",0);
         }
-
-
-
-
     }
 
     for (var j=0; j<no_features; j++){

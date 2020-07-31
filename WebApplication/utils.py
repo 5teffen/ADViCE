@@ -3,7 +3,13 @@ import pandas as pd
 from sklearn.neighbors.kde import KernelDensity
 from sklearn import preprocessing
 from operator import itemgetter
+
+from scipy.stats import norm, gaussian_kde, entropy
+import tensorflow as tf
+import seaborn as sns
 import copy
+
+import matplotlib.pyplot as plt
 
 class dataset():
 
@@ -43,25 +49,119 @@ def apply_sort(sl, complete_data): # Apply sort list (sl) to complete data input
 	return new_complete
 
 
+def sort_by_sep(meta): # Sort aggregation by separating continuous and categorical
+	cont_lst = []
+	cat_lst = []
 
-def sort_by_med(medians1, medians2): # Sort aggregation by divergence of medians
-	diff_lst = []
-	idx_lst = []
-
-	print("MEDIAN 1:" , np.around(medians1,2))
-	print("MEDIAN 2:" , np.around(medians2,2))
-
-	for i in range(len(medians1)):
-		diff_lst.append(-1*abs(medians2[i] - medians1[i]))
-		idx_lst.append(i)
-
-	print("Difference:", np.around(diff_lst,2))
-	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(diff_lst,idx_lst))]
-	print("Sort list:", sort_lst)
+	for n in range(len(meta)):
+		if (meta[n]["cat"] != 1):
+			cont_lst.append(n)
+		else:
+			cat_lst.append(n)
+	sort_lst = cont_lst + cat_lst 
 	return sort_lst
 
-def sort_by_cf(): # Sort aggregation by number of counter factuals
-	pass
+
+def sort_by_med(medians1, medians2, meta): # Sort aggregation by divergence of medians
+	diff_lst = []
+	idx_lst = []
+	idx_cat = []
+
+	# -- Median doesn't apply to categorical -- 
+	med1_cont = []
+	med2_cont = []
+
+	for n in range(len(medians1)):
+		if (meta[n]["cat"] != 1):
+			med1_cont.append(medians1[n])
+			med2_cont.append(medians2[n])
+			idx_lst.append(n)
+		else:
+			idx_cat.append(n)
+
+
+	for i in range(len(med1_cont)):
+		diff_lst.append(-1*abs(med2_cont[i] - med1_cont[i]))
+
+	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(diff_lst,idx_lst))]
+	sort_lst += idx_cat  # Add back the categorical indices 
+	return sort_lst
+
+
+def sort_by_cf(data1, data2, meta): # Sort aggregation by number of counter factuals
+	idx_lst = [x for x in range(len(meta))]
+	total_lst = [0 for x in range(len(meta))]
+	
+	# -- Singular -- 
+	if (data2 == None):
+		for s in range(len(data1)):
+			data_pt1 = data1[s]
+			for i in range(len(meta)):
+				if (data_pt1[i]["scl_val"] != data_pt1[i]["scl_change"]):
+					total_lst[i] += -1
+
+	# -- Comparison -- 
+	# sort by sum of CFs for both filter sets
+	else:
+		for s in range(len(data1)):  # -- Filter set 1
+			data_pt1 = data1[s]
+			for i in range(len(meta)):
+				if (data_pt1[i]["scl_val"] != data_pt1[i]["scl_change"]):
+					total_lst[i] += -1
+		for s in range(len(data2)):  # -- Filter set 2
+			data_pt2 = data2[s]
+			for i in range(len(meta)):
+				if (data_pt2[i]["scl_val"] != data_pt2[i]["scl_change"]):
+					total_lst[i] += -1
+
+
+	sort_lst = [1*idx_lst for _,idx_lst in sorted(zip(total_lst,idx_lst))]
+
+	return sort_lst
+
+
+def sort_by_div(data1, data2, meta): # Sort aggregation by KL divergence
+	# --- Isolate continuous features ---
+	idx_cont = []
+	idx_cat = []
+
+	for n in range(len(meta)):
+		if (meta[n]["cat"] != 1):
+			idx_cont.append(n)
+		else:
+			idx_cat.append(n)
+
+	# --- Gaussian Density estimate + KL Divergence for each feature --- 
+	diff_lst = []
+	for ft in idx_cont:
+		u = np.linspace(meta[ft]["min"],meta[ft]["max"], 500) # No points chosen arbitrarily
+		# -- Filter set 1
+		points1 = []
+		for s in range(len(data1)):
+			val = data1[s][ft]["val"]
+			points1.append(val)	
+		kde1 = gaussian_kde(points1)
+		v1 = kde1.evaluate(u)
+		v1.shape = (v1.shape[0],)
+		# -- Filter set 2
+		points2 = []
+		for s in range(len(data2)):
+			val = data2[s][ft]["val"]
+			points2.append(val)
+		kde2 = gaussian_kde(points2)
+		v2 = kde2.evaluate(u)
+		v2.shape = (v2.shape[0],)
+
+		# -- Determine divergence -- 
+		kl_div = entropy(v1,v2)
+		diff_lst.append(-1*kl_div)  # Negatives used for easier sort
+
+
+	# --- Rank by highest divergence --- 
+	sort_lst = [1*idx_cont for _,idx_cont in sorted(zip(diff_lst,idx_cont))]
+	sort_lst += idx_cat  # Add back the categorical indices 
+	return sort_lst
+
 
 def mono_finder(model,data, ranges):
 	"""
@@ -394,6 +494,7 @@ def test_match(idx, p):
 		print(idx+1, "no match")
 	return 
 
+
 def ids_with_combination(pre_proc_file, cols_lst, anchs = False):
 	# --- Finds all the combinations with the desired columns --- 
 
@@ -432,11 +533,3 @@ def ids_with_combination(pre_proc_file, cols_lst, anchs = False):
 			samples_list.append(pre_data[sample][0])
 
 	return samples_list
-
-
-
-
-
-
-
-
