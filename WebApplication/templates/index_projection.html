@@ -100,12 +100,9 @@
     <script>
     
       var no_features = {{no_features}};
-      var feature_selector_input = "{{feature_selector_input}}";
-      feature_selector_input = feature_selector_input.replace(/&#34;/g, "");
-      feature_selector_input = feature_selector_input.replace(/den/g, '\"den\"');
-      feature_selector_input = feature_selector_input.replace(/id/g, '\"id\"');
-      feature_selector_input = feature_selector_input.replace(/current/g, '\"current\"');
-      feature_selector_input = feature_selector_input.replace(/range/g, '\"range\"');
+      var feature_selector_input = {{feature_selector_input | tojson}};
+      feature_selector_input = JSON.parse(feature_selector_input);
+      console.log(feature_selector_input);
 
       var percentage_filter_input = {{percentage_filter_input}};
       console.log("percentage_filter_input", percentage_filter_input);
@@ -138,7 +135,7 @@
       var short_ft_names= [];
       var max_ft_name_len = 15;
 
-      feature_selector_input = JSON.parse(feature_selector_input);
+      
       for (i=0; i<ft_names.length; i++){
         feature_selector_input[i]['name'] = ft_names[i];
         var short_ft_name = ft_names[i];
@@ -147,12 +144,15 @@
         }
         short_ft_names.push(short_ft_name);
       }
+      console.log("FT NAMES", ft_names);
+      console.log("SHORT FT NAMES", short_ft_names);
       
       var ft_curr_range = [[],[],[]];
       reset_ft_curr_ranges(0);
       reset_ft_curr_ranges(1);
       reset_ft_curr_ranges(2);
 
+      console.log("FT CURR RANGES", ft_curr_range);
 
 
       

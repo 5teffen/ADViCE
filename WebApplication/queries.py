@@ -73,6 +73,21 @@ def query_value_range(data, col_id, low, high):
 
 	return mask
 
+
+# ============= Feature Value Range =============
+def query_feature_categories(data, col_id, selected):
+	no_samples = data.shape[0]
+	mask = np.zeros(no_samples)
+
+	target_col = data[:,col_id]
+	for i in range(no_samples):
+		val = target_col[i]
+
+		if (val in selected):
+			mask[i] = 1
+
+	return mask
+
 # ================ Similar Points ===============	
 def query_similar_points(data, meta, idx, radius):
 	# radius: The strictness in finding similar points. 0 - 1 
