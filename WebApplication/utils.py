@@ -5,10 +5,7 @@ from sklearn import preprocessing
 from operator import itemgetter
 
 from scipy.stats import norm, gaussian_kde, entropy
-import seaborn as sns
 import copy
-
-import matplotlib.pyplot as plt
 
 class dataset():
 
