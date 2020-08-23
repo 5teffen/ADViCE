@@ -1,1 +1,0 @@
-export {default as lasso} from "./src/lasso";
