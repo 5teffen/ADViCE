@@ -619,7 +619,7 @@ def violin_site_req():
 			# ==== Default sort ==== 
 			if not sort_toggle:
 				
-				# --- Default separated order (cont left/cat right) ---
+				# --- Default separated order (continuous left/categorical right) ---
 				sort_lst = sort_by_sep(complete_data[0]["meta"])
 				complete_data = apply_sort(sort_lst, complete_data)
 
