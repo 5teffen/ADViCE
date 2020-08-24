@@ -8,7 +8,7 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,700' rel='stylesheet' type='text/css'>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
     <link href="static/css/projection-style.css" rel="stylesheet" type="text/css">
-
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.9.0/css/all.css">
     <!-- D3.js and jQuery source -->
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <!-- <script type="text/javascript" src="static/js/d3.min.js"></script> -->
@@ -51,6 +51,11 @@
             <li><a href="individual"> LOCAL </a></li>
           </ul>
         </nav>
+        <br>
+        <br>
+        <br>
+        Legend
+        <nav id="legend-div">
       </div>
       
       <div class="right-side-proj" id="main-div">
@@ -80,7 +85,7 @@
             </tr>
             <tr>
               <td>
-                <div id="legend-div" style="position: fixed;">
+                <!-- <div id="legend-div" style="position: fixed;"> -->
                 </div>
                 <div id="distribution-div">
                   Distribution
@@ -126,6 +131,7 @@
       var directionality = "True";
       var pred_range = [[0,100],[0,100],[0,100]];
       var confusion_mat = [["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"],["TP", "FP", "TN", "FN"]];
+      var filter_set_is_hidden = [false,false,false]
       var filter_set_idx = 0;
       var filter_set_idx_cmp = 0;
       var doing_comparison = 0;
@@ -196,7 +202,17 @@
         top_div.style.height = "40px";
 
         var filter_title = document.createElement("text");
-        filter_title.innerHTML = "Filter Set " + idx.toString();
+        filter_title.innerHTML = "Filter " + idx.toString();
+
+        var hide_btn = document.createElement("button");
+        hide_btn.id = "hide-button-proj-" + idx.toString();
+        hide_btn.className = "reset-button-proj"
+        hide_btn.innerHTML = "Hide";
+        hide_btn.style.marginRight = "10px";
+        hide_btn.style.marginLeft = "10px";
+        hide_btn.style.width = "66px";
+        hide_btn.dataset.filtersetidx = idx.toString();
+        hide_btn.onclick = function(){hideHandle(this);}
 
         var reset_btn = document.createElement("button");
         reset_btn.id = "reset-button-proj-" + idx.toString();
@@ -215,6 +231,7 @@
         ftrang_container.className = "feature-range-container-div";
         ftrang_container.id = "feature-range-container-div-" + idx.toString();
         ftrang_container.style.height = "calc(100vh - 400px)";
+        ftrang_container.style.width = "192px";
         ftrang_container.style.overflowY = "auto";
         ftrang_container.innerHTML = "Feature ranges";
         ftrang_container.dataset.numSliders = 1;
@@ -226,15 +243,16 @@
         ft_dropdown.id = "feature-dropdown-" + idx.toString() + "-1";
 
         var init_option = document.createElement("option");
-        init_option.value = "init" + idx.toString();
+        init_option.value = "init";
         init_option.innerHTML = "Choose feature";
         init_option.disabled = true;
-        init_option.selected = true;
+        init_option.selected = "selected";
         ft_dropdown.appendChild(init_option);
         ft_dropdown.value = "init";
 
         top_div.appendChild(filter_title);
         top_div.appendChild(reset_btn);
+        top_div.appendChild(hide_btn);
 
         filter_div.appendChild(top_div);
         filter_div.appendChild(percent_filt_div);
@@ -275,6 +293,7 @@
         else{
           table.style.float = "right";
         }
+
         // table.style.borderRight = "1px solid black";
         // table.style.marginLeft = "20px";
 
@@ -321,6 +340,7 @@
             option.parent_idx = idx;
             ft_dropdown.add(option);
           }
+          ft_dropdown.value = "init";
         } 
       }  
 
@@ -352,10 +372,10 @@
         ft_dropdown.id = "feature-dropdown-" + idx.toString() + "-" + next_slider_idx.toString();
 
         var init_option = document.createElement("option");
-        init_option.value = "init" + idx.toString();
+        init_option.value = "init";
         init_option.innerHTML = "Choose feature";
         init_option.disabled = true;
-        init_option.selected = true;
+        init_option.selected = "selected";
         ft_dropdown.appendChild(init_option);
         ft_dropdown.value = "init";
 
@@ -389,15 +409,19 @@
         // selected features
         req_arr = [];
 
-        if (n_filter_sets > 1){
+        // compare only if both filter sets are active
+        doing_comparison = 0;
+        if (filter_set_is_hidden[1]==false && filter_set_is_hidden[2]==false){
           doing_comparison = 1;
-
         }
         
         // If not doing comparison
         if (doing_comparison == 0){
-          // TODO: make sure indexes are correct
+          // if both are hidden, still show index 1 by default
           filter_set_idx = 1;
+          if (filter_set_is_hidden[2]==false){
+            filter_set_idx = 2;
+          }
 
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx = [];
@@ -466,19 +490,24 @@
             // confusion_matrix("#confusion-matrix-filter-div-"+idx.toString(), conf_mat_state, example_data, idx);
             
             // draw_summary(allData[2],  allData[3], '#summary-div-1');
-            draw_conf_mat_numbers(allData[2], 1);
-            percentage_filter_input = allData[7];
-            console.log("percentage_filter_input", percentage_filter_input);
-            document.getElementById("percentage-filter-div-1").innerHTML = "";
-            percentage_bar("#percentage-filter-div-1", pred_range[1], allData[7], 1);
+
+            
 
             if (doing_comparison==1){
               // draw_summary(allData[5],  allData[6], '#summary-div-2');
               // TODO: draw total from summary somewhere else
-
+              draw_conf_mat_numbers(allData[2], 1);
+              document.getElementById("percentage-filter-div-1").innerHTML = "";
+              percentage_bar("#percentage-filter-div-1", pred_range[1], allData[7], 1);
               draw_conf_mat_numbers(allData[5], 2);
               document.getElementById("percentage-filter-div-2").innerHTML = "";
               percentage_bar("#percentage-filter-div-2", pred_range[2], allData[8], 2);
+            }
+            else{
+              // assuming filter_idx has not been changed since the request
+              draw_conf_mat_numbers(allData[2], filter_set_idx);
+              document.getElementById("percentage-filter-div-"+filter_set_idx.toString()).innerHTML = "";
+              percentage_bar("#percentage-filter-div-"+filter_set_idx.toString(), pred_range[1], allData[7], filter_set_idx);
             }
             
             left_mask = allData[1];
@@ -597,6 +626,30 @@
         makeViolinRequest(left_mask, right_mask, value);
       }
 
+      // Hide button
+      function hideHandle(elem, idx="null") {
+
+        if (idx=="null"){
+          filter_set_idx = parseInt(elem.dataset.filtersetidx);
+        }
+        else {
+          filter_set_idx = idx;
+        }
+        if (elem.innerHTML == "Hide"){
+          elem.innerHTML = "Show";
+          document.getElementById("filter-div-"+filter_set_idx.toString()).style.opacity = "0.3";
+          document.getElementById("feature-range-container-div-"+filter_set_idx.toString()).style.opacity = "0.3";
+          filter_set_is_hidden[filter_set_idx] = true;
+        }
+        else {
+          elem.innerHTML = "Hide";
+          document.getElementById("filter-div-"+filter_set_idx.toString()).style.opacity = "1";
+          document.getElementById("feature-range-container-div-"+filter_set_idx.toString()).style.opacity = "1";
+          filter_set_is_hidden[filter_set_idx] = false;
+        }
+        makeMainBackendRequest();
+      }
+
       // Reset button
       function resetFeatures(elem, idx="null") {
 
@@ -641,12 +694,23 @@
 
         n_filter_sets+=1;
 
+        // create divider line between filter sets
+        if (n_filter_sets == 2){
+          var divider = document.createElement("span");
+          divider.style.display = "inline-block";
+          divider.style.borderLeft = "solid 1px";
+          divider.style.height = "300px";
+          document.getElementById("middle-panel-proj").insertBefore(divider, 
+            document.getElementById("filter-set-button"));
+        }
+        
         document.getElementById("middle-panel-proj").insertBefore(create_filter_set(n_filter_sets), 
           document.getElementById("filter-set-button"));
 
         if (n_filter_sets>=2) {
           document.getElementById("filter-set-button").style.display = "none";
         }
+
         draw_filters(confusion_mat_2_state(confusion_mat[n_filter_sets]), n_filter_sets);
 
         resetFeatures("null", n_filter_sets);
@@ -683,9 +747,11 @@
         detail_btn.dataset.toggled = 0;
 
         addFilterSet();
+        addFilterSet();
       }
 
       draw_legend("#legend-div");
+      document.getElementById("legend-svg").style.backgroundColor = "#87959e";
       begin_glob();
 
 

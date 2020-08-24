@@ -27,12 +27,12 @@ function draw_legend(place) {
     // --- Establishing margins and canvas bounds --- 
     var margin = {
             top: 5, 
-            right: 5, 
+            right: 0, 
             bottom: 5, 
-            left: 5
+            left: 0
         },
 
-        width = 150 - margin.right - margin.left,
+        width = 120 - margin.right - margin.left,
         height = 180 - margin.top - margin.bottom;
 
 
@@ -50,6 +50,7 @@ function draw_legend(place) {
             .attr("width",width + margin.right + margin.left)
             .attr("height",height + margin.top + margin.bottom)
             .attr("class", "main-svg")
+            .attr("id", "legend-svg")
             .append("g")
                  .attr("transform","translate(" + margin.left + ',' + margin.top +')');
 
@@ -95,7 +96,7 @@ function draw_legend(place) {
     //     .attr("font-family",'"Open Sans", sans-serif')
     //     .attr("font-size", '12px')
     //     .attr("font-weight", 800)
-    //     .attr("fill","gray");
+    //     .attr("fill","black");
 
 
     // --- Define Diagonal Hatch --- 
@@ -131,7 +132,7 @@ function draw_legend(place) {
         .attr("font-family",'"Open Sans", sans-serif')
         .attr("font-size", the_font)
         .attr("font-weight", 800)
-        .attr("fill","gray");
+        .attr("fill","black");
 
     
     svg = svg.append("g").attr("transform","translate(" + 0 + ','+ (box_h + separation) +')'); // Centers cursor
@@ -162,7 +163,7 @@ function draw_legend(place) {
         .attr("font-family",'"Open Sans", sans-serif')
         .attr("font-size", the_font)
         .attr("font-weight", 800)
-        .attr("fill","gray");
+        .attr("fill","black");
 
 
     svg = svg.append("g").attr("transform","translate(" + 0 + ','+ (box_h + separation) +')'); 
@@ -186,7 +187,7 @@ function draw_legend(place) {
         .attr("font-family",'"Open Sans", sans-serif')
         .attr("font-size", the_font)
         .attr("font-weight", 800)
-        .attr("fill","gray");
+        .attr("fill","black");
 
     
     svg = svg.append("g").attr("transform","translate(" + 0 + ','+ (box_h + separation) +')'); 
@@ -217,7 +218,7 @@ function draw_legend(place) {
         .attr("font-family",'"Open Sans", sans-serif')
         .attr("font-size", the_font)
         .attr("font-weight", 800)
-        .attr("fill","gray");
+        .attr("fill","black");
 
 
 
@@ -241,7 +242,7 @@ function draw_legend(place) {
         .attr("font-family",'"Open Sans", sans-serif')
         .attr("font-size", the_font)
         .attr("font-weight", 800)
-        .attr("fill","gray");
+        .attr("fill","black");
 
 
 
@@ -263,7 +264,7 @@ function draw_legend(place) {
         .attr("font-family",'"Open Sans", sans-serif')
         .attr("font-size", the_font)
         .attr("font-weight", 800)
-        .attr("fill","gray");
+        .attr("fill","black");
 
 
 
@@ -282,7 +283,7 @@ function draw_legend(place) {
     //     .attr("font-family",'"Open Sans", sans-serif')
     //     .attr("font-size", '10px')
     //     .attr("font-weight", 800)
-    //     .attr("fill","gray");
+    //     .attr("fill","black");
 
     
         
