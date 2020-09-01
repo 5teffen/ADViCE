@@ -449,7 +449,7 @@ function feature_selector_continuous(place, aFeature, idx, slider_idx){
         var filter_idx_to_rm =  d3.select(this).attr("data-filteridx");
         var slider_idx_to_rm =  d3.select(this).attr("data-slideridx");
         var feature_idx_to_rm =  d3.select(this).attr("data-featureidx");
-        console.log("TO REMOVE", filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
+        // console.log("TO REMOVE", filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
         remove_filter_range(filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
 
     });
@@ -490,10 +490,12 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
 
    // --- Use a mask to keep track of categoricals --- OSCAR !!
     var fineness = aFeature.den.length;
-    mask = []
+    mask = [];
     for (i = 0; i < fineness; i++){
         mask.push(0);
     }
+
+    var idx_lst = [];
 
     var section_h = 30,
         section_w = 150,
@@ -665,14 +667,27 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
                     target.attr("opacity",0.7);
                     selection.attr("data-sel",1);
                     mask[n] = 1;
+                    idx_lst.push(n);
                     console.log(mask);
+                    console.log(idx_lst);
+
                 }
                 else if (sel == 1){
                     target.attr("opacity",0.4);
                     selection.attr("data-sel",0);
                     mask[n] = 0;
+                    
+                    // Remove index
+                    const remove_id = idx_lst.indexOf(n);
+                    if (remove_id > -1) {
+                      idx_lst.splice(remove_id, 1);
+                    }
                     console.log(mask);
+                    console.log(idx_lst);
                 }
+
+                // makeMainBackendRequest();
+
             })     
             .on("mouseover",function(){
                 var selection = d3.select(this);

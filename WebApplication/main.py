@@ -64,12 +64,12 @@ dataset_dict = {
 # --- Data initialization ---
 data_name, lock, folder_path, data_path, preproc_path, projection_changes_path, reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness, bins_used = np.zeros(13)
 categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals = np.zeros(14)
-col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input = np.zeros(13)
+col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input, init_comp_data = np.zeros(14)
 def init_data(dataset):
 
 	global data_name, lock, folder_path, data_path, preproc_path, projection_changes_path,reduced_data_path, projection_anchs_path, no_bins, df, model_path, density_fineness, bins_used
 	global categorical_cols, monotonicity_arr, feature_selector_input, feature_names, all_data, data, metadata, target, no_samples, no_features, svm_model, bins_centred, X_pos_array, init_vals
-	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input
+	global col_ranges, all_den, all_median, all_mean, high_den, high_median, high_mean, low_den, low_median, low_mean, dict_array, dict_array_orig, percentage_filter_input,init_comp_data
 
 	data_name = dataset.name
 	lock = dataset.lock
@@ -179,9 +179,6 @@ def init_data(dataset):
 	for i in range(no_features):
 		feature_selector_input.append(prep_feature_selector(data, init_comp_data["meta"], i))
 
-
-	# for i in range(no_features):
-	# 	feature_selector_input.append(prep_feature_selector_old(data, i, feature_names, col_ranges, no_bins, samples4test))
 
 
 
@@ -314,12 +311,10 @@ def handle_request():
 				if type(lock) in [int, str]:
 					lock = [lock]
 				lock = [int(e) for e in lock]
-				# print(lock)
 
 				sample, good_percent, model_correct, category, predicted = display_data(data,target,svm_model,sample,row)
 				
 				### Run MSC and Anchors
-				# print(lock)
 				change_vector, change_row, anchors, percent = instance_explanation(svm_model, data, row, sample, X_pos_array,
 																				   bins_centred, no_bins, monotonicity_arr, col_ranges, 1, True, lock)
 
@@ -358,6 +353,10 @@ def main_site_backend_req():
 
 	if request.method == 'GET':
 
+		# list of tuples and lists. 
+		# - if the range is tuple -> continuous
+		# - if the range is a list -> discrete with indexes
+
 		doing_comparison = int(request.args.get('doing_comparison'))
 		ft_list = request.args.get('selected_fts')
 		ft_list = ft_list[1:-1].split(',')
@@ -371,23 +370,27 @@ def main_site_backend_req():
 			ret_arr = ids_with_combination(preproc_path,ft_list,anchs=False)
 		
 		confusion_mat_1 = request.args.get('confusion_mat_1').split(',')
-		pred_range_1 = request.args.get('pred_range_1').split(',')
+		pred_range_1 = request.args.get('pred_range_1').split(',')   # The actual range for each feature
 		pred_range_1 = [int(x) for x in pred_range_1]
-		modified_range_idx_1 = request.args.get('modified_range_idx_1').split(',')
+		modified_range_idx_1 = request.args.get('modified_range_idx_1').split(',')  # The indexes of the features are modified
 
-		if modified_range_idx_1[0]!='': modified_range_idx_1 = [int(x) for x in modified_range_idx_1] 
+		if modified_range_idx_1[0]!='': modified_range_idx_1 = [int(x) for x in modified_range_idx_1] # Makes int index list
 		else: modified_range_idx_1 = []
-		print ("MODIFIED RANGE INDEXES", modified_range_idx_1)
+		# print ("MODIFIED RANGE INDEXES", modified_range_idx_1)
 		
 		ft_curr_range_1 = request.args.get('ft_curr_range_1').split(',')
-		ft_curr_range_1 = [int(x) for x in ft_curr_range_1]
+		ft_curr_range_1 = [int(x) for x in ft_curr_range_1]  # The current ranges for each feature
 		temp_curr_range = []
 		idx = 0
+
+		# -- Converts into tuple lise -- 
 		while idx <= len(ft_curr_range_1)-2:
 			temp_curr_range.append((ft_curr_range_1[idx], ft_curr_range_1[idx+1]))
 			idx += 2
-		ft_curr_range_1 = temp_curr_range
-		print ("FT CURR RANGES", ft_curr_range_1)
+		
+		ft_curr_range_1 = temp_curr_range # Final current ranges as tuples
+
+		# print ("FT CURR RANGES", ft_curr_range_1)
 
 		if doing_comparison:
 			confusion_mat_2 = request.args.get('confusion_mat_2').split(',')
@@ -397,7 +400,7 @@ def main_site_backend_req():
 
 			if modified_range_idx_2[0]!='': modified_range_idx_2 = [int(x) for x in modified_range_idx_2] 
 			else: modified_range_idx_2 = []
-			print ("MODIFIED RANGE INDEXES CMP", modified_range_idx_2)
+			# print ("MODIFIED RANGE INDEXES CMP", modified_range_idx_2)
 			
 			ft_curr_range_2 = request.args.get('ft_curr_range_2').split(',')
 			ft_curr_range_2 = [int(x) for x in ft_curr_range_2]
@@ -407,23 +410,23 @@ def main_site_backend_req():
 				temp_curr_range.append((ft_curr_range_2[idx], ft_curr_range_2[idx+1]))
 				idx += 2
 			ft_curr_range_2 = temp_curr_range
-			print ("FT CURR RANGE CMP", ft_curr_range_2)
+			# print ("FT CURR RANGE CMP", ft_curr_range_2)
 
 
-		# STEFFEN
-		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
+		# STEFFEN	all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
 		all_samples = [x for x in range(no_samples)]
+		all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
 
 		idx_range = range(2) if doing_comparison else range(1)
 
+		# -- Declare variable for filter set 1 -- 
 		confusion_mat = confusion_mat_1
-		pred_range = pred_range_1
 		pred_range = pred_range_1
 		modified_range_idx = modified_range_idx_1
 		ft_curr_range = ft_curr_range_1
 		ret_string = ""
 
-		for idx_k in idx_range:
+		for idx_k in idx_range:  # Loop to cover each filter set  
 
 			# Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
 			
@@ -441,23 +444,38 @@ def main_site_backend_req():
 					conf_list[3] = 1
 
 			# // Filter Legend:
-			# // 1 - Model Accuracy Range
-			# // 2 - Prediction Label
-			# // 3 - Feature RangeS
+			# 1 - Model Accuracy Range || 2 - Prediction Label || 3 - Feature Ranges
+			filter_dict = {"1":[pred_range[0], pred_range[1]], "2":conf_list, "3":[]}
 
-			filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list, "3":[]}
+			# -- Metadata from D3 -- 
+			comp_meta = init_comp_data["meta"]
 
-			for c in range(len(col_ranges)):
-				# [low, high, changed]
-				if (c in modified_range_idx):
-					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
-				else:
-					filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
+
+			for c in range(no_features):
+				bins_lst = comp_meta[c]["bins"]
 				
+				# -- Categorical Features -- 
+				if (comp_meta[c]["cat"] == 1):
+					print("Categorical")
+					# [index_list, changed]
+					if (c in modified_range_idx):
+						filter_dict["3"].append([[1,2,4], 1])
+						# filter_dict["3"].append([ft_curr_range[c], 1])  // OSCAR: this should be the format
+					else:
+						idx_lst = [x[0] for x in bins_lst]
+
+				# -- Continuous Features -- 
+				else:
+					print("Continuous")
+					# [low, high, changed]
+					if (c in modified_range_idx): # Comes from JavaScript
+						filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
+					else:
+						filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
+					
 			
 			# ==== Filter Dictionary -> D3 ====
 			filter_lst = []
-			# Note: this logic might reorder the filters (future fix)
 
 			# --- Model Percentage ---
 			if ((pred_range[0] != 0) or (pred_range[1] != 100)):
@@ -472,9 +490,17 @@ def main_site_backend_req():
 			# --- Feature Selector ---
 			for f in range(len(filter_dict["3"])):
 				feat = filter_dict["3"][f]
-				if (feat[2] == 1):
-					single_filter = [3, {"name": feature_names[f], "low":feat[0], "high":feat[1]}]
-					filter_lst.append(single_filter)
+
+				# -- Categorical -- 
+				if (len(feat) == 2):
+					if (feat[2] == 1):
+						single_filter = [3, {"name": feature_names[f], "bin_lst": feat[0]}]
+				
+				# -- Continuous -- 
+				else:
+					if (feat[2] == 1):
+						single_filter = [3, {"name": feature_names[f], "low": feat[0], "high": feat[1]}]
+						filter_lst.append(single_filter)
 
 
 			# print("FILTER LIST", filter_lst) # This needs to go to D3 filter selector as input
@@ -490,18 +516,24 @@ def main_site_backend_req():
 			# mask5 = query_similar_points(data,metadata,10,0.5)
 			# mask6 = query_sampled_data(data, 30)
 
-			print("<<<<<<<- HERE ->>>>>>")
-			mask_test = query_feature_categories(data, 0, [0,0,1])
+			# print("<<<<<<<- HERE ->>>>>>")
+			# test_id = 1
+			# mask_test = query_feature_categories(data, test_id, comp_meta[test_id]["bins"], [0,2])
 
 			mask4 = np.copy(start_mask)
 			# Decide if categorical or continuous from js input?
+			
 			# Continuous Option:
 			for idx in modified_range_idx:
-				mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
+				if (comp_meta[idx]["cat"] == 1):
+					# -- Categorical -- 
+					mask4 = mask4 * query_feature_categories(data, idx, comp_meta[idx]["bins"], [0,2])
+					# mask4 = mask4 * query_feature_categories(data, idx, comp_meta[idx]["bins"], ft_curr_range[idx]) # Oscar
 
-			# Categorical Option:
-			# for idx in modified_range_idx:
-			# 	mask4 = mask4 * query_feature_categories(data, col_id, [0,1,2,3])
+				else:
+					# -- Continuous -- 
+					mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
+
 
 			current_mask = start_mask*mask1*mask2*mask4 #*mask6
 
@@ -528,6 +560,7 @@ def main_site_backend_req():
 			if idx_k == 0:
 				ret_string = [result, jsmask1, summary, filter_lst, "null", "null", "null", updated_percentage_filter_input, "null"]
 				if doing_comparison:
+					# -- Declare variable for filter set 2 -- 
 					confusion_mat = confusion_mat_2
 					pred_range = pred_range_2
 					pred_range = pred_range_2
@@ -541,6 +574,138 @@ def main_site_backend_req():
 				
 
 		return json.dumps(ret_string)
+		# all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
+		# all_samples = [x for x in range(no_samples)]
+
+		# idx_range = range(2) if doing_comparison else range(1)
+
+		# # -- Declare variable for filter set 1 -- 
+		# confusion_mat = confusion_mat_1
+		# pred_range = pred_range_1
+		# modified_range_idx = modified_range_idx_1
+		# ft_curr_range = ft_curr_range_1
+		# ret_string = ""
+
+		# for idx_k in idx_range:  # Loop to cover each filter set  
+
+		# 	# Note: filter_dict always generates the filter_lst so always manipulate the filter_dict variable
+			
+		# 	# ==== Filter Dictionary ==== 
+		# 	# Note: order is TP, FP, FN, TN 
+		# 	conf_list = [0,0,0,0]
+		# 	for label in confusion_mat:
+		# 		if label == "TP":
+		# 			conf_list[0] = 1
+		# 		if label == "FP":
+		# 			conf_list[1] = 1
+		# 		if label == "FN":
+		# 			conf_list[2] = 1
+		# 		if label == "TN":
+		# 			conf_list[3] = 1
+
+		# 	# // Filter Legend:
+		# 	# // 1 - Model Accuracy Range
+		# 	# // 2 - Prediction Label
+		# 	# // 3 - Feature Ranges
+
+		# 	filter_dict = {"1":[pred_range[0],pred_range[1]], "2":conf_list, "3":[]}
+
+		# 	for c in range(len(col_ranges)):
+		# 		# [low, high, changed]
+		# 		if (c in modified_range_idx):
+		# 			filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 1])
+		# 		else:
+		# 			filter_dict["3"].append([ft_curr_range[c][0], ft_curr_range[c][1], 0])
+				
+			
+		# 	# ==== Filter Dictionary -> D3 ====
+		# 	filter_lst = []
+		# 	# Note: this logic might reorder the filters (future fix)
+
+		# 	# --- Model Percentage ---
+		# 	if ((pred_range[0] != 0) or (pred_range[1] != 100)):
+		# 		single_filter = [1, {"low":pred_range[0], "high":pred_range[1]}]
+		# 		filter_lst.append(single_filter)
+			
+		# 	# --- Confusion Matrix ---
+		# 	if (not all(v == 1 for v in conf_list)):
+		# 		single_filter = [2, {"tp":conf_list[0], "fp":conf_list[1] ,"fn":conf_list[2] ,"tn":conf_list[3]}]
+		# 		filter_lst.append(single_filter)
+
+		# 	# --- Feature Selector ---
+		# 	for f in range(len(filter_dict["3"])):
+		# 		feat = filter_dict["3"][f]
+		# 		if (feat[2] == 1):
+		# 			single_filter = [3, {"name": feature_names[f], "low": feat[0], "high": feat[1]}]
+		# 			filter_lst.append(single_filter)
+
+
+		# 	# print("FILTER LIST", filter_lst) # This needs to go to D3 filter selector as input
+
+		# 	# === Apply Masks === 
+
+		# 	start_mask = np.ones(data.shape[0])
+
+		# 	mask1 = query_pred_range(metadata, pred_range)
+		# 	mask2 = query_confusion_mat(metadata, confusion_mat)
+		# 	# mask3 = query_feature_combs(metadata, [15,19])
+		# 	# mask4 = query_value_range(data, 0, 60, 70)
+		# 	# mask5 = query_similar_points(data,metadata,10,0.5)
+		# 	# mask6 = query_sampled_data(data, 30)
+
+		# 	print("<<<<<<<- HERE ->>>>>>")
+		# 	mask_test = query_feature_categories(data, 0, [0,0,1])
+
+		# 	mask4 = np.copy(start_mask)
+		# 	# Decide if categorical or continuous from js input?
+		# 	# Continuous Option:
+		# 	for idx in modified_range_idx:
+		# 		mask4 = mask4 * query_value_range(data, idx, ft_curr_range[idx][0], ft_curr_range[idx][1])
+
+		# 	# Categorical Option:
+		# 	# for idx in modified_range_idx:
+		# 	# 	mask4 = mask4 * query_feature_categories(data, col_id, [0,1,2,3])
+
+		# 	current_mask = start_mask*mask1*mask2*mask4 #*mask6
+
+
+		# 	# -- CAN BE REMOVED WHEN FILTER SUMMARY REMOVED -- 
+		# 	result = apply_mask(all_points, current_mask)
+		# 	summary = prep_filter_summary(result, no_samples)
+
+		# 	selected_samples = apply_mask(all_samples, current_mask)
+
+		# 	# STEFFEN
+		# 	# print("SELECTED SAMPLES", selected_samples)
+		# 	updated_percentage_filter_input = prep_percentage_filter(metadata, bins_used, selected_samples)
+		# 	# updated_conf_matrix_input = prep_confusion_matrix(metadata, selected_samples) # STEFFEN: Need to check if same as prep_summary
+		# 	# print("PERC FILTER INPUT", updated_percentage_filter_input)
+		# 	# print("CONF MAT INPUT", updated_conf_matrix_input)
+
+
+		# 	## Parse values into python dictionary
+		# 	jsmask1 = [0]
+		# 	jsmask2 = current_mask.tolist()
+		# 	jsmask1.extend(jsmask2)
+
+		# 	if idx_k == 0:
+		# 		ret_string = [result, jsmask1, summary, filter_lst, "null", "null", "null", updated_percentage_filter_input, "null"]
+		# 		if doing_comparison:
+		# 			# -- Declare variable for filter set 2 -- 
+		# 			confusion_mat = confusion_mat_2
+		# 			pred_range = pred_range_2
+		# 			pred_range = pred_range_2
+		# 			modified_range_idx = modified_range_idx_2
+		# 			ft_curr_range = ft_curr_range_2
+		# 	else:
+		# 		ret_string[4] = jsmask1
+		# 		ret_string[5] = summary
+		# 		ret_string[6] = filter_lst
+		# 		ret_string[8] = updated_percentage_filter_input
+				
+
+		# return json.dumps(ret_string)
+
 
 # OSCAR: integrate in main backend call
 @app.route('/violin_req')

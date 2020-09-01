@@ -171,7 +171,6 @@ def prep_complete_data(metadata, data, names, samples, ranges, bins_centred, pos
       # --- Scale max/min of ft --- 
       # To be added
 
-
       # --- Update dictionary --- 
       result["scl_val"] = float(scl_val)
       result["scl_change"] = float(scl_change)
@@ -423,7 +422,7 @@ def prep_feature_selector(data, meta, ft_no, samples = []):
   out_dict = {}
 
   # -- Constants -- 
-  no_bins = meta[0]["no_bins"]
+  no_bins = len(meta[ft_no]["bins"])
   no_feat = data.shape[1]
   no_samp = data.shape[0]
 
@@ -474,129 +473,11 @@ def prep_feature_selector(data, meta, ft_no, samples = []):
   out_dict["cat"] = meta[ft_no]["cat"]
   out_dict["den"] = histo_bins
   out_dict["range"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
-  out_dict["current"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
+  out_dict["current"] = [meta[ft_no]["min"], meta[ft_no]["max"]] # Potentially changed
 
-  print(out_dict)
+  out_dict["bin_ids"] = [x for x in range(len(histo_bins))]
+
   return out_dict
-
-
-
-
-def prep_feature_selector_old(data, feature_no, names, ranges, no_bins, samples, init = None):
-  out_dict = {}
-
-  # out_dict["den"] = all_den[feature_no]['data']
-  out_dict["id"] = feature_no
-
-  no_samp, no_feat = data.shape
-  no_bins = ranges.shape[1]
-
-  result = []
-
-  col = data[:,feature_no]
-  col_range = ranges[feature_no]
-
-  # print(col_range)
-  col_bins = [0 for x in range(no_bins) if not isinstance(ranges[feature_no][x], str)]
-
-
-  # ---- OPTION 1: Generate histogram for all datapoints ----
-  if samples == []:   # OPTION 1: Generate histogram for all datapoints
-
-    for s in range(no_samp):
-      sample = col[s]
-
-      for b in range(no_bins):
-        
-        floor = ranges[feature_no][b][0]
-        ceil = ranges[feature_no][b][1]
-
-        if (b == 0 and sample < ceil): #Edge case first bin
-          col_bins[0] += 1
-          break
-
-        elif (b == (no_bins-1)):  #Edge case last bin
-          col_bins[no_bins-1] += 1
-          break
-
-        elif isinstance(ranges[feature_no][b+1], str): #Edge case fewer than standard no_bins
-          col_bins[b] += 1
-          break
-
-        elif ((sample >= floor) and (sample < ceil)):
-          col_bins[b] += 1
-          break
-
-
-    # ---- OPTION 2: Generate histogram for specific datapoints ----
-    else:
-      for s in samples:
-        sample = col[s]
-
-        for b in range(no_bins):
-          
-          floor = ranges[feature_no][b][0]
-          ceil = ranges[feature_no][b][1]
-
-          if (b == 0 and sample < ceil): #Edge case first bin
-            col_bins[0] += 1
-            break
-
-          elif (b == (no_bins-1)):  #Edge case last bin
-            col_bins[no_bins-1] += 1
-            break
-
-          elif isinstance(ranges[feature_no][b+1], str): #Edge case fewer than standard no_bins
-            col_bins[b] += 1
-            break
-
-          elif ((sample >= floor) and (sample < ceil)):
-            col_bins[b] += 1
-            break
-
-    # --- Normalize Histogram ---
-    highest_count = np.amax(col_bins) 
-    col_bins = list(col_bins/highest_count)
-    # result.append(col_bins)
-
-
-  out_dict["den"] = col_bins
-
-  # temp solution
-  if len(col_bins) < 10:
-    out_dict["cat"] = 1
-  else:
-    out_dict["cat"] = 0
-  
-  feat_range = ranges[feature_no]
-  min_val = feat_range[0][0]
-  max_val = 0  
-  for i in range(len(feat_range)):  # Finding the max range value
-    if (i == len(feat_range)-1):
-      max_val = feat_range[i][1]
-
-    elif (feat_range[i+1] == '-1'):
-      max_val = feat_range[i][1]
-      break
-
-  out_dict["range"] = [min_val,max_val]
-
-  if init == None:
-    out_dict["current"] = [min_val,max_val]
-
-  else:
-    out_dict["current"] = init
-
-
-
-
-  print(out_dict)
-  return out_dict
-
-
-
-
-
 
 
 
