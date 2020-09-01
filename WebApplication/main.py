@@ -724,7 +724,7 @@ def violin_site_req():
 			# --- Sort Features --- OSCAR!
 			sort_toggle = False
 			if sort_val != "Default": sort_toggle = True
-			print("SORTING IS", sort_toggle)
+			print("SORTING BY", sort_val)
 
 
 			doing_comparison = 1 if proj_samples_2[0]!="null" else 0
@@ -758,37 +758,23 @@ def violin_site_req():
 
 			# --- Comparison sorts --- 
 			if sort_toggle and no_comparisons > 1:
-				
-				# --- Median sort --- 
-				# sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"], complete_data[0]["meta"])
-				# complete_data = apply_sort(sort_lst, complete_data)
-
-				# --- CF sort --- 
-				# sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
-				# complete_data = apply_sort(sort_lst, complete_data)
-
-
-				# --- KL div sort --- 
-				sort_lst = sort_by_div(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
-				complete_data = apply_sort(sort_lst, complete_data)
-
+				if sort_val == 'Median':
+					sort_lst = sort_by_med(complete_data[0]["median"], complete_data[1]["median"], complete_data[0]["meta"])
+				elif sort_val == 'CF':
+					sort_lst = sort_by_cf(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
+				elif sort_val == 'Div':
+					sort_lst = sort_by_div(complete_data[0]["data"], complete_data[1]["data"], complete_data[0]["meta"])
 
 			# --- Singular sorts --- 
-			if sort_toggle and no_comparisons == 1:
-
-				# --- CF sort --- 
+			elif sort_toggle and no_comparisons == 1:
 				sort_lst = sort_by_cf(complete_data[0]["data"], None, complete_data[0]["meta"])
-				complete_data = apply_sort(sort_lst, complete_data)
 
-
-			# ==== Default sort ==== 
-			if not sort_toggle:
-				
-				# --- Default separated order (continuous left/categorical right) ---
+			# --- Default separated order (continuous left/categorical right) ---
+			elif not sort_toggle:
 				sort_lst = sort_by_sep(complete_data[0]["meta"])
-				complete_data = apply_sort(sort_lst, complete_data)
-
-
+			
+			# --- Apply sorting ---
+			complete_data = apply_sort(sort_lst, complete_data)
 
 			ret_string = json.dumps(complete_data)
 
