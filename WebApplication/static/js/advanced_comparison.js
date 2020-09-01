@@ -151,11 +151,11 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     var margin = {
             top: 30, 
             right: 20, 
-            bottom: 55, 
+            bottom: 75, 
             left: 65
         },
         width = col_width*no_features - margin.right - margin.left,
-        height = 300 - margin.top - margin.bottom;
+        height = 320 - margin.top - margin.bottom;
 
 
 
