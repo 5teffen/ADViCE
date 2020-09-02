@@ -108,10 +108,10 @@
       var no_features = {{no_features}};
       var feature_selector_input = {{feature_selector_input | tojson}};
       feature_selector_input = JSON.parse(feature_selector_input);
-      console.log(feature_selector_input);
+      //  log(feature_selector_input);
 
       var percentage_filter_input = {{percentage_filter_input}};
-      console.log("percentage_filter_input", percentage_filter_input);
+      // console.log("percentage_filter_input", percentage_filter_input);
       
       var ft_names = "{{feature_names}}";
       ft_names = ft_names.replace(/&#34;/g, "");
@@ -151,8 +151,8 @@
         }
         short_ft_names.push(short_ft_name);
       }
-      console.log("FT NAMES", ft_names);
-      console.log("SHORT FT NAMES", short_ft_names);
+      // console.log("FT NAMES", ft_names);
+      // console.log("SHORT FT NAMES", short_ft_names);
       
       // Contains ranges [min,max] for continuous, and index lists for categorical ex. [3,5,6]
       var ft_curr_range = [[],[],[]];
@@ -160,12 +160,12 @@
       reset_ft_curr_ranges(1);
       reset_ft_curr_ranges(2);
 
-      console.log("FT CURR RANGES", ft_curr_range);
+      // console.log("FT CURR RANGES", ft_curr_range);
 
 
       
       function reset_ft_curr_ranges (idx){
-        console.log("Reseting ranges at idx: ", idx);
+        // console.log("Reseting ranges at idx: ", idx);
         var rangs = [];
         for (i=0; i<ft_names.length; i++){
           // categorical
@@ -356,11 +356,11 @@
       function draw_feature_selector(ft_option){
         filter_set_idx = ft_option.dataset.filteridx;
         var slider_idx = ft_option.dataset.slideridx;
-        console.log("DRAwing SlideR", filter_set_idx, slider_idx);
-        console.log("Feature selector idx:", ft_option.value);
+        // console.log("DRAwing SlideR", filter_set_idx, slider_idx);
+        // console.log("Feature selector idx:", ft_option.value);
         var aFeature = feature_selector_input[ft_option.value];
         aFeature['current'] = ft_curr_range[filter_set_idx][ft_option.value];
-        console.log("Drawing range slider", aFeature);
+        // console.log("Drawing range slider", aFeature);
         document.getElementById("feature-range-slider-div-"+filter_set_idx+"-"+slider_idx.toString()).innerHTML = "";
         feature_selector("#feature-range-slider-div-"+filter_set_idx+"-"+slider_idx.toString(), aFeature, filter_set_idx, slider_idx);
       }
@@ -369,7 +369,7 @@
         var idx = elem.dataset.idx;
         var next_slider_idx = parseInt(document.getElementById("feature-range-container-div-" + idx.toString()).dataset.numSliders) + 1;
         document.getElementById("feature-range-container-div-" + idx.toString()).dataset.numSliders = next_slider_idx;
-        console.log("NEW SLIDER", idx, next_slider_idx);
+        // console.log("NEW SLIDER", idx, next_slider_idx);
 
         var ftrang_container = document.getElementById("feature-range-container-div-" + idx.toString());
 
@@ -448,8 +448,8 @@
               }
             } 
           }
-          console.log("modified range indexes:", modified_range_idx);
-          console.log("ft curr ranges", ft_curr_range[filter_set_idx]);
+          // console.log("modified range indexes:", modified_range_idx);
+          // console.log("ft curr ranges", ft_curr_range[filter_set_idx]);
           
           httpRequest.onreadystatechange = alertMainBackend;
           httpRequest.open('GET', 'main_backend_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&pred_range_1='+ pred_range[filter_set_idx] + '&ft_curr_range_1='+ JSON.stringify(ft_curr_range[filter_set_idx])
@@ -467,7 +467,6 @@
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx_1 = [];
           var modified_range_idx_2 = [];
-          console.log("WTFFFFF");
           for (var j=0; j<ft_names.length; j++){
             // categorical
             if (feature_selector_input[j]['cat'] == 1) {
@@ -488,8 +487,8 @@
               }
             } 
           }
-          console.log("modified range indexes:", modified_range_idx_1, modified_range_idx_2);
-          console.log("ft curr ranges", ft_curr_range[filter_set_idx], ft_curr_range[filter_set_idx_cmp]);
+          // console.log("modified range indexes:", modified_range_idx_1, modified_range_idx_2);
+          // console.log("ft curr ranges", ft_curr_range[filter_set_idx], ft_curr_range[filter_set_idx_cmp]);
           
           httpRequest.onreadystatechange = alertMainBackend;
           httpRequest.open('GET', 'main_backend_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&confusion_mat_2='+ confusion_mat[filter_set_idx_cmp] + '&pred_range_1='+ pred_range[filter_set_idx] + '&pred_range_2='+ pred_range[filter_set_idx_cmp] + '&ft_curr_range_1='+ JSON.stringify(ft_curr_range[filter_set_idx]) + '&ft_curr_range_2='+ JSON.stringify(ft_curr_range[filter_set_idx_cmp])
@@ -515,7 +514,7 @@
 
             var resp_arr = httpRequest.responseText;
             var allData = JSON.parse(resp_arr);
-            console.log(allData);
+            // console.log(allData);
 
             // TODO: Do summary for matrix in place, and in correct index for the rest
             // // TODO: Feedback the data that is in the conf_matrix at the moment
@@ -557,9 +556,9 @@
       }
 
       function draw_conf_mat_numbers(conf_nums, idx){
-        console.log("Drawing conf mat numbers", conf_nums);
+        // console.log("Drawing conf mat numbers", conf_nums);
         document.getElementById("TP-text-"+idx.toString()).innerHTML = conf_nums.tp;
-        console.log(document.getElementById("TP-text-"+idx.toString()).innerHTML);
+        // console.log(document.getElementById("TP-text-"+idx.toString()).innerHTML);
         document.getElementById("FP-text-"+idx.toString()).innerHTML = conf_nums.fp;
         document.getElementById("TN-text-"+idx.toString()).innerHTML = conf_nums.tn;
         document.getElementById("FN-text-"+idx.toString()).innerHTML = conf_nums.fn;
@@ -588,7 +587,7 @@
         }
         else {id_list_2="null";}
 
-        console.log("SORT BUTTON", sort_val);
+        // console.log("SORT BUTTON", sort_val);
         // curr_aggr_ids = id_list;
         httpRequestViolin.onreadystatechange = alertContentsViolin;
         // httpRequestViolin.open('GET', 'violin_req?id_list='+curr_aggr_ids);  
@@ -712,7 +711,7 @@
       }
 
       function matrixTrigger(checked, text, elem){
-        console.log("elem calling matrix trigger:", elem.dataset.filteridx);
+        // console.log("elem calling matrix trigger:", elem.dataset.filteridx);
         var filtersetidx = parseInt(elem.dataset.filteridx);
         if (checked == true){
           confusion_mat[filtersetidx].push(text);

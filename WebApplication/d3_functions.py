@@ -443,6 +443,10 @@ def prep_feature_selector(data, meta, ft_no, samples = []):
       if len(one_bin) == 2:  # == NON-CATEGORICAL
         l, h = one_bin  # low, high
 
+        # -- Note bin values -- 
+        
+
+
         if (b == 0 and val < l):  # Smaller than first bin
           histo_bins[0] += 1
           break
@@ -467,6 +471,7 @@ def prep_feature_selector(data, meta, ft_no, samples = []):
   histo_bins = list(np.around(histo_bins/highest_count,5))
 
 
+
   # +++++++ Compile output +++++++ 
   out_dict["id"] = ft_no
   out_dict["name"] = meta[ft_no]["name"]
@@ -474,7 +479,7 @@ def prep_feature_selector(data, meta, ft_no, samples = []):
   out_dict["den"] = histo_bins
   out_dict["range"] = [meta[ft_no]["min"], meta[ft_no]["max"]]
   out_dict["current"] = [meta[ft_no]["min"], meta[ft_no]["max"]] # Potentially changed
-
+  out_dict["bin_vals"] = 0
   out_dict["bin_ids"] = [x for x in range(len(histo_bins))]
 
   return out_dict

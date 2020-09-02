@@ -259,10 +259,10 @@ function feature_selector_continuous(place, aFeature, idx, slider_idx){
             out_high = out_max;
             out_low = out_min;
             console.log("Low: " + out_low.toString() + " | High: " + out_high.toString());
-            console.log(this);
+            // console.log(this);
             filter_set_idx = this.dataset.filteridx;
             ft_curr_range[filter_set_idx][aFeature.id] = [out_low,out_high];
-            console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
+            // console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
             makeMainBackendRequest(); //OSCAR
             
 
@@ -493,7 +493,10 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
         mask.push(0);
     }
 
-    var idx_lst = [];
+    var idx_lst2 = [],
+        idx_lst = aFeature.bin_ids;
+
+    console.log("HERE", idx_lst);
 
     var section_h = 30,
         section_w = 150,
@@ -643,7 +646,7 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
             .attr("data-idx",slider_idx)
             .attr("data-n", n)
             .attr("data-set", idx)
-            .attr("data-sel",0)
+            .attr("data-sel",1)
             .attr('x',(n)*histo_bin_w)
             .attr('y',-yHisto(1)-1)
             .attr("height",yHisto(1))
@@ -678,14 +681,15 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
                       idx_lst.splice(remove_id, 1);
                     }
                 }
-                console.log(this);
+
+                console.log(idx_lst);
+
                 filter_set_idx = set;
                 ft_id = aFeature.id;
                 idx_lst_int = [];
                 for (var k=0; k<idx_lst.length; k++){idx_lst_int.push(parseInt(idx_lst[k]));}
                 ft_curr_range[filter_set_idx][ft_id] = idx_lst_int;
-                console.log("idx:", filter_set_idx, "ft", ft_id, ": ", ft_curr_range[filter_set_idx][ft_id]);
-                console.log("Categorical filter indexes:", idx_lst_int); //OSCAR pass to Python
+
                 makeMainBackendRequest();
 
             })     
@@ -762,7 +766,7 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
             var filter_idx_to_rm =  d3.select(this).attr("data-filteridx");
             var slider_idx_to_rm =  d3.select(this).attr("data-slideridx");
             var feature_idx_to_rm =  d3.select(this).attr("data-featureidx");
-            console.log("TO REMOVE", filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
+            // console.log("TO REMOVE", filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
             remove_filter_range(filter_idx_to_rm, slider_idx_to_rm, feature_idx_to_rm);
         });
 
