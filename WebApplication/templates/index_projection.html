@@ -154,6 +154,7 @@
       console.log("FT NAMES", ft_names);
       console.log("SHORT FT NAMES", short_ft_names);
       
+      // Contains ranges [min,max] for continuous, and index lists for categorical ex. [3,5,6]
       var ft_curr_range = [[],[],[]];
       reset_ft_curr_ranges(0);
       reset_ft_curr_ranges(1);
@@ -164,11 +165,17 @@
 
       
       function reset_ft_curr_ranges (idx){
-        // Generalize to many filter sets later
         console.log("Reseting ranges at idx: ", idx);
         var rangs = [];
         for (i=0; i<ft_names.length; i++){
-          rangs.push (feature_selector_input[i]['range']); 
+          // categorical
+          if (feature_selector_input[i]['cat'] == 1) {
+            rangs.push (feature_selector_input[i]['bin_ids']); 
+          }
+          // continuous
+          else{
+            rangs.push (feature_selector_input[i]['range']); 
+          }
         }
         ft_curr_range[idx] = rangs;
       }
@@ -427,14 +434,25 @@
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx = [];
           for (var j=0; j<ft_names.length; j++){
-            if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
-              modified_range_idx.push(j);
+            
+            // categorical
+            if (feature_selector_input[j]['cat'] == 1) {
+              if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['bin_ids']){
+                modified_range_idx.push(j);
+              }
             }
+            // continuous
+            else{
+              if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
+                modified_range_idx.push(j);
+              }
+            } 
           }
           console.log("modified range indexes:", modified_range_idx);
+          console.log("ft curr ranges", ft_curr_range[filter_set_idx]);
           
           httpRequest.onreadystatechange = alertMainBackend;
-          httpRequest.open('GET', 'main_backend_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&pred_range_1='+ pred_range[filter_set_idx] + '&ft_curr_range_1='+ ft_curr_range[filter_set_idx] 
+          httpRequest.open('GET', 'main_backend_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&pred_range_1='+ pred_range[filter_set_idx] + '&ft_curr_range_1='+ JSON.stringify(ft_curr_range[filter_set_idx])
             + '&modified_range_idx_1='+ modified_range_idx + '&filter_set_idx_1='+ filter_set_idx + '&doing_comparison='+ doing_comparison);
           httpRequest.send();
           return false;
@@ -449,18 +467,32 @@
           // Check the features that have been moved from their original range and pass those indexes to the backend
           var modified_range_idx_1 = [];
           var modified_range_idx_2 = [];
+          console.log("WTFFFFF");
           for (var j=0; j<ft_names.length; j++){
-            if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
-              modified_range_idx_1.push(j);
+            // categorical
+            if (feature_selector_input[j]['cat'] == 1) {
+              if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['bin_ids']){
+                modified_range_idx_1.push(j);
+              }
+              if (ft_curr_range[filter_set_idx_cmp][j] != feature_selector_input[j]['bin_ids']){
+                modified_range_idx_2.push(j);
+              }
             }
-            if (ft_curr_range[filter_set_idx_cmp][j] != feature_selector_input[j]['range']){
-              modified_range_idx_2.push(j);
-            }
+            // continuous
+            else{
+              if (ft_curr_range[filter_set_idx][j] != feature_selector_input[j]['range']){
+                modified_range_idx_1.push(j);
+              }
+              if (ft_curr_range[filter_set_idx_cmp][j] != feature_selector_input[j]['range']){
+                modified_range_idx_2.push(j);
+              }
+            } 
           }
           console.log("modified range indexes:", modified_range_idx_1, modified_range_idx_2);
+          console.log("ft curr ranges", ft_curr_range[filter_set_idx], ft_curr_range[filter_set_idx_cmp]);
           
           httpRequest.onreadystatechange = alertMainBackend;
-          httpRequest.open('GET', 'main_backend_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&confusion_mat_2='+ confusion_mat[filter_set_idx_cmp] + '&pred_range_1='+ pred_range[filter_set_idx] + '&pred_range_2='+ pred_range[filter_set_idx_cmp] + '&ft_curr_range_1='+ ft_curr_range[filter_set_idx] + '&ft_curr_range_2='+ ft_curr_range[filter_set_idx_cmp] 
+          httpRequest.open('GET', 'main_backend_req?selected_fts=['+req_arr+']&algorithm='+curr_alg + '&dim_red='+dim_red + '&directionality='+directionality + '&confusion_mat_1='+ confusion_mat[filter_set_idx] + '&confusion_mat_2='+ confusion_mat[filter_set_idx_cmp] + '&pred_range_1='+ pred_range[filter_set_idx] + '&pred_range_2='+ pred_range[filter_set_idx_cmp] + '&ft_curr_range_1='+ JSON.stringify(ft_curr_range[filter_set_idx]) + '&ft_curr_range_2='+ JSON.stringify(ft_curr_range[filter_set_idx_cmp])
             + '&modified_range_idx_1='+ modified_range_idx_1 + '&modified_range_idx_2='+ modified_range_idx_2 + '&filter_set_idx_1='+ filter_set_idx + '&filter_set_idx_2='+ filter_set_idx_cmp + '&doing_comparison='+ doing_comparison);
           httpRequest.send();
           return false;

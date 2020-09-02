@@ -202,8 +202,7 @@ function feature_selector_continuous(place, aFeature, idx, slider_idx){
 
                 var avg_x = xRangeScale(Math.round(percentage*full_range));
 
-                out_min = start + Math.round(percentage*full_range); // OSCAR: min val output
-
+                out_min = start + Math.round(percentage*full_range); 
                 cur_l = avg_x;
               
                 d3.select("#llab"+idx.toString() + "-" + slider_idx.toString()).attr('x',avg_x-lab_shift);
@@ -233,7 +232,7 @@ function feature_selector_continuous(place, aFeature, idx, slider_idx){
 
                 cur_r = avg_x;
 
-                out_max = start + Math.round(percentage*full_range); // OSCAR: max val output
+                out_max = start + Math.round(percentage*full_range);
             
 
                 d3.select("#rlab"+idx.toString() + "-" + slider_idx.toString()).attr('x',avg_x-lab_shift);
@@ -264,7 +263,7 @@ function feature_selector_continuous(place, aFeature, idx, slider_idx){
             filter_set_idx = this.dataset.filteridx;
             ft_curr_range[filter_set_idx][aFeature.id] = [out_low,out_high];
             console.log("idx:", filter_set_idx, "ft", aFeature.id, ": ", ft_curr_range[filter_set_idx][aFeature.id]);
-            makeMainBackendRequest();
+            makeMainBackendRequest(); //OSCAR
             
 
 
@@ -488,7 +487,6 @@ function feature_selector_continuous(place, aFeature, idx, slider_idx){
 
 function feature_selector_categorical(place, aFeature, idx, slider_idx){
 
-   // --- Use a mask to keep track of categoricals --- OSCAR !!
     var fineness = aFeature.den.length;
     mask = [];
     for (i = 0; i < fineness; i++){
@@ -668,9 +666,6 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
                     selection.attr("data-sel",1);
                     mask[n] = 1;
                     idx_lst.push(n);
-                    console.log(mask);
-                    console.log(idx_lst);
-
                 }
                 else if (sel == 1){
                     target.attr("opacity",0.4);
@@ -682,11 +677,16 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
                     if (remove_id > -1) {
                       idx_lst.splice(remove_id, 1);
                     }
-                    console.log(mask);
-                    console.log(idx_lst);
                 }
-
-                // makeMainBackendRequest();
+                console.log(this);
+                filter_set_idx = set;
+                ft_id = aFeature.id;
+                idx_lst_int = [];
+                for (var k=0; k<idx_lst.length; k++){idx_lst_int.push(parseInt(idx_lst[k]));}
+                ft_curr_range[filter_set_idx][ft_id] = idx_lst_int;
+                console.log("idx:", filter_set_idx, "ft", ft_id, ": ", ft_curr_range[filter_set_idx][ft_id]);
+                console.log("Categorical filter indexes:", idx_lst_int); //OSCAR pass to Python
+                makeMainBackendRequest();
 
             })     
             .on("mouseover",function(){

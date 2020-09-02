@@ -378,19 +378,11 @@ def main_site_backend_req():
 		else: modified_range_idx_1 = []
 		# print ("MODIFIED RANGE INDEXES", modified_range_idx_1)
 		
-		ft_curr_range_1 = request.args.get('ft_curr_range_1').split(',')
-		ft_curr_range_1 = [int(x) for x in ft_curr_range_1]  # The current ranges for each feature
-		temp_curr_range = []
-		idx = 0
+		ft_curr_range_1 = request.args.get('ft_curr_range_1') #.split(',')
+		ft_curr_range_1 = json.loads(ft_curr_range_1)
 
-		# -- Converts into tuple lise -- 
-		while idx <= len(ft_curr_range_1)-2:
-			temp_curr_range.append((ft_curr_range_1[idx], ft_curr_range_1[idx+1]))
-			idx += 2
-		
-		ft_curr_range_1 = temp_curr_range # Final current ranges as tuples
-
-		# print ("FT CURR RANGES", ft_curr_range_1)
+		print ("FT CURR RANGES", type(ft_curr_range_1), ft_curr_range_1) 
+		# STEFFEN: THIS SHOULD BE THE LIST WE WANT
 
 		if doing_comparison:
 			confusion_mat_2 = request.args.get('confusion_mat_2').split(',')
@@ -402,15 +394,11 @@ def main_site_backend_req():
 			else: modified_range_idx_2 = []
 			# print ("MODIFIED RANGE INDEXES CMP", modified_range_idx_2)
 			
-			ft_curr_range_2 = request.args.get('ft_curr_range_2').split(',')
-			ft_curr_range_2 = [int(x) for x in ft_curr_range_2]
-			temp_curr_range = []
-			idx = 0
-			while idx <= len(ft_curr_range_2)-2:
-				temp_curr_range.append((ft_curr_range_2[idx], ft_curr_range_2[idx+1]))
-				idx += 2
-			ft_curr_range_2 = temp_curr_range
-			# print ("FT CURR RANGE CMP", ft_curr_range_2)
+			ft_curr_range_2 = request.args.get('ft_curr_range_2') #.split(',')
+			ft_curr_range_2 = json.loads(ft_curr_range_2)
+
+			print ("FT CURR RANGE CMP", ft_curr_range_2)
+			# STEFFEN: THIS SHOULD BE THE LIST WE WANT
 
 
 		# STEFFEN	all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
@@ -459,10 +447,11 @@ def main_site_backend_req():
 					print("Categorical")
 					# [index_list, changed]
 					if (c in modified_range_idx):
-						filter_dict["3"].append([[1,2,4], 1])
-						# filter_dict["3"].append([ft_curr_range[c], 1])  // OSCAR: this should be the format
+						# filter_dict["3"].append([[1,2,4], 1])
+						filter_dict["3"].append([ft_curr_range[c], 1])  # OSCAR: this should be the format
 					else:
-						idx_lst = [x[0] for x in bins_lst]
+						# idx_lst = [x[0] for x in bins_lst]
+						filter_dict["3"].append([ft_curr_range[c], 0])
 
 				# -- Continuous Features -- 
 				else:
@@ -574,6 +563,8 @@ def main_site_backend_req():
 				
 
 		return json.dumps(ret_string)
+
+
 		# all_points = full_projection(reduced_data_path+"_"+"PCA"+".csv",preproc_path)  # REMOVE SOON  
 		# all_samples = [x for x in range(no_samples)]
 
