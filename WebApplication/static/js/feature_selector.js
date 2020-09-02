@@ -493,10 +493,14 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
         mask.push(0);
     }
 
-    var idx_lst2 = [],
-        idx_lst = aFeature.bin_ids;
+    var idx_lst = [];
 
-    console.log("HERE", idx_lst);
+    for (i = 0; i < aFeature.bin_ids.length; i++){
+        idx_lst.push(aFeature.bin_ids[i].toString());
+    }
+
+
+
 
     var section_h = 30,
         section_w = 150,
@@ -623,7 +627,7 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
             .attr("height",yHisto(inBin))
             .attr("width",histo_bin_w-histo_sep)
             .attr("fill",histo_col)
-            .attr("opacity",0.4)
+            .attr("opacity",0.7)
             .attr("stroke-width",1)
             .attr("stroke","white");
 
@@ -655,7 +659,8 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
             .attr("fill-opacity",0)
             .attr("stroke-width",1)
             .attr('stroke-dasharray', '6,3')
-            .attr("stroke","lightgrey")
+            .attr("stroke","grey")
+            // .attr("stroke","lightgrey")
             .on('click', function(){
                 var selection = d3.select(this);
                 set = selection.attr("data-set");
@@ -666,12 +671,15 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
                 var target = d3.select('#cat-'+set.toString()+'-'+id.toString()+'-'+n.toString());
                 if (sel == 0){
                     target.attr("opacity",0.7);
+                    selection.attr("stroke","grey");
                     selection.attr("data-sel",1);
                     mask[n] = 1;
                     idx_lst.push(n);
                 }
+                
                 else if (sel == 1){
                     target.attr("opacity",0.4);
+                    selection.attr("stroke","lightgrey");
                     selection.attr("data-sel",0);
                     mask[n] = 0;
                     
@@ -681,8 +689,6 @@ function feature_selector_categorical(place, aFeature, idx, slider_idx){
                       idx_lst.splice(remove_id, 1);
                     }
                 }
-
-                console.log(idx_lst);
 
                 filter_set_idx = set;
                 ft_id = aFeature.id;
