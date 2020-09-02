@@ -16,9 +16,8 @@
 
 function draw_comparison(complete_data, place, median_toggle, density_toggle, point_toggle, cf_toggle, detail_toggle) {
 
-    // -- Details on/off -- 
-    // detail_toggle = true;
-
+    // -- Which side to draw on -- 
+    single_side = 0;   // 0 - left || 1 - right
 
     function stagger_val(x,y,radius){
 
@@ -108,7 +107,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
 
     // --- Identify the number of sets to visualize --- 
-    var no_sets = complete_data.length;
+    var no_sets = complete_data.length,
+        fixed_sets = 2;
 
     var max_ft_name_len = 15;
 
@@ -137,11 +137,11 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
     // --- Establshing Dimensions ---
     var max_width = 1050,
-        one_width = (max_width/no_features)/no_sets;
+        one_width = (max_width/no_features)/fixed_sets;
     
     if (one_width > 50){one_width = 50;} // Ensures width is not too big
 
-    var col_width = one_width*no_sets,
+    var col_width = one_width * fixed_sets,
         half_col = one_width, // TO REMOVE
         separator = 0.3,
         padding = 10;
@@ -183,7 +183,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
         xDenScale = d3.scaleLinear()
             .domain([0, 1])
-            .rangeRound([0,bandwidth/no_sets - 5]);
+            .rangeRound([0,bandwidth/fixed_sets - 5]);
 
 
     // --- Creating base SVG --- 
@@ -253,7 +253,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     }
 
     // ======= Density Distribution ======= 
-    var single_bw = bandwidth/no_sets,
+    var single_bw = bandwidth/fixed_sets,
     start_point = single_bw/2,
 
     histo_bin_h = (height/no_bins);
@@ -299,6 +299,11 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
         this_den = this_set.den;
         this_med = this_set.median;
         this_meta = this_set.meta;
+
+        if (no_sets == 1 && single_side == 1){
+            s = 1;
+        }
+
 
         // console.log("----Set"+s.toString());
         // === Density & Median === 
