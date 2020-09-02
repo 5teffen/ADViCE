@@ -385,8 +385,8 @@ function confusion_matrix(elem, state, data, idx) {
         });
     
     document.getElementById("confusionMat-"+idx.toString()).setAttribute("width", document.getElementById('confMatG').getBoundingClientRect().width.toString() + 'px');
-    console.log( "CONF MATT", document.getElementById('confMatG').getBoundingClientRect().width );
-    console.log( "CONF MATT",  document.getElementById("confusionMat-"+idx.toString()).width );
+    // console.log( "CONF MATT", document.getElementById('confMatG').getBoundingClientRect().width );
+    // console.log( "CONF MATT",  document.getElementById("confusionMat-"+idx.toString()).width );
 }
 
 

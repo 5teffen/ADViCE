@@ -105,11 +105,11 @@ def query_similar_points(data, meta, idx, radius):
 	return mask
 
 # =========== Create Sample of Points ===========	
-def query_sampled_data(data, percentage):
+def query_sampled_data(data, remaining):
 	np.random.seed(1)
 	no_samples = data.shape[0]
 	mask = np.zeros(no_samples)
-	remaining = int(round((no_samples*percentage/100), 0))
+	# remaining = int(round((no_samples*percentage/100), 0))
 	mask[:remaining] = 1
 	np.random.shuffle(mask)
 	
