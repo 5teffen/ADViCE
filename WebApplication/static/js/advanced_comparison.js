@@ -99,6 +99,8 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
 
 
     function draw_curve(data,tri_w,shift,binh){
+        var PI = 3.14159265358979323;
+
         var lineGenerator = d3.line()
         .curve(d3.curveCardinal);
 
@@ -117,6 +119,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 y1_dec = Math.floor(d.scl_val*10);
                 y2_dec = Math.floor(d.scl_change*10);
 
+
                 if (shift_lst[n] != 0) {
                     res1 = height - shift_lst[n][y1_dec]+binh/2;
                     res2 = height - shift_lst[n][y2_dec]+binh/2;
@@ -129,18 +132,21 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     res2 = y2;
                     // -- Curvature based on difference -- 
                     diff = Math.abs(d.scl_val-d.scl_change) * tri_w*3;
-
                 }
+
+                adj = Math.abs(res1-res2)/6;
 
                 center_y = (res1+res2)/2;
                 
                 // -- Decide side --
                 if (d.dec == 0){
                     center_x = x1+diff;
+                    bool = true;
                 }
 
                 else {
                     center_x = x1-diff;
+                    bool = false;
                 }
 
                 // -- Stagger the points --
@@ -148,28 +154,83 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 center_x = new_pair[0]
                 center_y = new_pair[1]
 
-                points = [
-                    [x1, res1],
-                    [center_x, center_y],
-                    [x1, res2]
-                ];
+
+                // -- Approximate angles --
+                diff_new = Math.abs(center_x-x1);
+                half_dist = Math.abs(res1-res2)/2-adj;
+                // half_dist = Math.abs(center_y-res1)-adj;
+                hypo = Math.sqrt(half_dist*half_dist + diff_new*diff_new); //hypothenuse
+                theta = Math.asin(diff/hypo)*1.4; 
+
+                // -- Default -- 
+                // points = [
+                //     [x1, res1],
+                //     [center_x, center_y],
+                //     [x1, res2]
+                // ];
+
+                // -- Curve adjustments -- 
+                if (bool) {
+                    points = [
+                        [x1, res1],
+                        [center_x, center_y+adj],
+                        [center_x, center_y-adj],
+                        [x1, res2]
+                    ];
+                }
+
+                else{
+                    points = [
+                        [x1, res1],
+                        [center_x, center_y-adj],
+                        [center_x, center_y+adj],
+                        [x1, res2]
+                    ];
+                }
+
 
                 pathData = lineGenerator(points);
 
 
                 // -- Drawing triangles -- 
+                if (res1 > res2){
+                    size = 8;
+                    cx = x1 - Math.cos(PI/2 + theta)*size*0.2;
+                    cy = res2 + Math.sin(PI/2 + theta)*size*0.2;
 
-                if (d.dec == 0){
-                    one_tri = "M"+x1+","+res2+"L"+(x1-2)+","+(res2+4)+"L"+x1+","+res2
-                    +"L"+(x1+4)+","+(res2+2);
-                
+
+                    P1_x = cx + Math.cos(0 + theta)*size*0.5;
+                    P1_y = cy - Math.sin(0 + theta)*size*0.5;
+
+                    P2_x = cx + Math.cos(PI/2 + theta)*size;
+                    P2_y = cy - Math.sin(PI/2 + theta)*size;
+
+                    P3_x = cx + Math.cos(PI + theta)*size*0.5;
+                    P3_y = cy - Math.sin(PI + theta)*size*0.5;
+
+                    one_tri = "M"+P1_x+","+P1_y+"L"+P2_x+","+P2_y+"L"+P3_x+","+P3_y
+                    +"L"+P2_x+","+P2_y;
                 }
 
                 else {
-                    one_tri = "M"+x1+","+res1+"L"+(x1+1)+","+(res1-3)+"L"+x1+","+res1
-                    +"L"+(x1-3)+","+(res1-1);
-                
+                    size = 8;
+                    cx = x1 + Math.cos(PI/2 + theta)*size*0.2;
+                    cy = res2 - Math.sin(PI/2 + theta)*size*0.2;
+
+
+                    P1_x = cx + Math.cos(0 + theta)*size*0.5;
+                    P1_y = cy - Math.sin(0 + theta)*size*0.5;
+
+                    P2_x = cx - Math.cos(PI/2 + theta)*size;
+                    P2_y = cy + Math.sin(PI/2 + theta)*size;
+
+                    P3_x = cx + Math.cos(PI + theta)*size*0.5;
+                    P3_y = cy - Math.sin(PI + theta)*size*0.5;
+
+                    one_tri = "M"+P1_x+","+P1_y+"L"+P2_x+","+P2_y+"L"+P3_x+","+P3_y
+                    +"L"+P2_x+","+P2_y;
                 }
+
 
                 full_string = full_string + pathData + one_tri;
             
@@ -688,10 +749,12 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 .on('mouseover',function(){
                     d3.selectAll(".arrows").attr("stroke-opacity",0);
                     d3.select(this).attr("stroke-opacity",1)
+                    d3.select(this).attr("stroke-width", 3)
                 })
 
                 .on('mouseout',function(){
                     d3.selectAll(".arrows").attr("stroke-opacity",0.2);
+                    d3.selectAll(".arrows").attr("stroke-width", 1);
                     // d3.select(this).attr("stroke-opacity",0)
                 })
                 .on('click',function(d){
