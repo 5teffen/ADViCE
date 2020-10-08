@@ -3,6 +3,8 @@ from flask import request, jsonify, json, redirect
 from flask import render_template
 import pandas as pd
 import numpy as np
+from numpyencoder import NumpyEncoder
+
 
 from model import *
 from utils import *
@@ -642,7 +644,7 @@ def violin_site_req():
 			# --- Apply sorting ---
 			complete_data = apply_sort(sort_lst, complete_data)
 
-			ret_string = json.dumps(complete_data)
+			ret_string = json.dumps(complete_data, cls=NumpyEncoder)
 
 			return ret_string
 
