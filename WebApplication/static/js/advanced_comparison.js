@@ -22,7 +22,10 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     function stagger_val(x,y,radius){
 
             dx = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());
-            dy = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());
+            // dy = radius*Math.sqrt(-2*Math.log(Math.random()))*Math.cos(2*Math.PI*Math.random());
+            rand_y = Math.random();
+            dy = (rand_y-0.5)*15;
+            // console.log(dy);
             angle = 2*Math.PI*Math.random();
             x_out = x + dx;
             y_out = y + dy;
@@ -124,14 +127,14 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     res1 = height - shift_lst[n][y1_dec]+binh/2;
                     res2 = height - shift_lst[n][y2_dec]+binh/2;
                     // -- Curvature based on difference -- 
-                    diff = Math.abs(d.scl_val-d.scl_change) * tri_w*4;
+                    diff = Math.abs(d.scl_val-d.scl_change) * tri_w*3;
                 }
 
                 else{
                     res1 = y1;
                     res2 = y2;
                     // -- Curvature based on difference -- 
-                    diff = Math.abs(d.scl_val-d.scl_change) * tri_w*3;
+                    diff = Math.abs(d.scl_val-d.scl_change) * tri_w*2;
                 }
 
                 adj = Math.abs(res1-res2)/6;
@@ -139,7 +142,7 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 center_y = (res1+res2)/2;
                 
                 // -- Decide side --
-                if (d.dec == 0){
+                if (y1>y2){
                     center_x = x1+diff;
                     bool = true;
                 }
@@ -150,9 +153,14 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                 }
 
                 // -- Stagger the points --
-                new_pair = stagger_val(center_x,center_y,3)
-                center_x = new_pair[0]
-                center_y = new_pair[1]
+                stagger_amount = 3;
+                // if (Math.abs(diff)< stagger_amount){
+                //     stagger_amount = diff;
+                // }
+
+                new_pair = stagger_val(center_x,center_y,stagger_amount);
+                center_x = new_pair[0];
+                center_y = new_pair[1];
 
 
                 // -- Approximate angles --
@@ -263,7 +271,13 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
     for (i=0; i<no_sets; i++){
         no_samp = complete_data[0].data.length;
         no_samples_lst.push(no_samp);  // Different for each set
-        pt_opp_lst.push((1/no_samp)*50);
+
+        if (50/no_samp > 1){
+            pt_opp_lst.push(0.7);
+        }
+        else{
+            pt_opp_lst.push((1/no_samp)*50);
+        }
     }
 
 
@@ -599,13 +613,14 @@ function draw_comparison(complete_data, place, median_toggle, density_toggle, po
                     }
 
                     // y_shift = yScale(d.scl_val)-point_shift;
-                    // xy = stagger_val(x,y_shift,stagger_r);
+                    xy = stagger_val(xScale(d.name),y,stagger_r+1);
 
                     // Identify discrete features to jagger
-                    // if (this_meta[i].cat == 1){
-                    //     y = xy[1];
-                    //     // x = xy[0];
-                    // }
+                    if (this_meta[i].cat == 1){
+
+                        y = xy[1];
+                        x = xy[0];
+                    }
                     // x = xy[0]; // Jaggers all point in x-plane
 
                     shift_svg.append("g")
